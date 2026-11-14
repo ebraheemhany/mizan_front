@@ -3,7 +3,6 @@
 
 import { useLocale, useTranslations } from 'next-intl';
 import { ChevronDown, Languages, LogOut, Settings } from 'lucide-react';
-import { toast } from 'sonner';
 
 import {
   DropdownMenu,
@@ -13,7 +12,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { usePathname, useRouter } from '@/i18n/navigation';
-import { mockUser } from '@/lib/mock/user';
+import { useLogoutMutation, useSession } from '@/lib/auth/session';
 
 export default function UserMenu() {
   const t = useTranslations('UserMenu');
@@ -21,8 +20,12 @@ export default function UserMenu() {
   const locale = useLocale();
   const pathname = usePathname();
   const router = useRouter();
+  const session = useSession();
+  const logoutMutation = useLogoutMutation();
 
-  const initial = Array.from(mockUser.name)[0];
+  const user = { name: session.fullName, role: session.role };
+
+  const initial = Array.from(user.name)[0];
   const nextLocale = locale === 'ar' ? 'en' : 'ar';
 
   return (
@@ -33,10 +36,10 @@ export default function UserMenu() {
       >
         <span className="min-w-0 text-end">
           <span className="text-ink block max-w-36 truncate text-xs leading-4 font-extrabold">
-            {mockUser.name}
+            {user.name}
           </span>
           <span className="text-muted mt-0.5 block text-[10px] leading-4 font-semibold">
-            {tTop(`roles.${mockUser.role}`)}
+            {tTop(`roles.${user.role}`)}
           </span>
         </span>
         <span
@@ -61,10 +64,10 @@ export default function UserMenu() {
           </span>
           <div className="min-w-0">
             <p className="text-ink truncate text-xs font-extrabold">
-              {mockUser.name}
+              {user.name}
             </p>
             <p className="text-muted mt-0.5 truncate text-[11px] font-medium">
-              {tTop(`roles.${mockUser.role}`)}
+              {tTop(`roles.${user.role}`)}
             </p>
           </div>
         </div>
@@ -88,9 +91,9 @@ export default function UserMenu() {
 
         <DropdownMenuSeparator className="my-1.5" />
 
-        {/* TODO: تسجيل خروج حقيقي لما نعمل الـ auth */}
         <DropdownMenuItem
-          onClick={() => toast.info(t('toasts.soon'))}
+          onClick={() => logoutMutation.mutate()}
+          disabled={logoutMutation.isPending}
           className="text-danger focus:bg-danger-soft focus:text-danger data-highlighted:bg-danger-soft data-highlighted:text-danger rounded-btn min-h-10 cursor-pointer px-3 py-2 text-xs font-semibold transition-colors"
         >
           <LogOut className="size-4 rtl:rotate-180" />

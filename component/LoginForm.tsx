@@ -6,7 +6,9 @@ import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslations } from 'next-intl';
 import { Eye, EyeOff, Loader2 } from 'lucide-react';
-import { Link } from '@/i18n/navigation';
+import { Link, useRouter } from '@/i18n/navigation';
+import { useApiErrorMessage } from '@/lib/api/use-api-error';
+import { useLoginMutation } from '@/lib/auth/session';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
@@ -23,7 +25,12 @@ import {
 
 export default function LoginForm() {
   const t = useTranslations('Auth.login');
+  const router = useRouter();
+  const loginMutation = useLoginMutation();
+  const errorMessage = useApiErrorMessage();
   const [showPassword, setShowPassword] = useState(false);
+  // Errors from the server (wrong password, too many attempts...) shown above the button.
+  const [serverError, setServerError] = useState<string | null>(null);
 
   const schema = useMemo(
     () =>
@@ -44,9 +51,13 @@ export default function LoginForm() {
   const { isSubmitting } = form.formState;
 
   async function onSubmit(values: LoginValues) {
-    // TODO: استبدل ده بطلب تسجيل الدخول الحقيقي
-    await new Promise((r) => setTimeout(r, 800));
-    console.log(values);
+    setServerError(null);
+    try {
+      await loginMutation.mutateAsync(values);
+      router.replace('/dashboard');
+    } catch (error) {
+      setServerError(errorMessage(error));
+    }
   }
 
   const inputClass =
@@ -153,6 +164,15 @@ export default function LoginForm() {
             {t('forgot')}
           </Link>
         </div>
+
+        {serverError && (
+          <p
+            role="alert"
+            className="bg-danger-soft text-danger rounded-btn px-3 py-2.5 text-sm font-semibold"
+          >
+            {serverError}
+          </p>
+        )}
 
         {/* Actions */}
         <div className="space-y-3 pt-1">

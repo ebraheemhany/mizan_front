@@ -1643,7 +1643,9 @@
   "roles": {
     "owner": "Company owner",
     "accountant": "Accountant",
-    "staff": "Staff"
+    "staff": "Staff",
+    "sales": "Sales",
+    "viewer": "Viewer"
   },
   "toasts": {
     "soon": "This will be enabled in the next steps"
@@ -2413,5 +2415,20 @@
     }
   }
 }
-}
+},
+  "ApiErrors": {
+    "INVALID_CREDENTIALS": "Incorrect email or password",
+    "EMAIL_TAKEN": "An account with this email already exists",
+    "TOO_MANY_REQUESTS": "Too many attempts. Try again in {minutes} min",
+    "VALIDATION_ERROR": "Please check the details you entered",
+    "NETWORK_ERROR": "Can't reach the server. Check your connection and try again",
+    "NO_SESSION": "Please log in first",
+    "INVALID_REFRESH_TOKEN": "Your session has expired, please log in again",
+    "REFRESH_TOKEN_REUSED": "Your session was ended for security reasons, please log in again",
+    "INTERNAL_ERROR": "Something went wrong, please try again"
+  },
+  "Session": {
+    "registered": "Account created. Log in to get started",
+    "loading": "Loading…"
+  }
 }

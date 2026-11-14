@@ -6,7 +6,11 @@ import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslations } from 'next-intl';
 import { Loader2 } from 'lucide-react';
-import { Link } from '@/i18n/navigation';
+import { toast } from 'sonner';
+import { Link, useRouter } from '@/i18n/navigation';
+import { ApiError } from '@/lib/api/client';
+import { useApiErrorMessage } from '@/lib/api/use-api-error';
+import { useRegisterMutation } from '@/lib/auth/session';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
@@ -31,6 +35,10 @@ function FieldError({ message }: { message?: string }) {
 
 export default function RegisterForm() {
   const t = useTranslations('Auth.register');
+  const tSession = useTranslations('Session');
+  const router = useRouter();
+  const registerMutation = useRegisterMutation();
+  const errorMessage = useApiErrorMessage();
 
   const schema = useMemo(
     () =>
@@ -54,6 +62,7 @@ export default function RegisterForm() {
     control,
     watch,
     handleSubmit,
+    setError,
     formState: { errors, isSubmitting },
   } = useForm<RegisterValues>({
     resolver: zodResolver(schema),
@@ -70,9 +79,30 @@ export default function RegisterForm() {
   const password = watch('password');
 
   async function onSubmit(values: RegisterValues) {
-    // TODO: استبدل ده بطلب إنشاء الحساب الحقيقي
-    await new Promise((r) => setTimeout(r, 800));
-    console.log(values);
+    try {
+      // confirmPassword and terms are checked here in the form; the server doesn't need them.
+      await registerMutation.mutateAsync({
+        fullName: values.fullName,
+        companyName: values.companyName,
+        email: values.email,
+        password: values.password,
+      });
+      toast.success(tSession('registered'));
+      router.push('/login');
+    } catch (error) {
+      // Put the message under the field it belongs to when we know which one.
+      if (error instanceof ApiError && error.code === 'EMAIL_TAKEN') {
+        setError('email', { message: errorMessage(error) });
+      } else if (error instanceof ApiError && error.details?.fieldErrors) {
+        for (const [field, messages] of Object.entries(error.details.fieldErrors)) {
+          if (field in values) {
+            setError(field as keyof RegisterValues, { message: messages[0] });
+          }
+        }
+      } else {
+        toast.error(errorMessage(error));
+      }
+    }
   }
 
   return (
