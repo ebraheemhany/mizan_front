@@ -1,0 +1,2417 @@
+{
+    "Header": {
+    "logo": "Mizan",
+    "features": "Features",
+    "howItWorks": "How It Works",
+    "pricing": "Pricing",
+    "faq": "FAQ",
+    "login": "Log in",
+    "getStarted": "Get Started Free",
+    "changeLanguage": "Change language",
+    "openMenu": "Open menu"
+  },
+  "Footer": {
+    "brandName": "Mizan",
+    "description": "Arabic platform for client management, invoicing, and accounting for SMEs.",
+    "productTitle": "Product",
+    "features": "Features",
+    "pricing": "Pricing",
+    "freeTrial": "Free Trial",
+    "companyTitle": "Company",
+    "faq": "FAQ",
+    "contactUs": "Contact Us",
+    "legalTitle": "Legal",
+    "privacyPolicy": "Privacy Policy",
+    "terms": "Terms & Conditions",
+    "rights": "© 2026 Mizan. All rights reserved."
+  },
+  "CTA": {
+    "title": "Start organizing your clients and invoices today",
+    "subtitle": "Create your free account and send your first invoice within minutes.",
+    "buttonText": "Create Free Account"
+  },
+  "PricingPlan": {
+    "label": "Pricing",
+    "heading": "Plans that fit you",
+    "popular": "Most Popular",
+    "professional": "Professional",
+    "professionalPrice": "299",
+    "professionalPeriod": "EGP / month",
+    "professionalDescription": "For small and medium businesses that need full control.",
+    "professionalButton": "Choose this plan",
+    "free": "Free",
+    "freePrice": "0",
+    "freePeriod": "EGP / month",
+    "freeDescription": "For new users who want a simple free trial experience.",
+    "freeButton": "Start free",
+    "title": "Business",
+    "price": "799",
+    "period": "EGP / monthly",
+    "description": "For larger teams that need permissions and control.",
+    "feature1": "All Pro plan features",
+    "feature2": "Unlimited users",
+    "feature3": "Permissions and audit logs",
+    "feature4": "Priority support",
+    "buttonText": "Choose this plan",
+    "proFeature1": "Customer management",
+    "proFeature2": "Invoices and reports",
+    "proFeature3": "Excellent user experience",
+    "proFeature4": "Daily report generation",
+    "freeFeature1": "Order management",
+    "freeFeature2": "Sales tracking",
+    "freeFeature3": "Basic reports",
+    "freeFeature4": "Fast support"
+  },
+"HowItWorks": {
+    "sectionSubtitle": "How it works",
+    "sectionTitle": "Three steps to get started",
+    "step1Title": "Create your account",
+    "step1Desc": "Register your details and company data, setup completes in minutes.",
+    "step2Title": "Add your clients",
+    "step2Desc": "Enter your clients manually or import their list from a spreadsheet.",
+    "step3Title": "Send your first invoice",
+    "step3Desc": "Create and send the invoice, and track its status until paid."
+  },
+  "Features": {
+    "sectionSubtitle": "Features",
+    "sectionTitle": "Everything you need to manage sales and accounting",
+    "card1Title": "Client Management",
+    "card1Desc": "A complete profile for each client with data, communication history, invoices, and balance.",
+    "card2Title": "Price Quotations",
+    "card2Desc": "Create quotations, track status, and convert to an invoice with one click upon acceptance.",
+    "card3Title": "Expense Tracking",
+    "card3Desc": "Log and categorize expenses, attach receipts to keep all numbers documented.",
+    "card4Title": "Invoicing & Collection",
+    "card4Desc": "Professional VAT invoices, payment logging, and PDF export.",
+    "card5Title": "Deals Pipeline",
+    "card5Desc": "Visual board moving deals from initial contact to closing, with value for each stage.",
+    "card6Title": "Clear Reporting",
+    "card6Desc": "Profit & Loss summary, aging reports, in a language understandable for non-accountants."
+  },
+  "WhyMizan": {
+    "sectionSubtitle": "Why Mizan?",
+    "sectionTitle": "Scattered tools and unclear numbers",
+    "problem1Title": "Invisible Dues",
+    "problem1Desc": "At the end of the month, it's hard to know who hasn't paid yet and when collection is expected.",
+    "problem2Title": "Follow-ups lost in chats",
+    "problem2Desc": "Quotations are sent via messages then forgotten without a clear follow-up schedule.",
+    "problem3Title": "Scattered spreadsheets",
+    "problem3Desc": "Client and invoice data spread across files that are hard to update and review."
+  },
+  "Hero": {
+  "badge": "A business management platform for small and medium businesses",
+  "title": "From the first customer message to the payment in your account, all in one place",
+  "description": "Mizan brings customers, quotes, invoices, expenses and reports together in one simple platform, with no accounting knowledge required.",
+  "primaryCta": "Get started free",
+  "secondaryCta": "Try the demo",
+  "note": "No credit card needed · Set up in minutes"
+},
+"DashboardPreview": {
+  "title": "Your business at a glance",
+  "demoNotice": "The figures shown are illustrative sample data, not live business data.",
+  "nav": {
+    "home": "Home",
+    "customers": "Customers",
+    "deals": "Deals",
+    "invoices": "Invoices",
+    "expenses": "Expenses",
+    "reports": "Reports"
+  },
+  "stats": {
+    "title": "Financial overview",
+    "revenue": "Revenue",
+    "expenses": "Expenses",
+    "netProfit": "Net profit",
+    "receivable": "Receivable"
+  },
+  "chart": {
+    "title": "Revenue and expenses",
+    "revenue": "Revenue",
+    "expenses": "Expenses",
+    "months": {
+      "1": "Jan",
+      "2": "Feb",
+      "3": "Mar",
+      "4": "Apr",
+      "5": "May",
+      "6": "Jun"
+    }
+  },
+  "alerts": {
+    "title": "Needs attention",
+    "overdueInvoice": "Overdue invoice · Al Nile Co.",
+    "staleDeal": "Deal with no follow-up · Al Amal Office",
+    "pendingQuote": "Quote awaiting a reply"
+  },
+  "days": "{count, plural, one {# day} other {# days}}",
+  "currency": "EGP"
+},
+"FAQ": {
+  "eyebrow": "FAQ",
+  "title": "Quick answers",
+  "items": {
+    "q1": {
+      "q": "Do I need accounting knowledge to use Mizan?",
+      "a": "No. Accounting entries are recorded automatically in the background, and numbers are shown in plain language. An accountant can review the full details whenever needed."
+    },
+    "q2": {
+      "q": "Does Mizan support e-invoicing for the Egyptian Tax Authority?",
+      "a": "We are working on e-invoicing support and integration with the Tax Authority system, and we will announce it as soon as it is available."
+    },
+    "q3": {
+      "q": "Can I add multiple users with different permissions?",
+      "a": "Yes. You can invite your team members and set each user's permissions, so everyone sees only what is relevant to them."
+    },
+    "q4": {
+      "q": "Can I export my data and reports?",
+      "a": "Yes. You can export your data and reports as Excel or PDF at any time."
+    },
+    "q5": {
+      "q": "How secure is my financial data?",
+      "a": "We take your data security seriously: connections are encrypted, access is controlled by permissions, and each company's data is kept separate from others."
+    }
+  }
+},
+"Auth": {
+  "login": {
+    "title": "Welcome back",
+    "subtitle": "Sign in to keep track of your customers and invoices.",
+    "email": "Email",
+    "emailPlaceholder": "name@company.com",
+    "password": "Password",
+    "showPassword": "Show password",
+    "hidePassword": "Hide password",
+    "remember": "Remember me",
+    "forgot": "Forgot password?",
+    "submit": "Sign in",
+    "submitting": "Signing in...",
+    "demo": "Continue with a demo",
+    "noAccount": "Don't have an account?",
+    "register": "Create a free account",
+    "errors": {
+      "emailRequired": "Email is required",
+      "emailInvalid": "Enter a valid email address",
+      "passwordRequired": "Password is required",
+      "passwordMin": "Password must be at least 8 characters"
+    }
+  },
+  "showcase": {
+    "title": "All your customers and invoices in one place",
+    "subtitle": "Follow sales from the first contact to payment, and see your numbers clearly.",
+    "currency": "EGP",
+    "paid": { "title": "Invoice #1042 collected", "subtitle": "Al Nile Trading" },
+    "deal": { "title": "Deal moved to negotiation", "subtitle": "Al Amal Consulting" },
+    "reminder": { "title": "Reminder: follow up on a quote", "subtitle": "Today, 2:00 PM" }
+  },
+  "register": {
+  "title": "Create your free account",
+  "subtitle": "Start managing your customers and invoices in minutes.",
+  "fullName": "Full name",
+  "fullNamePlaceholder": "John Smith",
+  "companyName": "Company name",
+  "companyPlaceholder": "Acme Co.",
+  "email": "Email",
+  "emailPlaceholder": "name@company.com",
+  "password": "Password",
+  "confirmPassword": "Confirm password",
+  "showPassword": "Show password",
+  "hidePassword": "Hide password",
+  "strength": {
+    "weak": "Weak",
+    "fair": "Fair",
+    "good": "Good",
+    "strong": "Strong"
+  },
+  "terms": "I agree to the <terms>Terms and Conditions</terms> and the <privacy>Privacy Policy</privacy>",
+  "submit": "Create account",
+  "submitting": "Creating account...",
+  "haveAccount": "Already have an account?",
+  "login": "Sign in",
+  "errors": {
+    "fullNameRequired": "Full name is required",
+    "fullNameMin": "Name must be at least 3 characters",
+    "companyRequired": "Company name is required",
+    "emailRequired": "Email is required",
+    "emailInvalid": "Enter a valid email address",
+    "passwordRequired": "Password is required",
+    "passwordMin": "Password must be at least 8 characters",
+    "confirmRequired": "Please confirm your password",
+    "passwordMismatch": "Passwords do not match",
+    "termsRequired": "You must accept the terms to continue"
+  }
+},
+  "registerShowcase": {
+  "title": "Get started in three steps",
+  "subtitle": "After signing up, we guide you through setting up your company, adding your first customer and issuing your first invoice.",
+  "steps": {
+    "s1": { "title": "Set up your company", "description": "Name, currency and tax number." },
+    "s2": { "title": "Add your first customer", "description": "Manually or by importing a spreadsheet." },
+    "s3": { "title": "Issue your first invoice", "description": "And track its status from the dashboard." }
+    }
+  }
+},
+"Nav": {
+  "openMenu": "Open menu",
+  "menuTitle": "Navigation menu",
+  "dashboard": "Home",
+  "customers": "Customers",
+  "deals": "Deals",
+  "quotes": "Quotes",
+  "invoices": "Invoices",
+  "expenses": "Expenses",
+  "reports": "Reports",
+  "products": "Products & services",
+  "payments": "Payments",
+  "tasks": "Tasks & calendar",
+  "settings": "Settings",
+  "accounts": "Accounts & entries",
+  "auditLog": "Audit log",
+  "sectionComingSoon": "This section is being prepared and will be available soon."
+},
+"Customers": {
+  "title": "Customers",
+  "count": "{count, plural, one {# customer} other {# customers}}",
+  "import": "Import from Excel",
+  "export": "Export",
+  "importExport": {
+    "noCustomersToExport": "There are no customers in the current results to export.",
+    "exported": "Exported {count, plural, one {# customer} other {# customers}} to an Excel-compatible CSV file.",
+    "fileType": "Choose a CSV file saved from Excel.",
+    "emptyFile": "The file contains no customer rows.",
+    "missingNameColumn": "The file must include a customer name column.",
+    "noValidRows": "No rows were imported. Check the customer data in the file.",
+    "imported": "Imported {count, plural, one {# customer} other {# customers}}.",
+    "skippedRows": "Skipped {count, plural, one {# invalid row} other {# invalid rows}}.",
+    "readFailed": "Could not read the file. Make sure it is a valid CSV file."
+  },
+  "add": "Add customer",
+  "comingSoon": "This feature is coming soon",
+  "form": {
+    "title": "Add new customer",
+    "description": "Enter the customer's basic details to add them to your customer list.",
+    "cancel": "Cancel",
+    "submit": "Save customer"
+  },
+  "tabs": {
+    "all": "All",
+    "active": "Active",
+    "overdue": "Overdue",
+    "inactive": "Inactive"
+  },
+  "search": "Search by name, phone or email",
+  "currency": "EGP",
+  "activity": "{count, plural, =0 {Today} one {# day ago} other {# days ago}}",
+  "columns": {
+    "name": "Customer",
+    "contact": "Contact details",
+    "customer": "Customer",
+    "lastActivity": "Last activity",
+    "phone": "Phone",
+    "email": "Email",
+    "city": "City",
+    "owner": "Owner",
+    "balance": "Balance",
+    "status": "Status",
+    "activity": "Last activity"
+  },
+  "selectAll": "Select all customers on this page",
+  "selectRow": "Select {name}",
+  "actions": {
+    "open": "Actions",
+    "view": "View details",
+    "edit": "Edit",
+    "delete": "Move to trash"
+  },
+  "bulk": {
+    "selected": "{count, plural, one {# customer} other {# customers}} selected",
+    "remind": "Send payment reminder",
+    "assign": "Assign to owner",
+    "export": "Export selected",
+    "delete": "Move to trash"
+  },
+  "pagination": {
+    "label": "Pagination",
+    "showing": "Showing {from}–{to} of {total}",
+    "previous": "Previous page",
+    "next": "Next page",
+    "page": "Page {page}"
+  },
+  "filters": {
+    "owner": "Owner",
+    "ownerAll": "All",
+    "ownerSearch": "Search owners",
+    "ownerEmpty": "No owner found",
+    "balance": "Balance",
+    "balanceAll": "All",
+    "balanceDue": "Has balance",
+    "balanceZero": "No balance",
+    "clear": "Clear filters",
+    "sort": {
+      "recent": "Most recent activity",
+      "oldest": "Oldest activity",
+      "balance": "Highest balance",
+      "name": "Name"
+    }
+  },
+  "status": {
+    "active": "Active",
+    "overdue": "Overdue",
+    "inactive": "Inactive"
+  },
+  "empty": "No customers match your search",
+  "addSheet": {
+  "title": "Add customer",
+  "description": "Enter the new customer's details. Only the customer name is required.",
+  "close": "Close",
+  "name": "Customer name",
+  "namePlaceholder": "e.g. Al Nour Co.",
+  "contact": "Contact person",
+  "contactPlaceholder": "e.g. Ahmed Samir",
+  "phone": "Phone number",
+  "phonePlaceholder": "010 1234 5678",
+  "email": "Email",
+  "emailPlaceholder": "name@company.com",
+  "city": "City",
+  "cityPlaceholder": "e.g. Cairo",
+  "owner": "Account owner",
+  "ownerPlaceholder": "Enter the owner's name",
+  "taxNumber": "Tax number",
+  "taxNumberPlaceholder": "Optional",
+  "notes": "Notes",
+  "notesPlaceholder": "Anything that helps your team with this customer",
+  "submit": "Add customer",
+  "cancel": "Cancel",
+  "editTitle": "Edit customer",
+"editDescription": "Update the customer's details, then save your changes.",
+"saveChanges": "Save changes",
+  "errors": {
+    "nameRequired": "Customer name is required",
+    "nameMax": "Customer name is too long (80 characters max)",
+    "phoneInvalid": "Enter a valid phone number",
+    "emailInvalid": "Enter a valid email address",
+    "notesMax": "Notes must be 500 characters or fewer"
+  }
+},
+"toasts": {
+  "added": "Customer {name} added",
+  "updated": "Changes to {name} saved",
+  "deleted": "Customer {name} deleted",
+  "deletedMany": "{count, plural, one {# customer} other {# customers}} deleted",
+  "assigned": "{count, plural, one {# customer} other {# customers}} assigned to {owner}"
+},
+"deleteDialog": {
+  "title": "Delete customer “{name}”?",
+  "titleMany": "Delete {count, plural, one {# customer} other {# customers}}?",
+  "description": "The customer will be removed from the customer list. This action cannot be undone.",
+  "confirm": "Delete customer",
+  "cancel": "Keep customer"
+}
+},
+"Invoices": {
+  "title": "Invoices",
+  "summary": "{count, plural, one {# invoice} other {# invoices}} · Total outstanding {amount}",
+  "new": "New invoice",
+  "recurring": "Recurring invoices",
+  "export": "Export",
+  "stats": {
+    "outstanding": "Total outstanding",
+    "outstandingHint": "{count, plural, one {# unpaid invoice} other {# unpaid invoices}}",
+    "overdue": "Overdue",
+    "overdueHint": "{count, plural, one {# invoice past due} other {# invoices past due}}",
+    "collected": "Collected this month",
+    "collectedHint": "{change}% vs last month",
+    "drafts": "Drafts",
+    "draftsHint": "Worth {amount}"
+  },
+  "tabs": {
+  "all": "All",
+  "draft": "Draft",
+  "sent": "Sent",
+  "partial": "Partially paid",
+  "paid": "Paid",
+  "overdue": "Overdue",
+  "cancelled": "Cancelled"
+},
+"search": "Search by invoice number or customer",
+"filters": {
+  "customer": "Customer",
+  "customerAll": "All",
+  "period": {
+    "all": "All time",
+    "month": "This month",
+    "lastMonth": "Last month",
+    "year": "This year"
+  },
+  "customerSearch": "Search customers",
+  "customerEmpty": "No customer found",
+  "periodLabel": "Period",
+  "clear": "Clear filters",
+  "sort": {
+    "recent": "Newest",
+    "oldest": "Oldest",
+    "amount": "Highest amount",
+    "due": "Due soonest"
+  },
+  "sortLabel": "Sort by"
+},
+"empty": "No invoices match your search",
+"columns": {
+  "number": "Invoice no.",
+  "customer": "Customer",
+  "issueDate": "Issue date",
+  "dueDate": "Due date",
+  "total": "Total",
+  "remaining": "Remaining",
+  "status": "Status"
+},
+"status": {
+  "draft": "Draft",
+  "sent": "Sent",
+  "partial": "Partially paid",
+  "paid": "Paid",
+  "overdue": "Overdue",
+  "overdueDays": "Overdue {days, plural, one {# day} other {# days}}",
+  "cancelled": "Cancelled"
+},
+"selectAll": "Select all invoices",
+"selectRow": "Select invoice {number}",
+"actions": {
+  "open": "Actions",
+  "view": "View invoice",
+  "download": "Download PDF",
+  "recordPayment": "Record payment",
+  "cancel": "Cancel invoice"
+},
+"bulk": {
+  "selected": "{count, plural, one {# invoice} other {# invoices}} selected",
+  "remind": "Send reminder",
+  "export": "Export selected",
+  "cancel": "Cancel invoices"
+},
+"cancelDialog": {
+  "title": "Cancel invoice #{number}?",
+  "description": "Invoice {customer} will be cancelled and its remaining balance set to zero. This cannot be undone.",
+  "bulkTitle": "Cancel {count, plural, one {one invoice} other {# invoices}}?",
+  "bulkDescription": "Only selected invoices eligible for cancellation will be cancelled, and their remaining balances set to zero. This cannot be undone.",
+  "keep": "Keep invoice",
+  "confirm": "Confirm cancellation"
+},
+"toasts": {
+  "paymentRecorded": "Payment recorded on invoice #{number}",
+  "cancelled": "Invoice #{number} cancelled",
+  "cancelledMultiple": "{count, plural, one {One invoice cancelled} other {# invoices cancelled}}",
+  "exported": "{count, plural, one {One invoice exported} other {# invoices exported}}",
+  "reminderUnavailable": "Could not load reminder details for one of the selected invoices."
+}
+},
+"InvoiceDetail": {
+  "title": "Invoice",
+  "back": "Back to invoices",
+  "downloadPdf": "Download PDF",
+  "recordPayment": "Record payment",
+  "subtitle": "{customer} · Issued {date}",
+  "from": "From",
+  "to": "To",
+  "issueDate": "Issue date",
+  "dueDate": "Due date",
+  "taxNumber": "Tax number: {number}",
+  "columns": {
+    "item": "Item",
+    "quantity": "Qty",
+    "price": "Price",
+    "total": "Total",
+    "issuedBy": "Issued by {name}"
+  },
+  "summary": {
+    "subtotal": "Subtotal",
+    "vat": "VAT {rate}%",
+    "rounding": "Rounding",
+    "total": "Total",
+    "remaining": "Remaining"
+  },
+  "note": "Notes",
+  "quickActions": {
+  "title": "Quick actions",
+  "recordPayment": "Record payment",
+  "sendReminder": "Send payment reminder",
+  "copyLink": "Copy public link",
+  "preview": "Preview as the customer sees it",
+  "viewEntry": "View accounting entry"
+},
+"payments": {
+  "title": "Payments",
+  "empty": "No payments recorded on this invoice.",
+  "methods": {
+    "cash": "Cash",
+    "bank": "Bank transfer",
+    "card": "Card"
+  }
+},
+"history": {
+  "title": "History",
+  "events": {
+    "created": { "title": "Invoice created", "detail": "by {name}" },
+    "sent": { "title": "Sent by email", "detail": "to {email}" },
+    "viewed": { "title": "Customer viewed the invoice" },
+    "reminder": { "title": "Automatic reminder", "detail": "Sent via WhatsApp" },
+    "payment": { "title": "Payment recorded", "detail": "for {amount}" },
+    "reminderSent": { "title": "Payment reminder sent", "detail": "via {channel}" }
+  }
+},
+"attachments": {
+  "title": "Attachments",
+  "drop": "Drag files here or click to upload — PDF and JPG up to 10MB",
+  "remove": "Remove {name}",
+  "errors": {
+    "type": "Unsupported file type. Only PDF and JPG are allowed.",
+    "size": "File is larger than 10MB."
+  }
+},
+"paymentDialog": {
+  "title": "Record payment",
+  "description": "Invoice #{number} · {customer}",
+  "remainingNow": "Remaining now",
+  "remainingAfter": "Remaining after payment",
+  "paidInFull": "The invoice will be fully paid",
+  "amount": "Amount paid",
+  "payFull": "Pay full remaining",
+  "payHalf": "Half of remaining",
+  "date": "Payment date",
+  "pickDate": "Pick a date",
+  "method": "Payment method",
+  "note": "Note (optional)",
+  "notePlaceholder": "e.g. transfer reference",
+  "submit": "Record payment",
+  "cancel": "Cancel",
+  "close": "Close",
+  "errors": {
+    "amountRequired": "Amount is required",
+    "amountInvalid": "Enter a valid amount greater than zero",
+    "amountMax": "Amount is more than the invoice remaining",
+    "dateRequired": "Payment date is required",
+    "noteMax": "Note must be 200 characters or fewer"
+  }
+},
+
+"reminderDialog": {
+  "title": "Send payment reminder",
+  "description": "Invoice #{number} · {customer}",
+  "channel": "Send via",
+  "channels": {
+    "email": "Email",
+    "whatsapp": "WhatsApp"
+  },
+  "message": "Message",
+  "template": "Hello {customer},\n\nThis is a reminder that invoice {number} for {amount} is due on {dueDate}.\nPlease arrange payment at your earliest convenience.\n\nThank you for your business.",
+  "templateOverdue": "Hello {customer},\n\nThis is a reminder that invoice {number} for {amount} is past its due date ({dueDate}).\nPlease arrange payment at your earliest convenience.\n\nThank you for your business.",
+  "errors": {
+    "required": "Message is required",
+    "max": "Message is too long (600 characters max)"
+  },
+  "submit": "Send reminder",
+  "cancel": "Cancel",
+  "close": "Close"
+},
+"ledger": {
+  "title": "Accounting entry",
+  "description": "Invoice #{number} · Entries are generated automatically from the invoice and its payments.",
+  "close": "Close",
+  "empty": "There is no accounting entry for this invoice. Drafts and cancelled invoices are not posted.",
+  "entries": {
+    "invoice": "Invoice issue entry",
+    "payment": "Payment received entry"
+  },
+  "columns": {
+    "account": "Account",
+    "debit": "Debit",
+    "credit": "Credit",
+    "currency": "Currency"
+  },
+  "total": "Total",
+  "balanced": "Balanced",
+  "unbalanced": "Unbalanced",
+  "accounts": {
+    "cash": "Cash",
+    "bank": "Bank",
+    "card": "Card clearing",
+    "receivable": "Accounts receivable",
+    "vat": "VAT payable",
+    "revenue": "Sales revenue",
+    "rounding": "Rounding differences"
+  }
+},
+"preview": {
+  "title": "Preview as the customer sees it",
+  "description": "This is what {customer} will see when opening the invoice.",
+  "close": "Close"
+},
+"print": {
+  "footer": "This invoice was issued with Mizan"
+},
+"toasts": {
+  "linkCopied": "Link copied",
+  "linkFailed": "Could not copy the link",
+  "reminderSent": "Reminder sent to {recipient}"
+}
+},
+"InvoiceForm": {
+  "title": "New invoice",
+  "subtitle": "Create an invoice for a customer, then save it as a draft or send it.",
+  "back": "Back to invoices",
+  "details": {
+    "title": "Invoice details",
+    "customer": "Customer",
+    "customerPlaceholder": "Select a customer",
+    "customerSearch": "Search customers",
+    "customerEmpty": "No customer found",
+    "addCustomer": "Add a new customer",
+    "addCustomerNote": "This customer will be added to the current invoice only and will not be saved to the customer list.",
+    "customerName": "Customer name",
+    "customerNamePlaceholder": "Enter customer name",
+    "customerCity": "City (optional)",
+    "customerCityPlaceholder": "Enter city",
+    "createCustomer": "Add and select customer",
+    "issueDate": "Issue date",
+    "pickDate": "Pick a date",
+    "terms": "Payment terms",
+    "termsOptions": {
+      "d0": "On receipt",
+      "d15": "15 days",
+      "d30": "30 days",
+      "d60": "60 days"
+    },
+    "dueDate": "Due date"
+  },
+  "items": {
+    "title": "Items",
+    "description": "Description",
+    "descriptionPlaceholder": "e.g. Monthly support",
+    "quantity": "Qty",
+    "price": "Price",
+    "total": "Total",
+    "add": "Add item",
+    "remove": "Remove item {index}"
+  },
+  "notes": {
+    "title": "Notes",
+    "placeholder": "These notes appear to the customer at the bottom of the invoice"
+  },
+  "summary": {
+    "title": "Summary",
+    "subtotal": "Subtotal",
+    "vat": "VAT {rate}%",
+    "total": "Total",
+    "dueDate": "Due"
+  },
+  "actions": {
+    "saveSend": "Save and send",
+    "saveDraft": "Save as draft",
+    "cancel": "Cancel"
+  },
+  "errors": {
+    "customerRequired": "Select a customer",
+    "customerNameRequired": "Enter a customer name",
+    "dateRequired": "Issue date is required",
+    "descriptionRequired": "Item description is required",
+    "quantityInvalid": "Enter a quantity greater than zero",
+    "priceInvalid": "Enter a valid price",
+    "notesMax": "Notes must be 500 characters or fewer"
+  },
+  "toasts": {
+    "draftSaved": "Invoice saved as a draft",
+    "sent": "Invoice created and sent"
+  },
+  "fromQuote": {
+  "banner": "This invoice was prefilled from quote {number}. Review the details before saving.",
+  "view": "View quote",
+  "note": "Based on quote {number}",
+  "loading": "Loading quote details..."
+}
+},
+"Recurring": {
+  "title": "Recurring invoices",
+  "summary": "{count, plural, one {# template} other {# templates}} · Invoices are created automatically on schedule",
+  "back": "Back to invoices",
+  "new": "New template",
+  "stats": {
+    "mrr": "Monthly recurring revenue",
+    "mrrHint": "From {count, plural, one {# active template} other {# active templates}}",
+    "active": "Active templates",
+    "activeHint": "{count, plural, =0 {No paused templates} one {# paused template} other {# paused templates}}",
+    "upcoming": "Invoices in next 7 days",
+    "upcomingHint": "Worth {amount}"
+  },
+  "tabs": {
+    "all": "All",
+    "active": "Active",
+    "paused": "Paused",
+    "ended": "Ended"
+  },
+  "search": "Search by template or customer",
+  "columns": {
+    "template": "Template",
+    "frequency": "Frequency",
+    "amount": "Amount",
+    "next": "Next invoice",
+    "generated": "Created",
+    "status": "Status",
+    "toggle": "Turn on or off"
+  },
+  "frequency": {
+    "weekly": "Weekly",
+    "monthly": "Monthly",
+    "quarterly": "Every 3 months",
+    "yearly": "Yearly"
+  },
+  "status": {
+    "active": "Active",
+    "paused": "Paused",
+    "ended": "Ended"
+  },
+  "generated": "{count, plural, one {# invoice} other {# invoices}}",
+  "autoSend": "Sent automatically",
+  "autoDraft": "Saved as draft",
+  "pause": "Pause {name}",
+  "resume": "Resume {name}",
+  "toasts": {
+    "paused": "Template paused",
+    "resumed": "Template resumed",
+    "deleted": "Template deleted"
+  },
+  "empty": "No templates match your search",
+  "actions": {
+  "open": "Actions",
+  "edit": "Edit template",
+  "delete": "Delete template"
+},
+"deleteDialog": {
+  "title": "Delete template “{name}”?",
+  "description": "No new invoices will be created from this template. Invoices created earlier are not affected. This cannot be undone.",
+  "keep": "Keep template",
+  "confirm": "Yes, delete template"
+}
+  
+},
+"RecurringForm": {
+  "title": "Recurring invoice template",
+  "subtitle": "Set the customer, items and schedule, and Mizan will create the invoices automatically.",
+  "editTitle": "Edit template",
+  "editSubtitle": "Update the template details and schedule.",
+  "editNote": "Changes apply to upcoming invoices only. Invoices already created are not changed.",
+  "back": "Back to templates",
+  "details": {
+    "title": "Template details",
+    "name": "Template name",
+    "namePlaceholder": "e.g. Monthly support"
+  },
+  "schedule": {
+    "title": "Schedule",
+    "frequency": "Frequency",
+    "startDate": "First invoice date",
+    "end": "Ends",
+    "endOptions": {
+      "never": "Never",
+      "date": "On a date",
+      "count": "After a number of invoices"
+    },
+    "endDate": "End date",
+    "occurrences": "Number of invoices"
+  },
+  "delivery": {
+    "title": "Delivery",
+    "terms": "Payment terms after issue",
+    "mode": "When each invoice is created",
+    "modes": {
+      "send": "Send automatically",
+      "draft": "Save as draft"
+    },
+    "hints": {
+      "send": "The invoice is sent to the customer as soon as it is created.",
+      "draft": "A draft is created for you to review before sending."
+    }
+  },
+  "summary": {
+    "title": "Template summary",
+    "perInvoice": "Amount per invoice",
+    "upcoming": "Upcoming invoices",
+    "none": "No upcoming dates"
+  },
+  "actions": {
+    "save": "Save template",
+    "saveChanges": "Save changes",
+    "cancel": "Cancel"
+  },
+  "errors": {
+    "nameRequired": "Template name is required",
+    "nameMax": "Template name is too long (80 characters max)",
+    "endDateRequired": "Choose an end date",
+    "endDateAfter": "End date must be after the first invoice",
+    "occurrencesInvalid": "Enter a whole number from 1 to 120"
+  },
+  "toasts": {
+    "saved": "Template saved",
+    "updated": "Changes saved"
+  }
+},
+"Dashboard": {
+  "greeting": "Welcome, {name}",
+  "subtitle": "{date} · This month's summary",
+  "addCustomer": "Add customer",
+  "newDeal": "New deal",
+  "newInvoice": "New invoice",
+  "stats": {
+    "revenue": "Revenue",
+    "expenses": "Expenses",
+    "netProfit": "Net profit",
+    "receivable": "Receivable",
+    "change": "{change}% vs last month",
+    "overdueHint": "{amount} of it overdue"
+  },
+  "chart": {
+    "title": "Revenue and expenses",
+    "revenue": "Revenue",
+    "expenses": "Expenses",
+    "summary": "Chart of revenue and expenses over the last 6 months"
+  },
+  "attention": {
+    "title": "Needs attention",
+    "empty": "Everything looks good. Nothing needs follow-up.",
+    "invoiceOverdue": "Invoice #{number} is overdue",
+    "staleDeal": "Deal with no follow-up",
+    "pendingQuote": "Quote awaiting a reply",
+    "item": "{customer} · {amount}",
+    "days": "{count, plural, one {# day} other {# days}}"
+  },
+  "recent": {
+    "title": "Recent invoices",
+    "viewAll": "View all",
+    "columns": {
+      "number": "Invoice no.",
+      "customer": "Customer",
+      "date": "Date",
+      "amount": "Amount",
+      "status": "Status"
+    }
+  }
+},
+"CustomerDetail": {
+  "back": "Back to customers",
+  "newInvoice": "New invoice",
+  "owner": "Owner: {name}",
+  "edit": "Edit",
+  "stats": {
+    "balance": "Balance due",
+    "balanceOverdue": "Overdue",
+    "balanceDue": "Awaiting payment",
+    "balanceClear": "No balance",
+    "invoiced": "Total invoiced",
+    "invoicedHint": "{count, plural, =0 {No invoices} one {From # invoice} other {From # invoices}}",
+    "collected": "Collected",
+    "collectedHint": "Last activity: {when}"
+  },
+  "info": {
+    "title": "Customer details",
+    "contact": "Contact person",
+    "phone": "Phone",
+    "email": "Email",
+    "city": "City",
+    "taxNumber": "Tax number",
+    "owner": "Account owner"
+  },
+  "notes": {
+    "title": "Notes"
+  },
+  "invoices": {
+    "title": "Invoices",
+    "empty": "This customer has no invoices yet.",
+    "create": "Create invoice",
+    "columns": {
+      "number": "Invoice no.",
+      "date": "Issue date",
+      "due": "Due date",
+      "total": "Total",
+      "remaining": "Remaining",
+      "status": "Status"
+    }
+  }
+},
+"Deals": {
+  "title": "Deals pipeline",
+  "subtitle": "Drag a deal between stages to update its status",
+  "new": "New deal",
+  "stats": {
+    "pipeline": "Open deals value",
+    "pipelineHint": "Average deal {amount}",
+    "expected": "Expected to close",
+    "expectedHint": "Weighted by each stage",
+    "closed": "Closed this month",
+    "closedHint": "{count, plural, =0 {No deals} one {# deal} other {# deals}}",
+    "open": "Open deals",
+    "openHint": "{count, plural, =0 {No deals need follow-up} other {Need follow-up: #}}"
+  },
+  "filters": {
+    "owner": "Owner",
+    "ownerAll": "All",
+    "attention": "Needs follow-up",
+    "clear": "Clear filters"
+  },
+  "stages": {
+    "lead": "Lead",
+    "contacted": "Contacted",
+    "proposal": "Proposal",
+    "negotiation": "Negotiation",
+    "won": "Won"
+  },
+  "column": {
+    "expected": "Expected {amount}",
+    "empty": "Drag a deal here"
+  },
+  "card": {
+    "owner": "Owner: {name}",
+    "followUpToday": "Follow up today",
+    "awaiting": "Awaiting reply for {days}",
+    "stale": "No follow-up for {days}",
+    "days": "{count, plural, one {# day} other {# days}}"
+  },
+  "toasts": {
+    "moved": "“{title}” moved to {stage}",
+    "won": "“{title}” closed for {amount}",
+    "undo": "Undo",
+    "createInvoice": "Create invoice",
+    "added": "Deal “{title}” added",
+    "updated": "Changes to “{title}” saved",
+    "deleted": "“{title}” deleted"
+  },
+  "a11y": {
+    "instructions": "Press space to pick up the deal, use the arrow keys to move it between stages, then press space again to drop it, or Esc to cancel.",
+    "start": "Picked up deal {title}.",
+    "over": "Deal {title} is over the {stage} stage.",
+    "end": "Deal {title} moved to the {stage} stage.",
+    "cancel": "Move cancelled."
+  },
+  "addSheet": {
+  "title": "New deal",
+  "description": "Add a deal to the pipeline and it will appear in the stage you choose.",
+  "close": "Close",
+  "dealTitle": "Deal title",
+  "dealTitlePlaceholder": "e.g. Annual maintenance contract",
+  "value": "Deal value",
+  "stage": "Stage",
+  "owner": "Owner",
+  "ownerSearch": "Search for an owner",
+  "ownerEmpty": "No owner found",
+  "addOwner": "Add a new owner",
+  "ownerName": "Owner name",
+  "ownerNamePlaceholder": "e.g. Alex Morgan",
+  "createOwner": "Add owner",
+  "closeDate": "Expected close date",
+  "pickDate": "Pick a date",
+  "notes": "Notes",
+  "notesPlaceholder": "Anything that helps your team with this deal",
+  "expectedHint": "Close probability {percent} · Expected {amount}",
+  "submit": "Add deal",
+  "cancel": "Cancel",
+  "editTitle": "Edit deal",
+"editDescription": "Update the deal's details, then save your changes.",
+"saveChanges": "Save changes",
+  "errors": {
+    "titleRequired": "Deal title is required",
+    "titleMax": "Title is too long (80 characters max)",
+    "valueInvalid": "Enter a valid value greater than zero",
+    "dateRequired": "Expected close date is required",
+    "ownerNameRequired": "Owner name is required",
+    "notesMax": "Notes must be 500 characters or fewer"
+  }
+},
+"funnel": {
+  "title": "Conversion funnel",
+  "subtitle": "How many deals reached each stage, and the rate from the previous stage",
+  "reached": "{count, plural, one {# deal} other {# deals}}",
+  "overallLabel": "Overall conversion",
+  "overallHint": "From “{from}” to “{to}”",
+  "weakestLabel": "Biggest drop-off",
+  "weakestHint": "From “{from}” to “{to}”",
+  "empty": "Not enough deals to build the funnel.",
+  "note": "Estimated from each deal's current stage."
+},
+"lost": {
+  "action": "Mark as lost",
+  "reopen": "Reopen",
+  "moveTo": "Move to",
+  "menu": "Deal actions",
+  "zone": "Drop here to mark as lost",
+  "zoneLabel": "Lost deal",
+  "dialog": {
+    "title": "Mark deal as lost",
+    "description": "“{title}” · {customer} · {amount}",
+    "reason": "Why was it lost?",
+    "note": "Note (optional)",
+    "notePlaceholder": "Anything that helps your team on future deals",
+    "reasonRequired": "Choose a reason",
+    "noteMax": "Note must be 300 characters or fewer",
+    "confirm": "Confirm as lost",
+    "cancel": "Cancel",
+    "close": "Close"
+  },
+  "reasons": {
+    "price": "Price too high",
+    "competitor": "Chose a competitor",
+    "postponed": "Postponed the decision",
+    "noResponse": "Stopped responding",
+    "noNeed": "No longer needs it",
+    "other": "Other"
+  },
+  "card": {
+    "title": "Lost deals",
+    "summary": "{count, plural, one {# deal} other {# deals}} · Worth {amount}",
+    "reasonsTitle": "Loss reasons",
+    "empty": "No lost deals yet.",
+    "fromStage": "Lost at {stage}"
+  },
+  "toasts": {
+    "lost": "“{title}” marked as lost",
+    "reopened": "“{title}” reopened",
+    "undo": "Undo",
+    "updated": "Changes to “{title}” saved",
+"deleted": "“{title}” deleted"
+  }
+},
+"menu": {
+  "open": "Deal actions",
+  "edit": "Edit deal",
+  "moveTo": "Move to",
+  "lose": "Mark as lost",
+  "delete": "Delete deal"
+},
+"deleteDialog": {
+  "title": "Delete deal “{title}”?",
+  "description": "The deal will be permanently removed from the pipeline and left out of the numbers and funnel. This cannot be undone.",
+  "keep": "Keep deal",
+  "confirm": "Yes, delete deal"
+}
+},
+"Quotes": {
+  "title": "Quotes",
+  "summary": "{count, plural, one {# quote} other {# quotes}} · Acceptance rate {rate}",
+  "new": "New quote",
+  "demoNotice": "Demo only: no email is sent. Copy the customer link from a quote's actions to share it manually.",
+  "stats": {
+    "waiting": "Sent, awaiting reply",
+    "waitingHint": "{count, plural, =0 {No quotes} one {# quote} other {# quotes}}",
+    "accepted": "Accepted this month",
+    "acceptedHint": "{count, plural, =0 {No quotes} one {# quote} other {# quotes}}",
+    "expiring": "Expiring within a week",
+    "expiringHint": "{count, plural, =0 {No quotes} one {# quote} other {# quotes}}",
+    "rate": "Acceptance rate",
+    "rateHint": "Last 90 days",
+    "rateEmpty": "No decided quotes"
+  },
+  "tabs": {
+    "all": "All",
+    "draft": "Draft",
+    "sent": "Sent",
+    "accepted": "Accepted",
+    "rejected": "Rejected",
+    "expired": "Expired"
+  },
+  "search": "Search by quote number or customer",
+  "filters": {
+    "period": {
+      "all": "All time",
+      "month": "This month",
+      "lastMonth": "Last month",
+      "year": "This year"
+    },
+    "clear": "Clear filters"
+  },
+  "columns": {
+    "number": "Quote no.",
+    "customer": "Customer",
+    "date": "Date",
+    "validUntil": "Valid until",
+    "total": "Total",
+    "status": "Status"
+  },
+  "status": {
+    "draft": "Draft",
+    "sent": "Sent",
+    "expiringSoon": "Expiring soon",
+    "accepted": "Accepted",
+    "rejected": "Rejected",
+    "expired": "Expired"
+  },
+  "actions": {
+    "open": "Actions",
+    "statusActions": "Update quote status",
+    "send": "Send to customer",
+    "accept": "Mark as accepted",
+    "reject": "Mark as rejected",
+    "edit": "Edit draft",
+    "copyCustomerLink": "Copy customer link",
+    "convert": "Convert to invoice",
+    "duplicate": "Duplicate as draft",
+    "delete": "Delete quote",
+    "view": "View details"
+  },
+  "deleteDialog": {
+    "title": "Delete quote {number}?",
+    "description": "The draft quote will be permanently deleted. This cannot be undone.",
+    "keep": "Keep quote",
+    "confirm": "Yes, delete quote"
+  },
+  "toasts": {
+    "sent": "Quote {number} saved as sent. Share its link with {customer} manually.",
+    "accepted": "Quote {number} marked as accepted",
+    "rejected": "Quote {number} marked as rejected",
+    "duplicated": "New draft {number} created",
+    "deleted": "Quote {number} deleted",
+    "convert": "Convert to invoice",
+    "undo": "Undo",
+    "linkCopied": "Customer link copied",
+    "linkFailed": "Could not copy the link. Check your browser permissions."
+  },
+  "empty": "No quotes match your search"
+},
+"CustomerQuote": {
+  "title": "Quote {number}",
+  "intro": "Review the quote details, then choose to accept or reject it.",
+  "accept": "Accept quote",
+  "reject": "Reject quote",
+  "accepted": "This quote has been accepted. Contact the company for next steps.",
+  "rejected": "This quote has been rejected.",
+  "expired": "This quote has expired and can no longer be answered.",
+  "invalid": "This quote is unavailable. In this demo, open the link in the same browser where it was created.",
+  "loading": "Loading quote...",
+  "responded": "A response has already been recorded for this quote.",
+  "company": "Mezan",
+  "demoNotice": "Demo only: this link's data is stored in this browser, so it will not work on another device or browser."
+},
+"QuoteForm": {
+  "title": "New quote",
+  "subtitle": "Prepare a quote, then save it as a draft or send it to the customer.",
+  "demoNotice": "Demo only: no email is sent. After saving the quote as sent, copy the customer link and share it manually.",
+  "editTitle": "Edit quote draft",
+  "editSubtitle": "Update the draft details before sending it to the customer.",
+  "loading": "Loading draft...",
+  "draftUnavailable": "This draft is unavailable or has already been sent. Return to the quotes list.",
+  "back": "Back to quotes",
+  "details": {
+    "title": "Quote details",
+    "customer": "Customer",
+    "customerPlaceholder": "Select a customer",
+    "issueDate": "Quote date",
+    "validUntil": "Valid until",
+    "pickDate": "Pick a date"
+  },
+  "items": {
+    "title": "Quote items",
+    "description": "Description",
+    "descriptionPlaceholder": "e.g. Monthly support",
+    "quantity": "Qty",
+    "price": "Price",
+    "total": "Total",
+    "add": "Add item",
+    "remove": "Remove item {index}"
+  },
+  "notes": {
+    "title": "Notes",
+    "placeholder": "These notes appear to the customer below the quote"
+  },
+  "actions": {
+    "saveSend": "Save and send",
+    "saveDraft": "Save as draft",
+    "updateSend": "Save changes and send",
+    "updateDraft": "Save changes"
+  },
+  "errors": {
+    "issueDateRequired": "Quote date is required",
+    "validUntilRequired": "Quote expiration date is required",
+    "validUntilAfterIssue": "The expiration date must be after the quote date"
+  },
+  "toasts": {
+    "draftSaved": "Quote saved as a draft",
+    "draftUpdated": "Draft updated",
+    "sent": "Quote saved as sent. Share the customer link manually."
+  }
+},
+"QuoteDetail": {
+  "title": "Quote",
+  "subtitle": "{customer} · Issued {date}",
+  "back": "Back to quotes",
+  "actionsTitle": "Quick actions",
+  "loading": "Loading quote...",
+  "unavailable": "This quote does not exist or is no longer available.",
+  "validity": "This quote is valid until {date}.",
+  "defaultNote": "Prices are in EGP. Service begins after quote approval.",
+  "history": {
+    "title": "History",
+    "created": "Quote created",
+    "sent": "Quote sent to {customer}",
+    "accepted": "Customer accepted the quote",
+    "rejected": "Customer rejected the quote",
+    "expired": "Quote expired"
+  }
+},
+"Reports": {
+  "title": "Reports",
+  "basis": "Cash basis",
+  "periodLabel": "Period",
+  "quarterLabel": "Q{q} {year}",
+  "filter": {
+    "quickPeriods": "Quick periods",
+    "months": "Months"
+  },
+  "periods": {
+    "thisQuarter": "This quarter",
+    "thisYear": "This year"
+  },
+  "actions": {
+    "excel": "Excel",
+    "pdf": "PDF"
+  },
+  "tabs": {
+    "pnl": "Profit & Loss",
+    "balanceSheet": "Balance sheet",
+    "cashFlow": "Cash flow",
+    "aging": "Receivables aging",
+    "vat": "VAT",
+    "statement": "Customer statement"
+  },
+  "stats": {
+    "revenue": "Revenue",
+    "expenses": "Expenses",
+    "netProfit": "Net profit",
+    "cashBalance": "Cash balance",
+    "revenueHint": "{pct} vs {month}",
+    "margin": "Margin {pct}",
+    "cashHint": "Bank + cash on hand"
+  },
+  "toasts": {
+    "excelDownloaded": "Report downloaded as an Excel-compatible CSV file"
+  },
+  "export": {
+    "columns": {
+      "section": "Section",
+      "item": "Item",
+      "amount": "Amount",
+      "reference": "Reference",
+      "revenue": "Revenue",
+      "expenses": "Expenses",
+      "invoices": "Invoice count"
+    }
+  },
+  "comingSoon": "This tab is still being designed",
+
+"chart": {
+  "title": "Revenue vs expenses (EGP thousands)",
+  "revenue": "Revenue",
+  "expenses": "Expenses"
+},
+"pnl": {
+  "title": "Profit & loss statement",
+  "lines": {
+    "salesRevenue": "Sales revenue",
+    "costOfServices": "Cost of services",
+    "grossProfit": "Gross profit",
+    "salaries": "Salaries & wages",
+    "rent": "Rent & utilities",
+    "marketing": "Marketing & ads",
+    "netProfit": "Net profit"
+  }
+},
+"aging": {
+  "title": "Outstanding receivables aging",
+  "buckets": {
+    "notDue": "Not overdue",
+    "d1_30": "1–30 days",
+    "d31_60": "31–60 days",
+    "d60plus": "Over 60 days"
+  },
+  "cta": "Follow up on collection"
+},
+"vat": {
+  "title": "VAT summary",
+  "output": "Output VAT (collected)",
+  "input": "Input VAT (deductible)",
+  "due": "Net amount due",
+  "dueDate": "Filing date",
+  "note": "Figures are estimates. The official return is filed through the tax authority portal."
+},
+"topCustomers": {
+  "title": "Top customers by revenue",
+  "columns": {
+    "customer": "Customer",
+    "invoices": "Invoices",
+    "revenue": "Revenue",
+    "share": "Share"
+  }
+},
+
+"balanceSheet": {
+  "assets": "Assets",
+  "liabilities": "Liabilities",
+  "equity": "Equity",
+  "totalAssets": "Total assets",
+  "totalLiabilities": "Total liabilities",
+  "totalEquity": "Total equity",
+  "lines": {
+    "cash": "Cash (bank + on hand)",
+    "receivables": "Accounts receivable",
+    "fixedAssets": "Fixed assets",
+    "accountsPayable": "Accounts payable",
+    "vatPayable": "VAT payable",
+    "capital": "Share capital",
+    "retainedEarnings": "Retained earnings",
+    "currentProfit": "Current period profit"
+  }
+},
+"cashFlow": {
+  "summary": {
+    "opening": "Opening balance",
+    "openingHint": "Before this period's activity",
+    "netChange": "Net change in cash",
+    "netChangeHint": "Operating + investing + financing",
+    "closing": "Closing balance",
+    "closingHint": "Matches the cash balance"
+  },
+  "operating": "Operating activities",
+  "investing": "Investing activities",
+  "financing": "Financing activities",
+  "totalOperating": "Net operating cash flow",
+  "totalInvesting": "Net investing cash flow",
+  "totalFinancing": "Net financing cash flow",
+  "lines": {
+    "netProfit": "Net profit",
+    "receivablesChange": "Increase in receivables",
+    "payablesChange": "Increase in payables and VAT",
+    "equipment": "Equipment and asset purchases",
+    "ownerWithdrawals": "Owner withdrawals"
+  }
+},
+
+"agingTab": {
+  "stats": {
+    "total": "Total receivables",
+    "totalHint": "Open invoices",
+    "overdue": "Overdue",
+    "customers": "Customers overdue",
+    "customersHint": "With overdue balances"
+  },
+  "table": {
+    "title": "Receivables by customer",
+    "customer": "Customer",
+    "total": "Total"
+  }
+},
+"vatTab": {
+  "stats": {
+    "output": "Output VAT",
+    "outputHint": "Collected from customers",
+    "input": "Input VAT",
+    "inputHint": "Deducted from suppliers",
+    "due": "Net due",
+    "dueHint": "Payable to the tax authority"
+  },
+  "details": {
+    "title": "Calculation details",
+    "rate": "VAT rate",
+    "taxableSales": "Taxable sales",
+    "note": "Taxable sales = output VAT ÷ rate."
+  }
+},
+"statementTab": {
+  "customer": "Customer",
+  "stats": {
+    "opening": "Opening balance",
+    "openingHint": "Before this period's activity",
+    "invoiced": "Invoiced",
+    "invoicedHint": "Total debits",
+    "paid": "Paid",
+    "paidHint": "Total payments",
+    "closing": "Balance due",
+    "closingHint": "End of period"
+  },
+  "table": {
+    "title": "Account activity: {name}",
+    "date": "Date",
+    "description": "Description",
+    "debit": "Debit",
+    "credit": "Credit",
+    "balance": "Balance",
+    "opening": "Opening balance",
+    "closing": "Totals and balance due",
+    "types": {
+      "invoice": "Invoice",
+      "payment": "Payment"
+    }
+  }
+}
+},
+
+"Expenses": {
+  "title": "Expenses",
+  "summary": "{month} · {total}",
+  "actions": {
+    "new": "New expense",
+    "export": "Export"
+  },
+  "stats": {
+    "total": "Total expenses",
+    "totalHint": "{pct} vs {month}",
+    "topCategory": "Top category",
+    "topCategoryHint": "{amount} · {pct}",
+    "due": "Outstanding expenses",
+    "dueHint": "{count, plural, =0 {Nothing due} one {To 1 supplier} other {To # suppliers}}",
+    "netProfit": "Net profit",
+    "netProfitHint": "Revenue − expenses"
+  },
+  "categories": {
+    "salaries": "Salaries",
+    "rent": "Rent",
+    "purchases": "Purchases",
+    "marketing": "Marketing",
+    "utilities": "Utilities",
+    "software": "Software"
+  },
+  "toasts": {
+    "soon": "This will be enabled in the next steps",
+    "added": "Expense “{title}” added",
+    "undo": "Undo"
+  },
+
+"toolbar": {
+  "search": "Search expenses…",
+  "allCategories": "All categories",
+  "categoryLabel": "Category",
+  "periodLabel": "Period",
+  "clear": "Clear filters"
+},
+"periods": {
+  "thisMonth": "This month",
+  "lastMonth": "Last month",
+  "thisYear": "This year",
+  "all": "All time"
+},
+"table": {
+  "date": "Date",
+  "title": "Description",
+  "category": "Category",
+  "paidFrom": "Paid from",
+  "amount": "Amount",
+  "status": "Status"
+},
+"sources": {
+  "bank": "Bank",
+  "cash": "Cash",
+  "card": "Card"
+},
+"status": {
+  "paid": "Paid",
+  "due": "Due {date}",
+  "unpaid": "Unpaid"
+},
+"empty": "No expenses match these filters.",
+
+"breakdown": {
+  "title": "By category",
+  "empty": "No expenses this month."
+},
+
+"quickAdd": {
+  "title": "Quick add",
+  "fields": {
+    "title": "Description",
+    "amount": "Amount",
+    "category": "Category",
+    "date": "Date"
+  },
+  "placeholders": {
+    "title": "e.g. Internet bill"
+  },
+  "categories": {
+    "salaries": "Salaries",
+    "rent": "Rent",
+    "purchases": "Purchases",
+    "marketing": "Marketing",
+    "utilities": "Utilities",
+    "software": "Software"
+  },
+  "receipt": "Upload receipt photo",
+  "save": "Save expense",
+  "errors": {
+    "titleRequired": "Enter a description",
+    "amountInvalid": "Enter an amount above zero",
+    "dateRequired": "Pick a date"
+  }
+}
+},
+
+"Tasks": {
+  "title": "Tasks & calendar",
+  "summaryOpen": "{count, plural, =0 {No open tasks} one {1 open task} other {{text} open tasks}}",
+  "summaryOverdue": "{count, plural, =0 {Nothing overdue} other {{text} overdue}}",
+  "actions": {
+    "new": "New task"
+  },
+  "tabs": {
+    "all": "All",
+    "today": "Today",
+    "week": "This week",
+    "overdue": "Overdue",
+    "done": "Done"
+  },
+  "toasts": {
+    "soon": "This will be enabled in the next steps",
+    "completed": "Task “{title}” completed",
+"reopened": "Task “{title}” reopened",
+"undo": "Undo",
+"added": "Task “{title}” added"
+  },
+"list": {
+  "title": "Tasks",
+  "empty": "No tasks here."
+},
+"priorities": {
+  "urgent": "Urgent",
+  "important": "Important",
+  "normal": "Normal",
+  "done": "Done"
+},
+"due": {
+  "today": "Today",
+  "tomorrow": "Tomorrow",
+  "doneOn": "Done {date}"
+},
+"links": {
+  "customer": "Customer: {name}",
+  "deal": "Deal: {name}"
+},
+"calendar": {
+  "prev": "Previous month",
+  "next": "Next month",
+  "today": "Today",
+  "more": "+{count} more",
+  "addOn": "Add a task on {date}"
+},
+
+"form": {
+  "title": "New task",
+  "description": "Add the task details. It will show in the list and the calendar.",
+  "fields": {
+    "title": "Task title",
+    "due": "Due date",
+    "priority": "Priority",
+    "kind": "Type",
+    "link": "Linked to",
+    "linkName": "Name"
+  },
+  "placeholders": {
+    "title": "e.g. Follow up on customer payment",
+    "linkName": "Customer or deal name"
+  },
+  "priorities": {
+    "urgent": "Urgent",
+    "important": "Important",
+    "normal": "Normal"
+  },
+  "kinds": {
+    "meeting": "Meeting",
+    "quote": "Quote",
+    "collection": "Collection",
+    "visit": "Visit",
+    "deadline": "Deadline",
+    "admin": "Admin"
+  },
+  "linkTypes": {
+    "none": "None",
+    "customer": "Customer",
+    "deal": "Deal"
+  },
+  "save": "Save task",
+  "cancel": "Cancel",
+  "errors": {
+    "titleRequired": "Enter a task title",
+    "dueRequired": "Pick a date",
+    "linkNameRequired": "Enter a name"
+  }
+}
+},
+
+"TopBar": {
+  "search": "Search for anything…",
+  "notifications": "Notifications",
+  "roles": {
+    "owner": "Company owner",
+    "accountant": "Accountant",
+    "staff": "Staff"
+  },
+  "toasts": {
+    "soon": "This will be enabled in the next steps"
+  }
+},
+
+"Search": {
+  "title": "Search",
+  "description": "Search for a page, customer, task or expense",
+  "placeholder": "Type to search…",
+  "empty": "No results.",
+  "groups": {
+    "pages": "Pages",
+    "actions": "Quick actions",
+    "customers": "Customers",
+    "tasks": "Tasks",
+    "expenses": "Expenses"
+  },
+  "pages": {
+    "dashboard": "Dashboard",
+    "customers": "Customers",
+    "deals": "Deals",
+    "quotes": "Quotes",
+    "invoices": "Invoices",
+    "expenses": "Expenses",
+    "reports": "Reports",
+    "tasks": "Tasks & calendar"
+  },
+  "actions": {
+    "newInvoice": "New invoice",
+    "newQuote": "New quote"
+  }
+},
+
+"Notifications": {
+  "title": "Notifications",
+  "markAll": "Mark all as read",
+  "empty": "No new notifications.",
+  "items": {
+    "receivableOverdue": {
+      "title": "{title} has overdue balances",
+      "hint": "{amount} overdue"
+    },
+    "taskOverdue": {
+      "title": "Overdue task: {title}",
+      "hint": "Was due {date}"
+    },
+    "taskToday": {
+      "title": "Task due today: {title}",
+      "hint": "Due today"
+    },
+    "expenseDue": {
+      "title": "Expense due: {title}",
+      "hint": "{amount} · due {date}"
+    }
+  }
+},
+"UserMenu": {
+  "title": "User menu",
+  "settings": "Settings",
+  "logout": "Log out",
+  "switchTo": {
+    "ar": "العربية",
+    "en": "English"
+  },
+  "toasts": {
+    "soon": "This will be enabled in the next steps"
+  }
+},
+
+"PlanCard": {
+  "title": "Free plan",
+  "usage": "{used} of {limit} invoices this month",
+  "upgrade": "Upgrade plan",
+  "toasts": {
+    "soon": "This will be enabled in the next steps"
+  }
+},
+
+"Payments": {
+  "title": "Payments",
+  "summary": "{count, plural, =0 {No payments recorded} one {1 payment recorded} other {{text} payments recorded}}",
+  "actions": {
+    "export": "Export"
+  },
+  "stats": {
+    "collected": "Collected this month",
+    "collectedHint": "{pct} vs last month",
+    "pending": "Awaiting collection",
+    "pendingHint": "{count, plural, =0 {No invoices} one {1 invoice} other {{text} invoices}}",
+    "cheques": "Cheques pending clearance",
+    "chequesHint": "{count, plural, =0 {No cheques} one {1 cheque} other {{text} cheques}}",
+    "avgDays": "Average days to collect",
+    "avgHintBetter": "days · better than {prev} last month",
+    "avgHintWorse": "days · slower than {prev} last month",
+    "avgHintSame": "days · same as last month",
+    "avgHintNone": "days"
+  },
+  "toasts": {
+    "soon": "This will be enabled in the next steps",
+    "added": "Payment {number} recorded for {amount}",
+"undo": "Undo"
+  },
+
+"toolbar": {
+  "search": "Search by payment number or customer…",
+  "allMethods": "All methods",
+  "methodLabel": "Payment method",
+  "periodLabel": "Period",
+  "clear": "Clear filters"
+},
+"periods": {
+  "thisMonth": "This month",
+  "lastMonth": "Last month",
+  "thisYear": "This year",
+  "all": "All time"
+},
+"methods": {
+  "bankTransfer": "Bank transfer",
+  "cash": "Cash",
+  "instapay": "InstaPay",
+  "vodafoneCash": "Vodafone Cash",
+  "cheque": "Cheque"
+},
+"table": {
+  "number": "Payment no.",
+  "invoice": "Invoice",
+  "customer": "Customer",
+  "date": "Date",
+  "method": "Method",
+  "amount": "Amount"
+},
+"status": {
+  "label": "Status",
+  "cleared": "Collected",
+  "pending": "Pending"
+},
+"empty": "No payments match these filters.",
+
+"form": {
+  "title": "Record a payment",
+  "noInvoices": "No open invoices.",
+  "fields": {
+    "invoice": "Invoice",
+    "amount": "Amount",
+    "date": "Payment date",
+    "method": "Payment method",
+    "account": "Receiving account",
+    "reference": "Reference no.",
+    "note": "Note",
+    "currency": "Currency"
+  },
+  "placeholders": {
+    "reference": "Transaction or cheque number"
+  },
+  "methods": {
+    "bankTransfer": "Bank transfer",
+    "cash": "Cash",
+    "instapay": "InstaPay",
+    "vodafoneCash": "Vodafone Cash",
+    "cheque": "Cheque"
+  },
+  "accounts": {
+    "bankAhli": "National Bank — Current account",
+    "cashbox": "Cash box",
+    "wallet": "E-wallet"
+  },
+  "save": "Save payment",
+  "entryNote": "An accounting entry is created automatically: from {account} to the customer account.",
+  "errors": {
+    "invoiceRequired": "Pick an invoice",
+    "amountInvalid": "Enter an amount above zero",
+    "amountTooHigh": "Amount is more than the invoice balance",
+    "dateRequired": "Pick a date"
+  }
+},
+"reminders": {
+  "title": "Collection reminders",
+  "empty": "No overdue invoices.",
+  "late": "{count, plural, one {1 day overdue} other {{text} days overdue}}",
+  "whatsapp": "WhatsApp",
+  "noPhone": "No phone number for {customer}.",
+  "message": "Hello {customer}, a friendly reminder about invoice #{number} for {amount}, which is {days} days overdue. Kindly arrange payment at your earliest convenience. Thank you."
+}
+},
+"Products": {
+  "title": "Products & services",
+  "summary": "{count, plural, =0 {No items} one {1 item} other {{text} items}} · Used in invoices and quotes",
+  "actions": {
+    "new": "New item",
+    "import": "Import CSV",
+    "edit": "Edit",
+"delete": "Delete"
+  },
+  "tabs": {
+    "all": "All",
+    "service": "Services",
+    "product": "Products"
+  },
+  "toasts": {
+    "soon": "This will be enabled in the next steps",
+    "added": "Item “{name}” added",
+"updated": "Item “{name}” updated",
+"deleted": "Item “{name}” deleted",
+"undo": "Undo"
+  },
+ 
+"toolbar": {
+  "search": "Search by name or code",
+  "allCategories": "All categories",
+  "categoryLabel": "Category",
+  "clear": "Clear filters"
+},
+"categories": {
+  "software": "Software",
+  "support": "Support",
+  "consulting": "Consulting",
+  "devices": "Devices",
+  "network": "Networking",
+  "accessories": "Accessories"
+},
+"types": {
+  "service": "Service",
+  "product": "Product"
+},
+"table": {
+  "name": "Item",
+  "type": "Type",
+  "code": "Code",
+  "price": "Price",
+  "tax": "Tax",
+  "stock": "Stock",
+  "usage": "Usage",
+  "times": "{count, plural, one {once} other {{text} times}}",
+  "actions": "Actions"
+},
+"stock": {
+  "ok": "{count} in stock",
+  "low": "Low stock ({count})",
+  "out": "Out of stock"
+},
+"empty": "No items match these filters.",
+"form": {
+  "newTitle": "New item",
+  "editTitle": "Edit item",
+  "description": "Items appear in invoices and quotes.",
+  "fields": {
+    "name": "Item name",
+    "type": "Type",
+    "category": "Category",
+    "code": "Code",
+    "price": "Price",
+    "tax": "Tax %",
+    "stock": "Stock",
+    "lowStockAt": "Low-stock alert at"
+  },
+  "placeholders": { "name": "e.g. WiFi 6 router" },
+  "saveNew": "Add item",
+  "saveEdit": "Save changes",
+  "cancel": "Cancel",
+  "errors": {
+    "nameRequired": "Enter the item name",
+    "codeRequired": "Enter a code",
+    "codeTaken": "This code is used by another item",
+    "priceInvalid": "Enter a valid price",
+    "taxInvalid": "Enter a rate between 0 and 100",
+    "stockInvalid": "Enter a valid number"
+  }
+},
+"importExport": {
+  "fileType": "Choose a CSV file.",
+  "emptyFile": "The CSV file has no item rows.",
+  "missingColumns": "Missing required columns: {columns}",
+  "noValidRows": "No valid, unique items were found in the CSV file.",
+  "imported": "Imported {count, plural, one {1 item} other {{count} items}}.",
+  "skippedRows": "Skipped {count, plural, one {1 invalid or duplicate row} other {{count} invalid or duplicate rows}}.",
+  "readFailed": "Could not read the CSV file. Check its format and try again."
+},
+"deleteDialog": {
+  "title": "Delete “{name}”?",
+  "description": "The item will be removed from the list. Existing invoices and quotes are not affected.",
+  "keep": "Keep",
+  "confirm": "Delete"
+}
+},
+"Settings": {
+  "title": "Settings & permissions",
+  "description": "Company, users and billing settings",
+  "actions": {
+    "save": "Save changes"
+  },
+  "tabs": {
+    "company": "Company",
+    "taxes": "Taxes & currency",
+    "numbering": "Numbering",
+    "template": "Invoice template",
+    "users": "Users",
+    "notifications": "Notifications",
+    "integrations": "Integrations",
+    "security": "Security",
+    "subscription": "Subscription"
+  },
+  "company": {
+    "title": "Company details",
+    "description": "Shown on invoices and quotes",
+    "uploadLogo": "Upload logo",
+    "logoHint": "Max 2MB · SVG or PNG",
+    "logoInvalid": "The logo must be a PNG or SVG under 2MB.",
+    "fields": {
+      "name": "Company name",
+      "taxNumber": "Tax number",
+      "commercialRegister": "Commercial register",
+      "phone": "Phone number",
+      "address": "Address"
+    },
+    "errors": {
+      "nameRequired": "Enter the company name",
+      "taxNumberInvalid": "Tax number is 9 digits, e.g. 412-558-903",
+      "registerInvalid": "Digits only",
+      "phoneInvalid": "Enter a valid phone number"
+    }
+  },
+  "toasts": {
+    "saved": "Changes saved",
+    "noChanges": "No changes to save",
+    "soon": "This section will be built in the next steps"
+  },
+  
+"taxes": {
+  "title": "Taxes & currency",
+  "vat": "VAT 14%",
+  "vatHint": "Added automatically to invoices",
+  "withholding": "Withholding & addition tax",
+  "withholdingHint": "For corporate customers",
+  "currency": "Base currency",
+  "currencies": {
+    "EGP": "Egyptian pound (EGP)",
+    "USD": "US dollar ($)",
+    "SAR": "Saudi riyal (SAR)",
+    "AED": "UAE dirham (AED)"
+  },
+  "fiscalStart": "Fiscal year starts",
+  "fiscalStartOption": "{month} {day}"
+},
+"numbering": {
+  "title": "Numbering & terms",
+  "invoicePrefix": "Invoice prefix",
+  "invoiceNext": "Next number",
+  "quotePrefix": "Quote prefix",
+  "quoteNext": "Next number",
+  "paymentTerms": "Default payment terms",
+  "terms": {
+    "d0": "On receipt",
+    "d15": "15 days",
+    "d30": "30 days",
+    "d45": "45 days",
+    "d60": "60 days"
+  },
+  "preview": "Next invoice: {value}",
+  "errors": {
+    "prefixInvalid": "Letters, digits and dashes only (up to 10)",
+    "numberInvalid": "Enter a whole number above zero"
+  }
+},
+"template": {
+  "title": "Invoice template",
+  "description": "Choose the look your customers see",
+  "styles": {
+    "classic": "Classic",
+    "modern": "Modern",
+    "minimal": "Minimal"
+  },
+  "active": "Active",
+  "footer": "Invoice footer",
+  "errors": {
+    "footerTooLong": "Footer is longer than 200 characters"
+  }
+},
+"users": {
+  "title": "Users",
+  "count": "{count, plural, one {1 member} other {{text} members}}",
+  "inviteButton": "Invite user",
+  "pendingInvite": "Pending invitation",
+  "pendingBadge": "Awaiting acceptance",
+  "roles": {
+    "owner": "Owner",
+    "accountant": "Accountant",
+    "sales": "Sales",
+    "viewer": "Viewer"
+  },
+  "matrix": {
+    "title": "Permissions matrix",
+    "description": "What each role can do",
+    "permission": "Permission",
+    "allowed": "Allowed",
+    "denied": "Not allowed",
+    "perms": {
+      "viewCustomers": "View customers and deals",
+      "editCustomers": "Create and edit customers",
+      "issueInvoices": "Issue invoices",
+      "recordPayments": "Record payments",
+      "expenses": "Expenses and entries",
+      "reports": "Financial reports",
+      "settings": "Settings and users",
+      "deleteData": "Delete data"
+    }
+  },
+  "invite": {
+    "title": "Invite a user",
+    "description": "They will get an email invitation to join the company account.",
+    "fields": { "name": "Name", "email": "Email", "role": "Role" },
+    "send": "Send invitation",
+    "cancel": "Cancel",
+    "errors": {
+      "nameRequired": "Enter the name",
+      "emailInvalid": "Enter a valid email",
+      "emailTaken": "This email is already on the list"
+    }
+  },
+  "toasts": {
+    "invited": "Invitation sent to {email}",
+    "undo": "Undo"
+  }
+},
+"notifications": {
+  "title": "Notifications",
+  "items": {
+    "overdueInvoice": { "label": "Overdue invoice", "hint": "Daily alert for overdue ones" },
+    "newPayment": { "label": "New payment", "hint": "When any payment is recorded" },
+    "taskReminder": { "label": "Task reminder", "hint": "One hour before the deadline" },
+    "weeklyDigest": { "label": "Weekly digest", "hint": "Sent every Saturday" }
+  }
+},
+"integrations": {
+  "title": "Integrations",
+  "soon": "Coming soon",
+  "items": {
+    "whatsapp": { "label": "WhatsApp Business", "hint": "Send invoices and reminders" },
+    "paymentGateway": { "label": "Payment gateway (Fawry / InstaPay)", "hint": "Accept payment from the invoice link" },
+    "eta": { "label": "ETA e-invoicing", "hint": "Link with the Egyptian Tax Authority" },
+    "calendar": { "label": "Calendar", "hint": "Sync tasks with Google Calendar" }
+  }
+},
+"security": {
+  "title": "Security",
+  "twoFactor": {
+    "title": "Two-factor authentication",
+    "hint": "Code via app or SMS",
+    "on": "Two-factor authentication enabled",
+    "off": "Two-factor authentication disabled"
+  },
+  "autoLogout": {
+    "title": "Auto sign-out",
+    "hint": "After 30 minutes of inactivity",
+    "on": "Auto sign-out enabled",
+    "off": "Auto sign-out disabled"
+  },
+  "password": {
+    "label": "Password",
+    "hint": "We recommend changing it regularly",
+    "change": "Change",
+    "title": "Change password",
+    "description": "Choose a strong password you don't use anywhere else.",
+    "current": "Current password",
+    "next": "New password",
+    "confirm": "Confirm new password",
+    "cancel": "Cancel",
+    "save": "Save password",
+    "close": "Close",
+    "success": "Password changed",
+    "errors": {
+      "passwordRequired": "This field is required",
+      "passwordMin": "Password must be at least 8 characters",
+      "confirmRequired": "Please confirm your password",
+      "passwordMismatch": "Passwords do not match"
+    }
+  }
+},
+"subscription": {
+  "title": "Subscription",
+  "currentPlan": "Current plan",
+  "nextRenewal": "Next renewal",
+  "users": "Users",
+  "usersOf": "{used} of {total}",
+"plans": {
+  "free": "Free",
+  "pro": "Professional",
+  "business": "Business"
+},
+"upgradeDialog": {
+  "title": "Upgrade plan",
+  "description": "Pick the plan that fits your company size. You can change it anytime.",
+  "close": "Close",
+  "currentBadge": "Current plan",
+  "currentPlan": "Your current plan",
+  "lowerPlan": "Lower than your plan",
+  "popular": "Most popular",
+  "upgradeTo": "Upgrade to {plan}",
+  "free": "Free",
+  "perMonth": "/ month",
+  "success": "Upgrade to the {plan} plan requested",
+  "features": {
+    "users": "Up to {count} users",
+    "invoices10": "10 invoices per month",
+    "invoices20": "20 invoices per month",
+    "invoicesUnlimited": "Unlimited invoices",
+    "basicReports": "Basic reports",
+    "fullReports": "All financial reports",
+    "recurring": "Recurring invoices",
+    "allPro": "Everything in Professional",
+    "advancedPermissions": "Advanced team permissions",
+    "prioritySupport": "Priority support"
+  }
+},
+  "upgrade": "Upgrade plan",
+  "billingHistory": "Billing history",
+  "comingSoon": "This section is coming soon",
+  "history": {
+  "title": "Billing history",
+  "description": "Your subscription invoices.",
+  "item": "{plan} plan subscription (monthly)",
+  "empty": "No invoices yet",
+  "download": "Download invoice",
+  "downloadStarted": "Invoice downloaded",
+  "downloadFailed": "Could not download the invoice",
+  "invoiceTitle": "Subscription invoice",
+  "date": "Date",
+  "total": "Total",
+  "statusLabel": "Status",
+  "close": "Close billing history",
+  "status": {
+    "paid": "Paid",
+    "pending": "Pending",
+    "failed": "Failed"
+  }
+}
+}
+},
+"AuditLog": {
+  "title": "Audit log",
+  "description": "Every change to company data is recorded and cannot be deleted",
+  "export": "Export",
+  "exported": "{count} entries exported",
+  "searchPlaceholder": "Search the log",
+  "empty": "No matching entries",
+  "system": "System",
+  "filters": {
+    "userLabel": "User",
+    "actionLabel": "Action type",
+    "periodLabel": "Period",
+    "allUsers": "All users",
+    "allActions": "All actions",
+    "period": { "d7": "Last 7 days", "d30": "Last 30 days", "d90": "Last 90 days" }
+  },
+  "columns": {
+    "time": "Time",
+    "user": "User",
+    "action": "Action",
+    "item": "Item",
+    "details": "Details",
+    "ip": "IP"
+  },
+  "actions": {
+    "create": "Create",
+    "update": "Update",
+    "payment": "Payment",
+    "send": "Send",
+    "delete": "Delete",
+    "permissions": "Permissions",
+    "login": "Login"
+  },
+  "items": {
+    "invoice": "Invoice #{ref}",
+    "customer": "Customer: {ref}",
+    "expense": "Expense",
+    "user": "User: {ref}",
+    "account": "Account"
+  },
+  "details": {
+    "draftInvoice": "Draft worth {amount}",
+    "customerPhoneChanged": "Phone number changed",
+    "customerUpdated": "Customer details updated",
+    "paymentRecorded": "Payment of {amount} recorded",
+    "autoReminder": "Automatic WhatsApp reminder",
+    "deleteExpense": "Deleted “{name}” — {amount}",
+    "expenseAdded": "Expense added for {amount}",
+    "roleChangedAccountant": "Role changed to accountant",
+    "loginNewDevice": "Signed in from a new device",
+    "loginSuccess": "Signed in"
+  }
+},
+"Accounts": {
+  "title": "Accounts & journal",
+  "description": "For accountants - entries are created automatically from invoices, payments and expenses",
+  "export": "Export",
+  "exported": "Chart of accounts exported",
+  "manualEntry": "Manual entry",
+  "comingSoon": "This section is coming in the next step",
+  "tabs": {
+    "tree": "Chart of accounts",
+    "journal": "Journal entries",
+    "trial": "Trial balance",
+    "close": "Period close"
+  },
+  "tree": {
+    "title": "Chart of accounts",
+    "code": "Code",
+    "name": "Account name",
+    "type": "Type",
+    "balance": "Balance"
+  },
+  "types": {
+    "asset": "Assets",
+    "liability": "Liabilities",
+    "equity": "Equity",
+    "revenue": "Revenue",
+    "expense": "Expenses"
+  },
+  "names": {
+    "cash": "Cash",
+    "bank": "National Bank",
+    "customers": "Customers",
+    "suppliers": "Suppliers",
+    "vat": "VAT",
+    "capital": "Capital",
+    "sales": "Sales revenue",
+    "payroll": "Salaries & wages",
+     "utilities": "Utilities expense"
+  },
+  "entries": {
+    "title": "Latest entries",
+    "number": "Entry",
+    "date": "Date",
+    "description": "Description",
+    "debit": "Debit",
+    "credit": "Credit",
+    "invoicePayment": "Payment of invoice #{ref}",
+    "invoiceIssue": "Issue of invoice #{ref}",
+    "electricity": "Electricity bill",
+    "payroll": "{month} payroll"
+  },
+  "trial": {
+    "title": "Trial balance — {month}",
+    "account": "Account",
+    "debit": "Debit",
+    "credit": "Credit",
+    "total": "Total",
+     "manual": "{text}",
+    "rows": {
+      "cashBank": "Cash and bank",
+      "customers": "Customers",
+      "expenses": "Expenses",
+      "suppliersTax": "Suppliers and tax",
+      "capital": "Capital",
+      "revenue": "Revenue"
+    }
+  },
+  "close": {
+    "title": "Period close",
+    "fiscalYear": "Fiscal year {year}",
+    "status": { "closed": "Closed", "open": "Open", "running": "Running" },
+    "unposted": "{count, plural, one {{text} unposted entry} other {{text} unposted entries}}",
+    "hints": {
+      "closed": "Closed {date} · its entries can't be edited",
+      "open": "Current period · {unposted}",
+      "year": "Ends {date}"
+    },
+    "closeButton": "Close {month}",
+    "confirmTitle": "Close {month}?",
+    "confirmDescription": "After closing, entries in this period can't be added or edited.",
+    "confirmWithDraft": "This period has {unposted}. After closing, entries in it can't be added or edited.",
+    "cancel": "Cancel",
+    "confirm": "Close period",
+    "closed": "{month} closed",
+    "hasDrafts": "Post the draft entries before closing"
+  },
+
+"journal": {
+  "searchPlaceholder": "Search by entry number or description",
+  "sourceLabel": "Source",
+  "statusLabel": "Status",
+  "allSources": "All sources",
+  "allStatuses": "All statuses",
+  "source": "Source",
+  "account": "Account",
+  "toggleLines": "Show entry lines",
+  "empty": "No matching entries",
+  "sources": {
+    "invoice": "Invoice",
+    "payment": "Payment",
+    "expense": "Expense",
+    "payroll": "Payroll",
+    "manual": "Manual"
+  },
+  "status": { "posted": "Posted", "draft": "Draft" }
+},
+
+"manual": {
+  "title": "Manual entry",
+  "description": "Record an entry for a transaction that doesn't come from an invoice or expense. Total debit must equal total credit.",
+  "number": "Entry number",
+  "date": "Date",
+  "descriptionLabel": "Description",
+  "descriptionPlaceholder": "e.g. Depreciation of company equipment",
+  "lines": "Entry lines",
+  "account": "Account",
+  "selectAccount": "Select account",
+  "debit": "Debit",
+  "credit": "Credit",
+  "addLine": "Add line",
+  "removeLine": "Remove line",
+  "totalDebit": "Total debit",
+  "totalCredit": "Total credit",
+  "difference": "Difference",
+  "balanced": "Balanced",
+  "cancel": "Cancel",
+  "save": "Save entry",
+  "success": "Entry {number} recorded",
+  "errors": {
+    "dateRequired": "Date is required",
+    "periodClosed": "This period is closed and can't accept new entries",
+    "descriptionRequired": "Description is required",
+    "descriptionMax": "Description is 120 characters at most",
+    "accountRequired": "Select an account",
+    "amountInvalid": "Enter a valid number (up to 2 decimals)",
+    "lineOneSide": "Each line must be either debit or credit, with an amount above zero",
+    "linesMin": "An entry needs at least two lines",
+    "unbalanced": "Total debit doesn't equal total credit"
+  }
+},
+"trialTab": {
+  "periodLabel": "Period",
+  "allPeriods": "All periods",
+  "totalDebit": "Total debit",
+  "totalCredit": "Total credit",
+  "status": "Balance status",
+  "balanced": "Balanced",
+  "difference": "Difference {amount}",
+  "empty": "No activity in this period",
+  "note": "Balances show the selected period's movement from posted entries.",
+  "draftNote": "Draft entries ({text}) are not included in the trial balance.",
+  "exported": "Trial balance exported"
+},
+
+"closeTab": {
+  "title": "Pre-close checklist for {month}",
+  "allClosed": "All periods are closed",
+  "postDrafts": "Post drafts",
+  "posted": "{text} entries posted",
+  "ready": "This period is ready to close",
+  "notReady": "Complete the red items to close the period",
+  "checks": {
+    "drafts": {
+      "title": "All entries are posted",
+      "ok": "No draft entries",
+      "fail": "{unposted} — post them before closing"
+    },
+    "balanced": {
+      "title": "Trial balance is balanced",
+      "ok": "Total debit equals total credit",
+      "fail": "Difference of {amount}"
+    },
+    "previous": {
+      "title": "Previous periods are closed",
+      "ok": "No earlier periods are open",
+      "fail": "{text} earlier period(s) still open"
+    }
+  }
+}
+}
+}

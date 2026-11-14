@@ -1,0 +1,103 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+/* الخط بيتحدد حسب اللغة؛ Cairo احتياطي في الإنجليزي علشان أي نص عربي (أسماء عملاء مثلاً) */
+html[lang='ar'] { --font-app: var(--font-cairo); }
+html[lang='en'] { --font-app: var(--font-inter), var(--font-cairo); }
+
+
+
+@theme inline {
+  --font-sans: var(--font-app), system-ui, sans-serif;
+
+  /* الخلفيات والحدود */
+  --color-canvas: #f6f7f4;
+  --color-surface: #ffffff;
+  --color-line: #e3e8e2;
+  --color-line-strong: #cbd6cf;
+
+  /* النصوص */
+  --color-ink: #0f2a20;
+  --color-ink-2: #3b4f46;
+  --color-body: #4b5f56;
+  --color-muted: #6b7b73;
+
+  /* اللون الأساسي (أخضر) */
+  --color-brand: #047857;
+  --color-brand-soft: #e7f5ee;
+  --color-brand-deep: #065f46;
+  --color-brand-mint: #bfe6d5;
+  --color-brand-dark: #064e3b;
+  --color-brand-panel: #0b6b52;
+  --color-brand-panel-line: #2e8f73;
+
+  /* الحالات */
+  --color-info: #1e4e8c;
+  --color-info-soft: #e6eef9;
+  --color-danger: #b42318;
+  --color-danger-soft: #fdecea;
+  --color-neutral-soft: #eef1ed;
+
+  /* الزوايا والظل */
+  --radius-card: 18px;
+  --radius-btn: 12px;
+  --radius-btn-lg: 14px;
+  --radius-icon: 14px;
+  --shadow-float: 0 20px 40px -20px rgb(0 0 0 / 0.4);
+
+
+  --animate-fade-up: fade-up 0.7s ease-out both;
+
+  @keyframes fade-up {
+    from {
+      opacity: 0;
+      transform: translateY(16px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+}
+
+@layer base {
+  body {
+    @apply bg-canvas font-sans text-ink antialiased;
+  }
+}
+
+@page {
+  size: A4;
+  margin: 14mm;
+}
+
+@media print {
+  /* اطبع الفاتورة بس، واخفِ كل حاجة تانية في الصفحة */
+  body > *:not(#print-root) {
+    display: none !important;
+  }
+
+  #print-root {
+    display: block !important;
+  }
+
+  body {
+    background: #fff !important;
+  }
+
+  /* بيخلي الألوان (الخلفيات والبادج) تطلع في الـ PDF حتى لو خيار Background graphics مقفول */
+  * {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  #print-root tr {
+    break-inside: avoid;
+  }
+
+  #print-root thead {
+    display: table-header-group;
+  }
+}
