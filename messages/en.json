@@ -2425,12 +2425,74 @@
     "NO_SESSION": "Please log in first",
     "INVALID_REFRESH_TOKEN": "Your session has expired, please log in again",
     "REFRESH_TOKEN_REUSED": "Your session was ended for security reasons, please log in again",
-    "INTERNAL_ERROR": "Something went wrong, please try again"
+    "INTERNAL_ERROR": "Something went wrong, please try again",
+    "INVALID_INVITATION": "This invitation link doesn't work: it may have expired, been used, or been revoked",
+    "CANNOT_MODIFY_OWNER": "The company owner can't be changed or removed",
+    "FORBIDDEN": "You're not allowed to do this",
+    "NOT_FOUND": "Not found. It may have been deleted"
   },
   "Session": {
     "registered": "Account created. Log in to get started",
     "loading": "Loading…",
     "unreachable": "We can't reach the server right now. Check your connection and try again",
     "retry": "Try again"
+  },
+  "Team": {
+    "ownerOnly": "Only the company owner can manage the team.",
+    "loadError": "We couldn't load the team.",
+    "retry": "Try again",
+    "you": "You",
+    "roleLabel": "{name}'s role",
+    "remove": "Remove {name}",
+    "revoke": "Revoke invite",
+    "expires": "Expires {date}",
+    "confirmRemove": {
+      "title": "Remove {name}?",
+      "description": "They won't be able to access the company account anymore, and are signed out of every device right away.",
+      "confirm": "Remove",
+      "cancel": "Back"
+    },
+    "confirmRevoke": {
+      "title": "Revoke the invite to {email}?",
+      "description": "The link you sent will stop working.",
+      "confirm": "Revoke invite",
+      "cancel": "Back"
+    },
+    "toasts": {
+      "invited": "Invite created for {email}",
+      "roleChanged": "{name} is now {role}",
+      "removed": "{name} was removed from the team",
+      "revoked": "Invite revoked"
+    },
+    "invite": {
+      "description": "You'll get a link to send to the person yourself (WhatsApp, email...).",
+      "sending": "Creating…",
+      "linkTitle": "Invite link ready",
+      "linkHint": "Send this link to {name}. It works for 7 days, only once, and you can't see it again after closing this panel.",
+      "copy": "Copy link",
+      "copied": "Copied",
+      "done": "Done"
+    }
+  },
+  "InvitePage": {
+    "loading": "Loading the invitation…",
+    "title": "Join {company}",
+    "subtitle": "You've been invited to join as {role}. Choose a password to continue.",
+    "email": "Email",
+    "fullName": "Name",
+    "password": "Password",
+    "confirmPassword": "Confirm password",
+    "submit": "Create account",
+    "submitting": "Creating…",
+    "errors": {
+      "fullNameMin": "Name must be at least 3 characters",
+      "passwordMin": "Password must be at least 8 characters",
+      "confirmRequired": "Type the password again",
+      "passwordMismatch": "Passwords don't match"
+    },
+    "invalidTitle": "This link doesn't work",
+    "invalidBody": "It may have expired, been used already, or been revoked. Ask the company owner to send you a new invite.",
+    "goLogin": "Go to login",
+    "success": "Your account is ready. Log in to get started"
   }
 }

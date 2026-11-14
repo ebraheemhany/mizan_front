@@ -41,38 +41,6 @@ export const mockSettings = {
   },
 }
 
-export type Role = 'owner' | 'accountant' | 'sales' | 'viewer'
-
-export type Member = {
-  id: string
-  name: string
-  email: string
-  role: Role
-  status: 'active' | 'pending'
-}
-
-// TODO: تيجي من الـ API لما نربط
-export const mockMembers: Member[] = [
-  { id: 'm1', name: 'محمد أحمد', email: 'owner@mizan.eg', role: 'owner', status: 'active' },
-  { id: 'm2', name: 'سارة علي', email: 'sara@mizan.eg', role: 'sales', status: 'active' },
-  { id: 'm3', name: 'كريم حسن', email: 'karim@mizan.eg', role: 'accountant', status: 'active' },
-  { id: 'm4', name: 'نور خالد', email: 'nour@mizan.eg', role: 'sales', status: 'pending' },
-]
-
-export const ROLES: Role[] = ['owner', 'accountant', 'sales', 'viewer']
-
-// الأدوار اللي تتدعى (المالك واحد بس)
-export const INVITE_ROLES: Role[] = ['accountant', 'sales', 'viewer']
-
-export const PERMISSIONS: { key: string; roles: Role[] }[] = [
-  { key: 'viewCustomers', roles: ['owner', 'accountant', 'sales', 'viewer'] },
-  { key: 'editCustomers', roles: ['owner', 'sales'] },
-  { key: 'issueInvoices', roles: ['owner', 'accountant'] },
-  { key: 'recordPayments', roles: ['owner', 'accountant'] },
-  { key: 'expenses', roles: ['owner', 'accountant'] },
-  { key: 'reports', roles: ['owner', 'accountant'] },
-  { key: 'settings', roles: ['owner'] },
-  { key: 'deleteData', roles: ['owner'] },
-]
+// الأدوار والصلاحيات اتنقلت لـ lib/auth/permissions.ts، والأعضاء بقوا جايين من الـ API.
 
 

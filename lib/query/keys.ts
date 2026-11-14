@@ -11,4 +11,11 @@
 
 export const queryKeys = {
   session: ['session'] as const,
+  team: {
+    all: ['team'] as const,
+    members: ['team', 'members'] as const,
+    invitations: ['team', 'invitations'] as const,
+  },
+  /** Public: what an invite link points to (no login). */
+  invitationPreview: (token: string) => ['invitation-preview', token] as const,
 };

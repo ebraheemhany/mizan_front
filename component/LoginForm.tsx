@@ -194,13 +194,6 @@ export default function LoginForm() {
               t('submit')
             )}
           </Button>
-
-          <Link
-            href="/dashboard"
-            className="rounded-btn border-line-strong bg-surface text-ink hover:bg-canvas focus-visible:ring-brand/20 flex h-12 w-full items-center justify-center border font-bold transition hover:-translate-y-0.5 hover:shadow-sm focus-visible:ring-4 focus-visible:outline-none"
-          >
-            {t('demo')}
-          </Link>
         </div>
 
         <p className="text-muted pt-2 text-center text-sm">
