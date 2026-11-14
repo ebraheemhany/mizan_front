@@ -24,8 +24,9 @@ function useSessionQuery() {
     queryFn: async (): Promise<SessionUser | null> => (await refreshSession())?.user ?? null,
     // The user only changes when we log in/out, and then we update it ourselves.
     staleTime: Infinity,
-    retry: false,
     refetchOnWindowFocus: false,
+    // "Not logged in" is null, not an error, so only connection problems are
+    // retried (the QueryProvider default: at most twice).
   });
 }
 
@@ -39,14 +40,37 @@ export function useSession() {
 /** Wraps the logged-in part of the app. Sends anyone without a session to /login. */
 export function SessionProvider({ children }: { children: ReactNode }) {
   const router = useRouter();
-  const { data: user, isPending } = useSessionQuery();
+  const { data: user, isPending, isError, refetch, isFetching } = useSessionQuery();
+  const loggedOut = !isPending && !isError && !user;
 
   useEffect(() => {
-    if (!isPending && !user) router.replace('/login');
-  }, [isPending, user, router]);
+    if (loggedOut) router.replace('/login');
+  }, [loggedOut, router]);
+
+  // Server unreachable: say so, instead of pretending the user is logged out
+  // (proxy.ts would send them straight back here, in a loop).
+  if (isError) return <SessionUnreachable onRetry={() => refetch()} retrying={isFetching} />;
 
   // Nothing of the app is shown until we know who is logged in.
   return user ? children : <SessionLoading />;
+}
+
+function SessionUnreachable({ onRetry, retrying }: { onRetry: () => void; retrying: boolean }) {
+  const t = useTranslations('Session');
+  return (
+    <div role="alert" className="bg-canvas flex min-h-dvh flex-col items-center justify-center gap-4 p-6 text-center">
+      <p className="text-ink text-sm font-semibold">{t('unreachable')}</p>
+      <button
+        type="button"
+        onClick={onRetry}
+        disabled={retrying}
+        className="rounded-btn bg-brand hover:bg-brand/90 flex h-10 items-center gap-2 px-5 text-sm font-bold text-white disabled:opacity-60"
+      >
+        {retrying && <Loader2 className="size-4 animate-spin" />}
+        {t('retry')}
+      </button>
+    </div>
+  );
 }
 
 function SessionLoading() {

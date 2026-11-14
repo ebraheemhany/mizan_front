@@ -2429,6 +2429,8 @@
   },
   "Session": {
     "registered": "Account created. Log in to get started",
-    "loading": "Loading…"
+    "loading": "Loading…",
+    "unreachable": "We can't reach the server right now. Check your connection and try again",
+    "retry": "Try again"
   }
 }

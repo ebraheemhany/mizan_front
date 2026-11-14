@@ -12,8 +12,9 @@ export async function POST() {
 
   const refreshed = await backend('/api/auth/refresh', { refreshToken });
   if (refreshed.status !== 200) {
-    // Expired, revoked or reused: the cookie is useless now.
-    await clearRefreshCookie();
+    // Expired, revoked or reused: the cookie is useless now. Any other failure
+    // (backend down...) keeps it, so the user is still logged in once it's back.
+    if (refreshed.status === 401) await clearRefreshCookie();
     return errorResponse(refreshed.status, refreshed.data, refreshed.retryAfter);
   }
 

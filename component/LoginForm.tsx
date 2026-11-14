@@ -8,6 +8,7 @@ import { useTranslations } from 'next-intl';
 import { Eye, EyeOff, Loader2 } from 'lucide-react';
 import { Link, useRouter } from '@/i18n/navigation';
 import { useApiErrorMessage } from '@/lib/api/use-api-error';
+import { safeNextPath } from '@/lib/auth/constants';
 import { useLoginMutation } from '@/lib/auth/session';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -54,7 +55,10 @@ export default function LoginForm() {
     setServerError(null);
     try {
       await loginMutation.mutateAsync(values);
-      router.replace('/dashboard');
+      // Back to the page that sent us here (proxy.ts adds ?next=), else the dashboard.
+      // Read at submit time, not with useSearchParams, so the page can still prerender.
+      const next = safeNextPath(new URLSearchParams(window.location.search).get('next'));
+      router.replace(next ?? '/dashboard');
     } catch (error) {
       setServerError(errorMessage(error));
     }

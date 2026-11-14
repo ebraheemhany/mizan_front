@@ -4,22 +4,31 @@
 // can never read; only these route handlers touch it.
 import 'server-only';
 import { cookies } from 'next/headers';
+import { REFRESH_COOKIE } from './constants';
 
 const BACKEND_URL = process.env.BACKEND_URL ?? 'http://localhost:4000';
 
-export const REFRESH_COOKIE = 'mizan_rt';
-
 /** Calls the backend and returns its status and parsed JSON body (if any). */
 export async function backend(path: string, body?: unknown, accessToken?: string) {
-  const res = await fetch(`${BACKEND_URL}${path}`, {
-    method: body === undefined ? 'GET' : 'POST',
-    headers: {
-      ...(body === undefined ? {} : { 'Content-Type': 'application/json' }),
-      ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
-    },
-    body: body === undefined ? undefined : JSON.stringify(body),
-    cache: 'no-store',
-  });
+  let res: Response;
+  try {
+    res = await fetch(`${BACKEND_URL}${path}`, {
+      method: body === undefined ? 'GET' : 'POST',
+      headers: {
+        ...(body === undefined ? {} : { 'Content-Type': 'application/json' }),
+        ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
+      },
+      body: body === undefined ? undefined : JSON.stringify(body),
+      cache: 'no-store',
+    });
+  } catch {
+    // Backend down or unreachable. Not the same as "not logged in".
+    return {
+      status: 503,
+      data: { error: { code: 'NETWORK_ERROR', message: 'Could not reach the server' } },
+      retryAfter: null,
+    };
+  }
   const data = res.status === 204 ? null : await res.json().catch(() => null);
   return { status: res.status, data, retryAfter: res.headers.get('retry-after') };
 }

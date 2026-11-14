@@ -61,7 +61,8 @@ let refreshing: Promise<{ accessToken: string; user: SessionUser } | null> | nul
 
 /**
  * Gets a new access token using the httpOnly refresh cookie.
- * Returns null when there is no valid session.
+ * Returns null when there is no valid session (401). Throws ApiError for
+ * anything else (server unreachable...): that is not the same as logged out.
  *
  * Only one refresh runs at a time: within this tab (shared promise) and across
  * tabs (Web Locks). Refresh tokens rotate, so two refreshes racing with the same
@@ -71,10 +72,11 @@ export function refreshSession() {
   refreshing ??= (async () => {
     const run = async () => {
       const res = await send('/api/auth/refresh', { method: 'POST' });
-      if (!res.ok) {
+      if (res.status === 401) {
         accessToken = null;
         return null;
       }
+      if (!res.ok) throw await toApiError(res);
       const data = (await res.json()) as { accessToken: string; user: SessionUser };
       accessToken = data.accessToken;
       return data;
