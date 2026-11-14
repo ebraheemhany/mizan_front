@@ -1,0 +1,2 @@
+# Keep LF line endings everywhere (matches Prettier and the backend repo).
+* text=auto eol=lf
