@@ -23,6 +23,8 @@ export const queryKeys = {
     list: (params: object) => ['customers', 'list', params] as const,
     detail: (id: string) => ['customers', 'detail', id] as const,
   },
+  /** Company settings (currency, numbering, details...). */
+  settings: ['settings'] as const,
   products: {
     all: ['products'] as const,
     list: (params: object) => ['products', 'list', params] as const,

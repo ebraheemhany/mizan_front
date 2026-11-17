@@ -14,6 +14,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import { ApiError, changePassword } from '@/lib/api/client';
+import { useApiErrorMessage } from '@/lib/api/use-api-error';
 import {
   changePasswordSchema,
   type ChangePasswordValues,
@@ -24,11 +26,13 @@ type Props = { open: boolean; onClose: () => void };
 
 export function ChangePasswordDialog({ open, onClose }: Props) {
   const t = useTranslations('Settings.security.password');
+  const errorMessage = useApiErrorMessage();
   const {
     register,
     handleSubmit,
     reset,
     watch,
+    setError,
     formState: { errors, isSubmitting },
   } = useForm<ChangePasswordValues>({
     resolver: zodResolver(changePasswordSchema),
@@ -41,10 +45,19 @@ export function ChangePasswordDialog({ open, onClose }: Props) {
     onClose();
   };
 
-  const onSubmit = async () => {
-    // TODO: ربط API تغيير كلمة المرور
-    toast.success(t('success'));
-    close();
+  const onSubmit = async (values: ChangePasswordValues) => {
+    try {
+      // Logs out every other device; this one gets new tokens and stays in.
+      await changePassword({ currentPassword: values.current, newPassword: values.next });
+      toast.success(t('success'));
+      close();
+    } catch (error) {
+      if (error instanceof ApiError && error.code === 'INVALID_CURRENT_PASSWORD') {
+        setError('current', { message: 'currentWrong' });
+      } else {
+        toast.error(errorMessage(error));
+      }
+    }
   };
 
   return (

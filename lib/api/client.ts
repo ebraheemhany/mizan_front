@@ -107,6 +107,29 @@ export async function logout() {
   await send('/api/auth/logout', { method: 'POST' }).catch(() => undefined);
 }
 
+/**
+ * Changes the password. Goes through the Next.js route (not straight to the
+ * backend) because the new refresh token must land in the httpOnly cookie.
+ * Every other device is logged out; this one keeps going with new tokens.
+ */
+export async function changePassword(values: { currentPassword: string; newPassword: string }) {
+  const call = () =>
+    send('/api/auth/change-password', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
+      },
+      body: JSON.stringify(values),
+    });
+
+  let res = await call();
+  // Access token expired: refresh once and try again (same as api()).
+  if (res.status === 401 && (await refreshSession())) res = await call();
+  if (!res.ok) throw await toApiError(res);
+  accessToken = ((await res.json()) as { accessToken: string }).accessToken;
+}
+
 // Lets the app react when a request finds the session gone (see QueryProvider).
 const sessionExpiredListeners = new Set<() => void>();
 

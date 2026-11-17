@@ -5,11 +5,15 @@ import { useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { FormProvider, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 
 import PageHeader from '@/component/PageHeader';
 import { Button } from '@/components/ui/button';
-import { mockSettings } from '@/lib/mock/settings';
+import { useApiErrorMessage } from '@/lib/api/use-api-error';
+import { can } from '@/lib/auth/permissions';
+import { useSession } from '@/lib/auth/session';
+import { toApiBody, toFormValues, useSettings, useUpdateSettings } from '@/lib/settings/hooks';
 import {
   settingsSchema,
   type SettingsValues,
@@ -49,14 +53,43 @@ const TAB_KEYS: TabKey[] = [
 const primaryBtn =
   'rounded-btn bg-brand hover:bg-brand/90 h-10 gap-2 text-xs font-bold text-white';
 
+/** Loads the company settings, then shows the form with them. */
 export default function SettingsView() {
+  const tApi = useTranslations('SettingsApi');
+  const settings = useSettings();
+
+  if (settings.isPending) {
+    return (
+      <div className="text-muted flex justify-center py-20">
+        <Loader2 className="size-5 animate-spin" />
+      </div>
+    );
+  }
+  if (settings.isError) {
+    return (
+      <div className="flex flex-col items-center gap-3 py-20 text-center">
+        <p className="text-danger text-sm font-semibold">{tApi('loadError')}</p>
+        <Button variant="outline" className="rounded-btn h-10 text-xs font-bold" onClick={() => settings.refetch()}>
+          {tApi('retry')}
+        </Button>
+      </div>
+    );
+  }
+  return <SettingsForm initial={toFormValues(settings.data)} />;
+}
+
+function SettingsForm({ initial }: { initial: SettingsValues }) {
   const t = useTranslations('Settings');
+  const errorMessage = useApiErrorMessage();
+  const user = useSession();
+  // Only the owner changes company settings; everyone else sees them read-only.
+  const canEdit = can(user.role, 'settings');
+  const updateSettings = useUpdateSettings();
   const [tab, setTab] = useState<TabKey>('company');
 
-  // TODO: لما نربط الـ API الإعدادات دي بتيجي من الباك إند
   const form = useForm<SettingsValues>({
     resolver: zodResolver(settingsSchema),
-    defaultValues: mockSettings,
+    defaultValues: initial,
   });
 
   const tabs = TAB_KEYS.map((key) => ({
@@ -101,14 +134,19 @@ export default function SettingsView() {
     }
   }
 
-  function save(values: SettingsValues) {
-    // TODO: PUT /settings لما نربط الـ API
+  async function save(values: SettingsValues) {
     if (!form.formState.isDirty) {
       toast.info(t('toasts.noChanges'));
       return;
     }
-    form.reset(values);
-    toast.success(t('toasts.saved'));
+    try {
+      const saved = await updateSettings.mutateAsync(toApiBody(values));
+      // Start "not dirty" again from what the server actually stored.
+      form.reset(toFormValues(saved));
+      toast.success(t('toasts.saved'));
+    } catch (error) {
+      toast.error(errorMessage(error));
+    }
   }
 
   return (
@@ -118,23 +156,31 @@ export default function SettingsView() {
           title={t('title')}
           description={t('description')}
           actions={
-            <Button type="submit" className={primaryBtn}>
-              {t('actions.save')}
-            </Button>
+            canEdit && (
+              <Button type="submit" disabled={form.formState.isSubmitting} className={primaryBtn}>
+                {form.formState.isSubmitting && <Loader2 className="size-4 animate-spin" />}
+                {t('actions.save')}
+              </Button>
+            )
           }
         />
 
         <ReportsTabs value={tab} tabs={tabs} onChange={goTo} />
 
-        <CompanyCard />
+        {/* A disabled fieldset makes every field inside read-only for non-owners. */}
+        <fieldset disabled={!canEdit} className="space-y-5">
+          <CompanyCard />
 
-        <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-          <TaxesCard />
-          <NumberingCard />
-        </div>
-        <TemplateCard />
+          <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+            <TaxesCard />
+            <NumberingCard />
+          </div>
+          <TemplateCard />
+        </fieldset>
         <UsersSection />
-        <NotificationsSection />
+        <fieldset disabled={!canEdit}>
+          <NotificationsSection />
+        </fieldset>
         <div className="grid gap-6 lg:grid-cols-2">
           <SecuritySection />
           <SubscriptionSection />
