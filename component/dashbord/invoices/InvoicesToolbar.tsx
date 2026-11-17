@@ -12,22 +12,24 @@ import { useTranslations } from 'next-intl';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { INVOICE_CUSTOMERS } from '@/lib/mock/invoices';
 import type { Filters, Period, Sort } from './utils';
 import FilterPopover, { type Option } from '../FilterPopover';
 
 export default function InvoicesToolbar({
   filters,
+  customers,
   onChange,
 }: {
   filters: Filters;
+  /** Customers to filter by (id + name), from the customers API. */
+  customers: { id: string; name: string }[];
   onChange: (patch: Partial<Filters>) => void;
 }) {
   const t = useTranslations('Invoices');
 
   const customerOptions: Option[] = [
     { value: 'all', label: t('filters.customerAll') },
-    ...INVOICE_CUSTOMERS.map((name) => ({ value: name, label: name })),
+    ...customers.map((c) => ({ value: c.id, label: c.name })),
   ];
 
   const periodOptions: Option[] = (

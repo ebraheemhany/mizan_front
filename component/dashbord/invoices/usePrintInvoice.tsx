@@ -2,13 +2,18 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { getInvoiceDetail, type InvoiceDetail } from '@/lib/mock/invoice-details';
+import { toast } from 'sonner';
+import { useApiErrorMessage } from '@/lib/api/use-api-error';
+import { toUiDetail, useFetchInvoice } from '@/lib/invoices/hooks';
+import type { InvoiceDetail } from '@/lib/mock/invoice-details';
 import { printWithTitle } from '@/lib/print';
 import InvoicePrintSheet from './InvoicePrintSheet';
 
 // بيطبع فاتورة معينة من أي مكان (زي الجدول) من غير ما تفتح صفحتها
 export function usePrintInvoice() {
   const [target, setTarget] = useState<InvoiceDetail | null>(null);
+  const fetchInvoice = useFetchInvoice();
+  const errorMessage = useApiErrorMessage();
 
   useEffect(() => {
     if (!target) return;
@@ -20,8 +25,14 @@ export function usePrintInvoice() {
     return () => window.removeEventListener('afterprint', done);
   }, [target]);
 
-  // TODO: لما نربط الـ API هنجيب بيانات الفاتورة من الباك إند
-  const print = (number: number) => setTarget(getInvoiceDetail(number) ?? null);
+  // The list only has the summary, so the full invoice is loaded first.
+  const print = async (number: number) => {
+    try {
+      setTarget(toUiDetail(await fetchInvoice(number)));
+    } catch (error) {
+      toast.error(errorMessage(error));
+    }
+  };
 
   // لازم يتحط في الصفحة اللي بتستخدم الـ hook
   const sheet = target ? <InvoicePrintSheet invoice={target} /> : null;

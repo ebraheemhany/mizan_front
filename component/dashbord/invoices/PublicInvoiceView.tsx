@@ -12,8 +12,15 @@ import InvoicePrintSheet from './InvoicePrintSheet';
 import StatusBadge from './StatusBadge';
 import Logo from '@/component/Logo';
 
-export default function PublicInvoiceView({ invoice }: { invoice: InvoiceDetail }) {
+export default function PublicInvoiceView({
+  invoice,
+  displayNumber,
+}: {
+  invoice: InvoiceDetail;
+  displayNumber: string;
+}) {
   const t = useTranslations('InvoiceDetail');
+  const tApi = useTranslations('InvoicesApi');
 
   return (
     <div className="bg-canvas min-h-dvh">
@@ -38,10 +45,10 @@ export default function PublicInvoiceView({ invoice }: { invoice: InvoiceDetail 
             <h1 className="text-ink text-2xl font-extrabold sm:text-3xl">
               {t('title')}{' '}
               <span dir="ltr" className="inline-block">
-                #{invoice.number}
+                {displayNumber}
               </span>
             </h1>
-            <p className="text-muted mt-1 text-xs">{t('issuedBy', { name: invoice.issuer.name })}</p>
+            <p className="text-muted mt-1 text-xs">{tApi('issuedBy', { name: invoice.issuer.name })}</p>
           </div>
 
           <StatusBadge status={invoice.status} daysOverdue={invoice.daysOverdue} />

@@ -23,6 +23,14 @@ export const queryKeys = {
     list: (params: object) => ['customers', 'list', params] as const,
     detail: (id: string) => ['customers', 'detail', id] as const,
   },
+  invoices: {
+    all: ['invoices'] as const,
+    list: (params: object) => ['invoices', 'list', params] as const,
+    stats: ['invoices', 'stats'] as const,
+    detail: (ref: string | number) => ['invoices', 'detail', String(ref)] as const,
+  },
+  /** Public: an invoice opened from its shareable link (no login). */
+  publicInvoice: (token: string) => ['public-invoice', token] as const,
   /** Company settings (currency, numbering, details...). */
   settings: ['settings'] as const,
   products: {

@@ -7,6 +7,7 @@ import { Button, buttonVariants } from '@/components/ui/button';
 import { Link } from '@/i18n/navigation';
 import { ApiError } from '@/lib/api/client';
 import { toUiCustomer, useCustomer } from '@/lib/customers/hooks';
+import { toUiInvoice, useInvoices } from '@/lib/invoices/hooks';
 import { cn } from '@/lib/utils';
 import CustomerDetailView from './CustomerDetailView';
 
@@ -14,6 +15,8 @@ import CustomerDetailView from './CustomerDetailView';
 export default function CustomerDetailLoader({ id }: { id: string }) {
   const t = useTranslations('CustomersApi');
   const query = useCustomer(id);
+  // The customer's latest invoices for the invoices card.
+  const invoices = useInvoices({ status: 'all', customerId: id, period: 'all', sort: 'recent', page: 1, pageSize: 20 });
 
   if (query.isPending) {
     return (
@@ -49,11 +52,10 @@ export default function CustomerDetailLoader({ id }: { id: string }) {
       detail={{
         customer: toUiCustomer(customer),
         ownerName: customer.assignedTo?.fullName ?? '',
-        // Filled in once invoices exist on the backend.
-        invoices: [],
-        billableCount: 0,
-        totalInvoiced: 0,
-        collected: 0,
+        invoices: invoices.data?.items.map(toUiInvoice) ?? [],
+        billableCount: customer.invoiceSummary.billableCount,
+        totalInvoiced: Number(customer.invoiceSummary.totalInvoiced),
+        collected: Number(customer.invoiceSummary.collected),
       }}
     />
   );

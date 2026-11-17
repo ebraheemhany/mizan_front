@@ -37,8 +37,10 @@ export default function InvoicesTable({
   onToggleRow: (id: string) => void;
   onToggleAll: (checked: boolean) => void;
   onDownload: (number: number) => void;
-  onRecordPayment: (invoice: Invoice) => void;
-  onCancel: (invoice: Invoice) => void;
+  /** Omitted when the user's role can't record payments: the item is hidden. */
+  onRecordPayment?: (invoice: Invoice) => void;
+  /** Omitted when the user's role can't cancel invoices: the item is hidden. */
+  onCancel?: (invoice: Invoice) => void;
 }) {
   const t = useTranslations('Invoices');
   const router = useRouter();
@@ -178,6 +180,7 @@ export default function InvoicesTable({
                         />
                         {t('actions.download')}
                       </DropdownMenuItem>
+                      {onRecordPayment && (
                       <DropdownMenuItem
                         disabled={!canRecordPayment(inv)}
                         onClick={() => onRecordPayment(inv)}
@@ -189,6 +192,9 @@ export default function InvoicesTable({
                         />
                         {t('actions.recordPayment')}
                       </DropdownMenuItem>
+                      )}
+                      {onCancel && (
+                      <>
                       <DropdownMenuSeparator />
                       <DropdownMenuItem
                         disabled={!canCancel(inv)}
@@ -198,6 +204,8 @@ export default function InvoicesTable({
                         <Ban className="size-4" aria-hidden="true" />
                         {t('actions.cancel')}
                       </DropdownMenuItem>
+                      </>
+                      )}
                     </DropdownMenuContent>
                   </DropdownMenu>
                 </td>

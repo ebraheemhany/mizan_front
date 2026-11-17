@@ -59,7 +59,11 @@ export default function CustomerCombobox({
   cancelText: string;
   invalid?: boolean;
   onChange: (id: string) => void;
-  onAddCustomer: (customer: { name: string; city: string }) => string;
+  /**
+   * Creates the customer and returns its id (or null if it failed, e.g. the
+   * user may not add customers; the caller shows the error). May be async.
+   */
+  onAddCustomer: (customer: { name: string; city: string }) => string | null | Promise<string | null>;
 }) {
   const [open, setOpen] = useState(false);
   const [addingCustomer, setAddingCustomer] = useState(false);
@@ -68,15 +72,18 @@ export default function CustomerCombobox({
   const [nameError, setNameError] = useState('');
   const current = options.find((o) => o.id === value);
 
-  function addCustomer(event: FormEvent<HTMLFormElement>) {
+  async function addCustomer(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    // This form sits inside the invoice form in the React tree; keep the submit here.
+    event.stopPropagation();
     const trimmedName = name.trim();
     if (!trimmedName) {
       setNameError(customerNameRequired);
       return;
     }
 
-    const id = onAddCustomer({ name: trimmedName, city: city.trim() });
+    const id = await onAddCustomer({ name: trimmedName, city: city.trim() });
+    if (!id) return;
     onChange(id);
     setName('');
     setCity('');

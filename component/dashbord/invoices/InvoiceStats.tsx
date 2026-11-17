@@ -2,7 +2,7 @@
 'use client';
 
 import { useFormatter, useTranslations } from 'next-intl';
-import type { INVOICE_STATS } from '@/lib/mock/invoices';
+import type { InvoiceStatsData } from '@/lib/invoices/hooks';
 import { useMoney, useMoneyParts } from '@/lib/money';
 import { cn } from '@/lib/utils';
 
@@ -65,7 +65,7 @@ function StatCard({
 export default function InvoiceStats({
   stats: s,
 }: {
-  stats: typeof INVOICE_STATS;
+  stats: InvoiceStatsData;
 }) {
   const t = useTranslations('Invoices.stats');
   const format = useFormatter();

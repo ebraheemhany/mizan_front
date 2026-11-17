@@ -29,14 +29,20 @@ import { Link, useRouter } from '@/i18n/navigation';
 import { rtlLocales } from '@/i18n/routing';
 import { useDate } from '@/lib/data';
 import { addDaysIso, fromIso, toIso } from '@/lib/iso-date';
-import { CUSTOMERS } from '@/lib/mock/customers';
-import { MOCK_NOW } from '@/lib/mock/invoices';
+import { ApiError } from '@/lib/api/client';
+import { useApiErrorMessage } from '@/lib/api/use-api-error';
+import { can } from '@/lib/auth/permissions';
+import { useSession } from '@/lib/auth/session';
+import { useCreateCustomer, useCustomers } from '@/lib/customers/hooks';
+import { useCreateInvoice } from '@/lib/invoices/hooks';
+import { useSettings } from '@/lib/settings/hooks';
 import { quoteLabel, type Quote } from '@/lib/mock/quotes';
 import { useMoney } from '@/lib/money';
 import { quoteToInvoiceValues } from '@/lib/prefill';
 import { cn } from '@/lib/utils';
 import {
   calcTotals,
+  parseNumber,
   createInvoiceSchema,
   lineAmount,
   TERMS,
@@ -51,11 +57,7 @@ const outlineBtn =
 const fieldClass =
   'rounded-btn border-line-strong bg-surface focus-visible:border-brand focus-visible:ring-2 focus-visible:ring-brand/15 h-11';
 
-const INITIAL_CUSTOMER_OPTIONS = CUSTOMERS.map((c) => ({
-  id: c.id,
-  name: c.name,
-  city: c.city,
-}));
+type CustomerOption = { id: string; name: string; city: string };
 const EMPTY_ITEM = { description: '', quantity: '1', unitPrice: '' };
 
 function Section({
@@ -125,14 +127,25 @@ export default function NewInvoiceView({
   sourceQuote?: number;
 }) {
   const t = useTranslations('InvoiceForm');
+  const tApiErrors = useTranslations('ApiErrors');
+  const user = useSession();
   const { quotes, hydrated } = useQuotes();
+  const settings = useSettings();
+  // Customers to choose from (first 100 by name).
+  const customers = useCustomers({ status: 'all', balance: 'all', sort: 'name', page: 1, pageSize: 100 });
   const selectedQuote = sourceQuote
     ? quotes.find((quote) => quote.number === sourceQuote)
     : undefined;
 
-  if (sourceQuote && !hydrated) {
+  if (!can(user.role, 'issueInvoices')) {
+    return <p className="text-muted text-sm">{tApiErrors('FORBIDDEN')}</p>;
+  }
+  if ((sourceQuote && !hydrated) || settings.isPending || customers.isPending) {
     return <p className="text-muted text-sm">{t('fromQuote.loading')}</p>;
   }
+
+  const vatEnabled = settings.data?.taxes.vatEnabled ?? true;
+  const settingsTerms = settings.data?.numbering.paymentTermsDays ?? 30;
 
   return (
     <InvoiceForm
@@ -140,6 +153,9 @@ export default function NewInvoiceView({
       initial={initial}
       sourceQuote={sourceQuote}
       selectedQuote={selectedQuote}
+      customers={customers.data?.items.map((c) => ({ id: c.id, name: c.name, city: c.city ?? '' })) ?? []}
+      vatRate={vatEnabled ? VAT_RATE : 0}
+      defaultTerms={(TERMS as readonly number[]).includes(settingsTerms) ? settingsTerms : 30}
     />
   );
 }
@@ -148,10 +164,18 @@ function InvoiceForm({
   initial,
   sourceQuote,
   selectedQuote,
+  customers,
+  vatRate,
+  defaultTerms,
 }: {
   initial?: InvoiceFormValues;
   sourceQuote?: number;
   selectedQuote?: Quote;
+  customers: CustomerOption[];
+  /** From the settings: 14, or 0 when VAT is off. */
+  vatRate: number;
+  /** From the settings (payment terms). */
+  defaultTerms: number;
 }) {
   const t = useTranslations('InvoiceForm');
   const locale = useLocale();
@@ -160,37 +184,30 @@ function InvoiceForm({
   const money = useMoney();
   const formatDate = useDate();
   const [dateOpen, setDateOpen] = useState(false);
-  const [customerOptions, setCustomerOptions] = useState(() => {
-    if (
-      selectedQuote &&
-      !INITIAL_CUSTOMER_OPTIONS.some(
-        (customer) => customer.name === selectedQuote.customer,
-      )
-    ) {
-      return [
-        ...INITIAL_CUSTOMER_OPTIONS,
-        {
-          id: `quote-${selectedQuote.number}`,
-          name: selectedQuote.customer,
-          city:
-            CUSTOMERS.find(
-              (customer) => customer.name === selectedQuote.customer,
-            )?.city ?? '',
-        },
-      ];
-    }
-    return INITIAL_CUSTOMER_OPTIONS;
-  });
+  const user = useSession();
+  const errorMessage = useApiErrorMessage();
+  const createInvoice = useCreateInvoice();
+  const createCustomer = useCreateCustomer();
+  // Customers added from this page are added to the options too.
+  const [customerOptions, setCustomerOptions] = useState<CustomerOption[]>(customers);
 
-  // TODO: التاريخ الحقيقي لما نربط الـ API
-  const todayIso = MOCK_NOW.toISOString().slice(0, 10);
-  const formInitial = selectedQuote
+  // Today on the user's device (Egypt for our users).
+  const todayIso = toIso(new Date());
+  const quoteValues = selectedQuote
     ? quoteToInvoiceValues(
         selectedQuote,
         t('fromQuote.note', {
-          number: `#${quoteLabel(selectedQuote.number)}`,
+          number: '#' + quoteLabel(selectedQuote.number),
         }),
       )
+    : undefined;
+  // Quotes are still sample data: link the quote's customer by name when it exists.
+  const formInitial = quoteValues
+    ? {
+        ...quoteValues,
+        customerId: customers.find((c) => c.name === selectedQuote?.customer)?.id ?? '',
+        issueDate: todayIso,
+      }
     : initial;
   const resolvedSourceQuote =
     selectedQuote?.number ?? (initial ? sourceQuote : undefined);
@@ -212,13 +229,14 @@ function InvoiceForm({
     register,
     control,
     handleSubmit,
-    formState: { errors },
+    setError,
+    formState: { errors, isSubmitting },
   } = useForm<InvoiceFormValues>({
     resolver: zodResolver(schema),
     defaultValues: formInitial ?? {
       customerId: '',
       issueDate: todayIso,
-      terms: 30,
+      terms: defaultTerms,
       items: [EMPTY_ITEM],
       notes: '',
     },
@@ -231,21 +249,60 @@ function InvoiceForm({
   const terms = useWatch({ control, name: 'terms' });
   const customerId = useWatch({ control, name: 'customerId' });
 
-  const totals = calcTotals(items);
+  const totals = calcTotals(items, vatRate);
   const dueDate = issueDate ? addDaysIso(issueDate, terms) : '';
   const customerName = customerOptions.find((c) => c.id === customerId)?.name;
 
-  function addInvoiceCustomer(customer: { name: string; city: string }) {
-    const id = `new-${crypto.randomUUID()}`;
-    setCustomerOptions((options) => [...options, { id, ...customer }]);
-    return id;
+  /** "Add customer" in the picker creates a real customer (same as the customers page). */
+  async function addInvoiceCustomer(customer: { name: string; city: string }) {
+    if (!can(user.role, 'editCustomers')) {
+      toast.error(errorMessage(new ApiError(403, 'FORBIDDEN', '')));
+      return null;
+    }
+    try {
+      const { customer: created } = await createCustomer.mutateAsync({
+        name: customer.name,
+        city: customer.city,
+        contactName: '',
+        phone: '',
+        email: '',
+        taxNumber: '',
+        notes: '',
+        assignedToId: user.id,
+      });
+      setCustomerOptions((options) => [...options, { id: created.id, name: created.name, city: created.city ?? '' }]);
+      return created.id;
+    } catch (error) {
+      toast.error(errorMessage(error));
+      return null;
+    }
   }
 
   const submit = (mode: 'draft' | 'send') =>
-    handleSubmit(() => {
-      // TODO: الخطوة الجاية: حفظ الفاتورة فعلياً والانتقال لصفحتها
-      toast.success(t(mode === 'draft' ? 'toasts.draftSaved' : 'toasts.sent'));
-      router.push('/invoices');
+    handleSubmit(async (values) => {
+      try {
+        const invoice = await createInvoice.mutateAsync({
+          customerId: values.customerId,
+          issueDate: values.issueDate,
+          terms: values.terms,
+          // Numbers as typed (commas and spaces removed); the backend does the math.
+          items: values.items.map((item) => ({
+            description: item.description.trim(),
+            quantity: String(parseNumber(item.quantity)),
+            unitPrice: String(parseNumber(item.unitPrice)),
+          })),
+          notes: values.notes,
+          send: mode === 'send',
+        });
+        toast.success(t(mode === 'draft' ? 'toasts.draftSaved' : 'toasts.sent'));
+        router.push('/invoices/' + invoice.number);
+      } catch (error) {
+        if (error instanceof ApiError && error.code === 'INVALID_CUSTOMER') {
+          setError('customerId', { message: t('errors.customerRequired') });
+        } else {
+          toast.error(errorMessage(error));
+        }
+      }
     });
 
   return (
@@ -591,7 +648,7 @@ function InvoiceForm({
                 value={money(totals.subtotal)}
               />
               <SummaryRow
-                label={t('summary.vat', { rate: VAT_RATE })}
+                label={t('summary.vat', { rate: vatRate })}
                 value={money(totals.vat)}
               />
 
@@ -618,6 +675,7 @@ function InvoiceForm({
             <div className="mt-5 space-y-2.5">
               <Button
                 type="button"
+                disabled={isSubmitting}
                 onClick={submit('send')}
                 className="rounded-btn bg-brand hover:bg-brand/90 h-11 w-full text-sm font-bold text-white"
               >
@@ -626,6 +684,7 @@ function InvoiceForm({
               <Button
                 type="button"
                 variant="outline"
+                disabled={isSubmitting}
                 onClick={submit('draft')}
                 className="rounded-btn border-line-strong bg-surface text-ink hover:bg-canvas h-11 w-full text-sm font-bold"
               >

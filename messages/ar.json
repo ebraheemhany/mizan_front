@@ -551,7 +551,8 @@
   "title": "السجل",
   "events": {
     "created": { "title": "أنشئت الفاتورة", "detail": "بواسطة {name}" },
-    "sent": { "title": "أُرسلت بالبريد", "detail": "إلى {email}" },
+    "sent": { "title": "أُصدرت الفاتورة" },
+    "cancelled": { "title": "أُلغيت الفاتورة" },
     "viewed": { "title": "شاهد العميل الفاتورة" },
     "reminder": { "title": "تذكير تلقائي", "detail": "أُرسل عبر واتساب" },
     "payment": { "title": "سُجّلت دفعة", "detail": "بقيمة {amount}" },
@@ -2522,5 +2523,20 @@
   "SettingsApi": {
     "loadError": "مقدرناش نجيب الإعدادات.",
     "retry": "حاول تاني"
+  },
+  "InvoicesApi": {
+    "loadError": "مقدرناش نجيب الفاتورة.",
+    "retry": "حاول تاني",
+    "notFoundTitle": "الفاتورة دي مش موجودة",
+    "notFoundBody": "ممكن تكون تبع شركة تانية، أو الرقم غلط.",
+    "backToList": "رجوع للفواتير",
+    "issue": "إصدار الفاتورة",
+    "issued": "اتصدرت الفاتورة {number}",
+    "cancel": "إلغاء الفاتورة",
+    "publicUnavailable": "لينك الفاتورة بيتعمل لما تتصدر",
+    "created": "اتعملت الفاتورة {number}",
+    "draftSaved": "اتحفظت الفاتورة {number} كمسودة",
+    "noCustomers": "لسه مفيش عملاء. ضيف عميل الأول من صفحة العملاء.",
+    "issuedBy": "صادرة من {name}"
   }
 }

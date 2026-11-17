@@ -135,10 +135,15 @@ export function useCustomers(params: CustomerListParams) {
   });
 }
 
+/** One customer, with totals of its invoices (drafts and cancelled ones not counted). */
+export type ApiCustomerDetail = ApiCustomer & {
+  invoiceSummary: { billableCount: number; totalInvoiced: string; collected: string };
+};
+
 export function useCustomer(id: string) {
   return useQuery({
     queryKey: queryKeys.customers.detail(id),
-    queryFn: async () => (await api<{ customer: ApiCustomer }>(`/api/customers/${id}`)).customer,
+    queryFn: async () => (await api<{ customer: ApiCustomerDetail }>(`/api/customers/${id}`)).customer,
   });
 }
 

@@ -1,8 +1,7 @@
-// app/[locale]/(app)/invoices/[number]/page.tsx
+// app/[locale]/(pages)/(dashboard)/invoices/[id]/page.tsx
 import { notFound } from 'next/navigation';
 import { setRequestLocale } from 'next-intl/server';
 
-import { getInvoiceDetail } from '@/lib/mock/invoice-details';
 import InvoiceDetailView from '@/component/dashbord/invoices/InvoiceDetailView';
 
 export default async function InvoiceDetailPage({
@@ -13,11 +12,9 @@ export default async function InvoiceDetailPage({
   const { locale, id } = await params;
   setRequestLocale(locale);
 
-  const invoiceId = /^i?(\d+)$/.exec(id);
-  if (!invoiceId) notFound();
+  // /invoices/1038 (number) or /invoices/i1038 (old links). Data comes from the API in the browser.
+  const match = /^i?(\d{1,9})$/.exec(id);
+  if (!match) notFound();
 
-  const invoice = getInvoiceDetail(Number(invoiceId[1]));
-  if (!invoice) notFound();
-
-  return <InvoiceDetailView key={invoice.number} invoice={invoice} />;
+  return <InvoiceDetailView key={match[1]} invoiceRef={match[1]} />;
 }

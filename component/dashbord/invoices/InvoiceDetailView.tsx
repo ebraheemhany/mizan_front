@@ -2,17 +2,22 @@
 'use client';
 
 import { useState } from 'react';
-import { ArrowLeft, Download } from 'lucide-react';
+import { ArrowLeft, Ban, Download, Loader2, Send } from 'lucide-react';
 import { useLocale, useTranslations } from 'next-intl';
 import { toast } from 'sonner';
 import { Button, buttonVariants } from '@/components/ui/button';
 import { Link } from '@/i18n/navigation';
+import { ApiError } from '@/lib/api/client';
+import { useApiErrorMessage } from '@/lib/api/use-api-error';
+import { can } from '@/lib/auth/permissions';
+import { useSession } from '@/lib/auth/session';
 import { useDate } from '@/lib/data';
-import type { InvoiceDetail } from '@/lib/mock/invoice-details';
-import { MOCK_NOW, type InvoiceStatus } from '@/lib/mock/invoices';
+import { toUiDetail, useInvoice, useInvoiceAction } from '@/lib/invoices/hooks';
 import { printWithTitle } from '@/lib/print';
 import { cn } from '@/lib/utils';
+import PageHeader from '@/component/PageHeader';
 import AttachmentsCard from './AttachmentsCard';
+import CancelInvoiceDialog from './CancelInvoiceDialog';
 import HistoryTimeline from './HistoryTimeline';
 import InvoiceDocument from './InvoiceDocument';
 import InvoicePrintSheet from './InvoicePrintSheet';
@@ -23,97 +28,120 @@ import PreviewDialog from './PreviewDialog';
 import QuickActionsCard from './QuickActionsCard';
 import ReminderDialog, { type ReminderInput } from './ReminderDialog';
 import StatusBadge from './StatusBadge';
-import PageHeader from '@/component/PageHeader';
+import { canCancel, canRecordPayment, canSendReminder } from './utils';
+
 const outlineBtn =
   'rounded-btn border-line-strong bg-surface text-ink hover:bg-canvas h-10 gap-2 text-xs font-bold';
 const primaryBtn =
   'rounded-btn bg-brand hover:bg-brand/90 h-10 gap-2 text-xs font-bold text-white';
 
-export default function InvoiceDetailView({
-  invoice: initial,
-}: {
-  invoice: InvoiceDetail;
-}) {
+/** Loads the invoice (by number or id) from the API, then shows it. */
+export default function InvoiceDetailView({ invoiceRef }: { invoiceRef: string }) {
+  const t = useTranslations('InvoicesApi');
+  const query = useInvoice(invoiceRef);
+
+  if (query.isPending) {
+    return (
+      <div className="text-muted flex justify-center py-20">
+        <Loader2 className="size-5 animate-spin" />
+      </div>
+    );
+  }
+  if (query.isError) {
+    const notFound = query.error instanceof ApiError && query.error.status === 404;
+    return (
+      <div className="rounded-card border-line bg-surface mx-auto max-w-md space-y-3 border p-8 text-center shadow-sm">
+        <h1 className="text-ink text-lg font-extrabold">{notFound ? t('notFoundTitle') : t('loadError')}</h1>
+        {notFound && <p className="text-muted text-sm">{t('notFoundBody')}</p>}
+        <div className="flex justify-center gap-2 pt-2">
+          {!notFound && (
+            <Button variant="outline" className={outlineBtn} onClick={() => query.refetch()}>
+              {t('retry')}
+            </Button>
+          )}
+          <Link href="/invoices" className={cn(buttonVariants({ variant: 'outline' }), outlineBtn)}>
+            {t('backToList')}
+          </Link>
+        </div>
+      </div>
+    );
+  }
+  return <InvoiceDetailContent data={query.data} />;
+}
+
+function InvoiceDetailContent({ data }: { data: NonNullable<ReturnType<typeof useInvoice>['data']> }) {
   const t = useTranslations('InvoiceDetail');
+  const tInvoices = useTranslations('Invoices');
+  const tApi = useTranslations('InvoicesApi');
   const locale = useLocale();
   const date = useDate();
+  const errorMessage = useApiErrorMessage();
+  const user = useSession();
+  const action = useInvoiceAction();
 
-  // TODO: لما نربط الـ API الحالة دي بتيجي من الباك إند
-  const [invoice, setInvoice] = useState(initial);
+  const invoice = toUiDetail(data);
+  const mayIssue = can(user.role, 'issueInvoices');
+  const mayPay = can(user.role, 'recordPayments') && canRecordPayment(invoice);
+  const mayRemind = mayIssue && canSendReminder(invoice);
+  const mayCancel = mayIssue && canCancel(invoice);
+
   const [paymentOpen, setPaymentOpen] = useState(false);
   const [reminderOpen, setReminderOpen] = useState(false);
   const [previewOpen, setPreviewOpen] = useState(false);
   const [ledgerOpen, setLedgerOpen] = useState(false);
+  const [cancelOpen, setCancelOpen] = useState(false);
 
-  const canPay =
-    invoice.remaining > 0 &&
-    invoice.status !== 'draft' &&
-    invoice.status !== 'cancelled';
-
-  function recordPayment(input: PaymentInput) {
-    setInvoice((prev) => {
-      const remaining = Math.max(0, prev.remaining - input.amount);
-      const id = `p-${Date.now()}`;
-      const status: InvoiceStatus =
-        remaining === 0
-          ? 'paid'
-          : prev.status === 'overdue'
-            ? 'overdue'
-            : 'partial';
-
-      return {
-        ...prev,
-        remaining,
-        status,
-        daysOverdue: remaining === 0 ? undefined : prev.daysOverdue,
-        payments: [
-          ...prev.payments,
-          {
-            id,
-            amount: input.amount,
-            date: input.date,
-            method: input.method,
-            note: input.note || undefined,
-          },
-        ],
-        history: [
-          {
-            id: `h-${id}`,
-            type: 'payment',
-            at: input.date,
-            values: { amount: input.amount },
-          },
-          ...prev.history,
-        ],
-      };
-    });
-    setPaymentOpen(false);
+  async function run(promise: Promise<unknown>, success: string) {
+    try {
+      await promise;
+      toast.success(success);
+      return true;
+    } catch (error) {
+      toast.error(errorMessage(error));
+      return false;
+    }
   }
 
-  // TODO: الإرسال الفعلي (بريد أو واتساب) من الباك إند. دلوقتي بيتسجل في السجل بس
-  function sendReminder(input: ReminderInput) {
-    const at = `${MOCK_NOW.toISOString().slice(0, 10)}${new Date().toISOString().slice(10)}`;
-
-    setInvoice((prev) => ({
-      ...prev,
-      history: [
-        {
-          id: `h-r-${Date.now()}`,
-          type: 'reminderSent',
-          at,
-          values: { channel: input.channel },
-        },
-        ...prev.history,
-      ],
-    }));
-    setReminderOpen(false);
-    toast.success(t('toasts.reminderSent', { recipient: input.recipient }));
+  async function recordPayment(input: PaymentInput) {
+    const ok = await run(
+      action.mutateAsync({
+        kind: 'payment',
+        ref: invoice.id,
+        body: { amount: input.amount.toFixed(2), date: input.date, method: input.method, note: input.note },
+      }),
+      tInvoices('toasts.paymentRecorded', { number: String(invoice.number) }),
+    );
+    if (ok) setPaymentOpen(false);
   }
 
-  // TODO: الرابط الحقيقي لازم يستخدم رمز عشوائي مش رقم الفاتورة، وصفحته هنعملها بعدين
+  // Recorded in the history; actual email/WhatsApp delivery comes later.
+  async function sendReminder(input: ReminderInput) {
+    const ok = await run(
+      action.mutateAsync({ kind: 'reminder', ref: invoice.id, body: input }),
+      t('toasts.reminderSent', { recipient: input.recipient }),
+    );
+    if (ok) setReminderOpen(false);
+  }
+
+  function issue() {
+    void run(action.mutateAsync({ kind: 'send', ref: invoice.id }), tApi('issued', { number: String(invoice.number) }));
+  }
+
+  async function cancel() {
+    setCancelOpen(false);
+    await run(
+      action.mutateAsync({ kind: 'cancel', ref: invoice.id }),
+      tInvoices('toasts.cancelled', { number: String(invoice.number) }),
+    );
+  }
+
+  // The link uses a random token, so invoice numbers can't be guessed.
   async function copyLink() {
-    const url = `${window.location.origin}/${locale}/i/${invoice.number}`;
-
+    if (!data.publicToken) {
+      toast.info(tApi('publicUnavailable'));
+      return;
+    }
+    const url = `${window.location.origin}/${locale}/i/${data.publicToken}`;
     try {
       await navigator.clipboard.writeText(url);
       toast.success(t('toasts.linkCopied'));
@@ -134,48 +162,46 @@ export default function InvoiceDetailView({
           <>
             {t('title')}{' '}
             <span dir="ltr" className="inline-block">
-              #{invoice.number}
+              {data.displayNumber}
             </span>
           </>
         }
         description={
           <span className="flex flex-wrap items-center gap-2">
-            <span>
-              {t('subtitle', {
-                customer: invoice.customer,
-                date: date(invoice.issueDate),
-              })}
-            </span>
-            <StatusBadge
-              status={invoice.status}
-              daysOverdue={invoice.daysOverdue}
-            />
+            <span>{t('subtitle', { customer: invoice.customer, date: date(invoice.issueDate) })}</span>
+            <StatusBadge status={invoice.status} daysOverdue={invoice.daysOverdue} />
           </span>
         }
         actions={
           <>
-            <Link
-              href="/invoices"
-              className={cn(buttonVariants({ variant: 'outline' }), outlineBtn)}
-            >
+            <Link href="/invoices" className={cn(buttonVariants({ variant: 'outline' }), outlineBtn)}>
               <ArrowLeft className="size-4 rtl:rotate-180" />
               {t('back')}
             </Link>
-            <Button
-              variant="outline"
-              onClick={downloadPdf}
-              className={outlineBtn}
-            >
+            <Button variant="outline" onClick={downloadPdf} className={outlineBtn}>
               <Download className="size-4" />
               {t('downloadPdf')}
             </Button>
-            <Button
-              className={primaryBtn}
-              disabled={!canPay}
-              onClick={() => setPaymentOpen(true)}
-            >
-              {t('recordPayment')}
-            </Button>
+            {mayCancel && (
+              <Button
+                variant="outline"
+                onClick={() => setCancelOpen(true)}
+                className={cn(outlineBtn, 'text-danger hover:text-danger')}
+              >
+                <Ban className="size-4" />
+                {tApi('cancel')}
+              </Button>
+            )}
+            {invoice.status === 'draft' && mayIssue ? (
+              <Button className={primaryBtn} disabled={action.isPending} onClick={issue}>
+                {action.isPending ? <Loader2 className="size-4 animate-spin" /> : <Send className="size-4" />}
+                {tApi('issue')}
+              </Button>
+            ) : (
+              <Button className={primaryBtn} disabled={!mayPay} onClick={() => setPaymentOpen(true)}>
+                {t('recordPayment')}
+              </Button>
+            )}
           </>
         }
       />
@@ -190,10 +216,10 @@ export default function InvoiceDetailView({
         {/* العمود الجانبي */}
         <aside className="space-y-5">
           <QuickActionsCard
-            canPay={canPay}
-            canShare={invoice.status !== 'draft'}
+            canPay={mayPay}
+            canShare={Boolean(data.publicToken)}
             onRecordPayment={() => setPaymentOpen(true)}
-            onSendReminder={() => setReminderOpen(true)}
+            onSendReminder={() => (mayRemind ? setReminderOpen(true) : undefined)}
             onCopyLink={copyLink}
             onPreview={() => setPreviewOpen(true)}
             onViewEntry={() => setLedgerOpen(true)}
@@ -212,24 +238,13 @@ export default function InvoiceDetailView({
         onSubmit={recordPayment}
       />
 
-      <ReminderDialog
-        open={reminderOpen}
-        onOpenChange={setReminderOpen}
-        invoice={invoice}
-        onSend={sendReminder}
-      />
+      <ReminderDialog open={reminderOpen} onOpenChange={setReminderOpen} invoice={invoice} onSend={sendReminder} />
 
-      <PreviewDialog
-        open={previewOpen}
-        onOpenChange={setPreviewOpen}
-        invoice={invoice}
-      />
+      <PreviewDialog open={previewOpen} onOpenChange={setPreviewOpen} invoice={invoice} />
 
-      <LedgerSheet
-        open={ledgerOpen}
-        onOpenChange={setLedgerOpen}
-        invoice={invoice}
-      />
+      <LedgerSheet open={ledgerOpen} onOpenChange={setLedgerOpen} invoice={invoice} />
+
+      <CancelInvoiceDialog invoices={cancelOpen ? [invoice] : null} onConfirm={cancel} onClose={() => setCancelOpen(false)} />
 
       {/* نسخة الطباعة: مخفية على الشاشة وبتظهر وقت الطباعة بس */}
       <InvoicePrintSheet invoice={invoice} />

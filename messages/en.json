@@ -551,7 +551,8 @@
   "title": "History",
   "events": {
     "created": { "title": "Invoice created", "detail": "by {name}" },
-    "sent": { "title": "Sent by email", "detail": "to {email}" },
+    "sent": { "title": "Invoice issued" },
+    "cancelled": { "title": "Invoice cancelled" },
     "viewed": { "title": "Customer viewed the invoice" },
     "reminder": { "title": "Automatic reminder", "detail": "Sent via WhatsApp" },
     "payment": { "title": "Payment recorded", "detail": "for {amount}" },
@@ -2517,5 +2518,20 @@
   "SettingsApi": {
     "loadError": "We couldn't load the settings.",
     "retry": "Try again"
+  },
+  "InvoicesApi": {
+    "loadError": "We couldn't load the invoice.",
+    "retry": "Try again",
+    "notFoundTitle": "This invoice doesn't exist",
+    "notFoundBody": "It may belong to another company, or the number is wrong.",
+    "backToList": "Back to invoices",
+    "issue": "Issue invoice",
+    "issued": "Invoice {number} issued",
+    "cancel": "Cancel invoice",
+    "publicUnavailable": "The invoice link is created when the invoice is issued",
+    "created": "Invoice {number} created",
+    "draftSaved": "Invoice {number} saved as a draft",
+    "noCustomers": "No customers yet. Add one first on the customers page.",
+    "issuedBy": "Issued by {name}"
   }
 }

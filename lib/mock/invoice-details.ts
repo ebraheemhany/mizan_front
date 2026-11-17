@@ -30,7 +30,7 @@ export type Payment = {
 
 export type HistoryEvent = {
   id: string;
-type: 'created' | 'sent' | 'viewed' | 'reminder' | 'reminderSent' | 'payment';
+type: 'created' | 'sent' | 'viewed' | 'reminder' | 'reminderSent' | 'payment' | 'cancelled';
   at: string; // yyyy-mm-dd أو ISO كامل لو فيه وقت
   values?: Record<string, string | number>;
   

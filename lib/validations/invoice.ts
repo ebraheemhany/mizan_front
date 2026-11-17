@@ -48,9 +48,14 @@ export function lineAmount(item: { quantity: string; unitPrice: string }) {
   return Number.isFinite(q) && Number.isFinite(p) ? q * p : 0;
 }
 
-export function calcTotals(items: { quantity: string; unitPrice: string }[]) {
-  const subtotal = Math.round(items.reduce((sum, i) => sum + lineAmount(i), 0) * 100) / 100;
+/**
+ * A live preview while typing. The backend works out the real totals with exact
+ * decimals (each line rounded to piasters, then VAT on the subtotal), the same way.
+ */
+export function calcTotals(items: { quantity: string; unitPrice: string }[], vatRate = VAT_RATE) {
+  const lines = items.map((i) => Math.round(lineAmount(i) * 100) / 100);
+  const subtotal = Math.round(lines.reduce((sum, a) => sum + a, 0) * 100) / 100;
   // الضريبة بالقروش مش بالجنيه، علشان فاتورة زي 10.50 ضريبتها 1.47 مش 1
-  const vat = Math.round(subtotal * VAT_RATE) / 100;
+  const vat = Math.round(subtotal * vatRate) / 100;
   return { subtotal, vat, total: Math.round((subtotal + vat) * 100) / 100 };
 }
