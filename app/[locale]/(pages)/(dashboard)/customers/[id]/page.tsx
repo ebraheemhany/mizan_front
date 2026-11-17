@@ -1,9 +1,7 @@
 // app/[locale]/(pages)/(dashboard)/customers/[id]/page.tsx
-import { notFound } from 'next/navigation';
 import { setRequestLocale } from 'next-intl/server';
 
-import { getCustomerDetail } from '@/lib/mock/customer-details';
-import CustomerDetailView from '@/component/dashbord/customers/CustomerDetailView';
+import CustomerDetailLoader from '@/component/dashbord/customers/CustomerDetailLoader';
 
 export default async function CustomerDetailPage({
   params,
@@ -13,8 +11,6 @@ export default async function CustomerDetailPage({
   const { locale, id } = await params;
   setRequestLocale(locale);
 
-  const detail = getCustomerDetail(id);
-  if (!detail) notFound();
-
-  return <CustomerDetailView key={id} detail={detail} />;
+  // Data comes from the API in the browser (it needs the user's access token).
+  return <CustomerDetailLoader key={id} id={id} />;
 }

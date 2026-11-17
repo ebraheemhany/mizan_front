@@ -5,7 +5,7 @@ import { useMemo } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useLocale, useTranslations } from 'next-intl';
-import { Pencil, UserPlus, X } from 'lucide-react';
+import { Loader2, Pencil, UserPlus, X } from 'lucide-react';
 import { FieldError } from '@/component/form-parts';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -19,7 +19,7 @@ import {
 } from '@/components/ui/sheet';
 import { Textarea } from '@/components/ui/textarea';
 import { rtlLocales } from '@/i18n/routing';
-import { OWNERS } from '@/lib/mock/customers';
+import type { Owner } from '@/lib/mock/customers';
 import SettingsSelect from '@/component/dashbord/settings/SettingsSelect';
 import {
   createCustomerSchema,
@@ -32,26 +32,30 @@ const labelClass = 'text-ink mb-2 text-sm font-bold';
 
 type Mode = 'create' | 'edit';
 
-const EMPTY: CustomerFormValues = {
+const emptyValues = (ownerId: string): CustomerFormValues => ({
   name: '',
   contact: '',
   phone: '',
   email: '',
   city: '',
-  ownerId: OWNERS[0].id,
+  ownerId,
   taxNumber: '',
   notes: '',
-};
+});
 
 function CustomerForm({
   mode,
   initial,
+  owners,
+  defaultOwnerId,
   onSubmit,
   onCancel,
 }: {
   mode: Mode;
   initial?: CustomerFormValues;
-  onSubmit: (values: CustomerFormValues) => void;
+  owners: Owner[];
+  defaultOwnerId: string;
+  onSubmit: (values: CustomerFormValues) => void | Promise<void>;
   onCancel: () => void;
 }) {
   const t = useTranslations('Customers.addSheet');
@@ -72,10 +76,10 @@ function CustomerForm({
     register,
     control,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, isSubmitting },
   } = useForm<CustomerFormValues>({
     resolver: zodResolver(schema),
-    defaultValues: initial ?? EMPTY,
+    defaultValues: initial ?? emptyValues(defaultOwnerId),
   });
 
   return (
@@ -187,7 +191,7 @@ function CustomerForm({
                   id="c-owner"
                   value={field.value}
                   onValueChange={field.onChange}
-                  options={OWNERS.map((o) => ({ value: o.id, label: o.name }))}
+                  options={owners.map((o) => ({ value: o.id, label: o.name }))}
                 />
               )}
             />
@@ -241,8 +245,10 @@ function CustomerForm({
         </Button>
         <Button
           type="submit"
-          className="rounded-btn bg-brand hover:bg-brand/90 h-11 px-8 font-bold text-white"
+          disabled={isSubmitting}
+          className="rounded-btn bg-brand hover:bg-brand/90 h-11 gap-2 px-8 font-bold text-white"
         >
+          {isSubmitting && <Loader2 className="size-4 animate-spin" />}
           {t(mode === 'edit' ? 'saveChanges' : 'submit')}
         </Button>
       </div>
@@ -254,12 +260,19 @@ export default function AddCustomerSheet({
   open,
   onOpenChange,
   onSubmit,
+  owners,
+  defaultOwnerId,
   mode = 'create',
   initial,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onSubmit: (values: CustomerFormValues) => void;
+  /** May be async: the save button shows a spinner until it settles. */
+  onSubmit: (values: CustomerFormValues) => void | Promise<void>;
+  /** Team members to pick "responsible" from. */
+  owners: Owner[];
+  /** Pre-selected responsible person for a new customer (the current user). */
+  defaultOwnerId: string;
   mode?: Mode;
   /** قيم النموذج في وضع التعديل */
   initial?: CustomerFormValues;
@@ -304,6 +317,8 @@ export default function AddCustomerSheet({
         <CustomerForm
           mode={mode}
           initial={initial}
+          owners={owners}
+          defaultOwnerId={defaultOwnerId}
           onSubmit={onSubmit}
           onCancel={() => onOpenChange(false)}
         />

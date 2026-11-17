@@ -3,7 +3,7 @@
 
 import { useMemo, useRef, useState, type ChangeEvent } from 'react';
 import { useTranslations } from 'next-intl';
-import { Download, Plus, TriangleAlert, Upload } from 'lucide-react';
+import { Download, Loader2, Plus, TriangleAlert, Upload } from 'lucide-react';
 import { toast } from 'sonner';
 
 import { Button } from '@/components/ui/button';
@@ -17,10 +17,28 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { CUSTOMERS, OWNERS, type Customer } from '@/lib/mock/customers';
-import { downloadCsv, parseCsv, type CsvColumn } from '@/lib/csv';
+import { ApiError } from '@/lib/api/client';
+import { useApiErrorMessage } from '@/lib/api/use-api-error';
+import { can } from '@/lib/auth/permissions';
+import { useSession } from '@/lib/auth/session';
 import {
-  applyCustomerForm,
+  fetchCustomersForExport,
+  formToInput,
+  toUiCustomer,
+  useAssignCustomers,
+  useCreateCustomer,
+  useCustomers,
+  useDeleteCustomers,
+  useImportCustomers,
+  useTeamDirectory,
+  useUpdateCustomer,
+  type CustomerInput,
+  type CustomerListParams,
+} from '@/lib/customers/hooks';
+import type { Customer } from '@/lib/mock/customers';
+import { downloadCsv, parseCsv, type CsvColumn } from '@/lib/csv';
+import { useDebouncedValue } from '@/lib/use-debounced-value';
+import {
   createCustomerSchema,
   customerToFormValues,
   type CustomerFormValues,
@@ -30,13 +48,7 @@ import BulkActionsBar from './BulkActionsBar';
 import CustomersTable from './CustomersTable';
 import CustomersToolbar from './CustomersToolbar';
 
-import {
-  applyFilters,
-  DEFAULT_FILTERS,
-  PAGE_SIZE,
-  type Filters,
-  type StatusFilter,
-} from './utils';
+import { DEFAULT_FILTERS, PAGE_SIZE, type Filters, type StatusFilter } from './utils';
 import PageHeader from '@/component/PageHeader';
 import FilterTabs from '../FilterTabs';
 import Pagination from '../Pagination';
@@ -50,99 +62,103 @@ const TAB_KEYS: StatusFilter[] = ['all', 'active', 'overdue', 'inactive'];
 
 export default function CustomersView() {
   const t = useTranslations('Customers');
-  const [filters, setFilters] = useState<Filters>(DEFAULT_FILTERS);
-  const [requestedPage, setPage] = useState(1);
-  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const tApi = useTranslations('CustomersApi');
+  const errorMessage = useApiErrorMessage();
+  const user = useSession();
+  const canEdit = can(user.role, 'editCustomers');
+  const canDelete = can(user.role, 'deleteData');
 
-  // TODO: لما نربط الـ API العملاء بتيجي من الباك إند
-  const [customers, setCustomers] = useState<Customer[]>(CUSTOMERS);
+  const [filters, setFilters] = useState<Filters>(DEFAULT_FILTERS);
+  const [page, setPage] = useState(1);
+  // Selected customers by id. Kept as objects so the selection (and its names
+  // in the delete dialog) survives moving between pages.
+  const [selected, setSelected] = useState<Map<string, Customer>>(new Map());
   const [addOpen, setAddOpen] = useState(false);
   const [editing, setEditing] = useState<Customer | null>(null);
   const [editOpen, setEditOpen] = useState(false);
-  // عميل واحد من قايمة الصف، أو أكتر من الإجراءات الجماعية
+  // One customer from a row menu, or several from the bulk actions.
   const [deleting, setDeleting] = useState<Customer[] | null>(null);
   const importInputRef = useRef<HTMLInputElement>(null);
 
-  // أي تغيير في الفلاتر يرجّعك للصفحة الأولى ويلغي التحديد
+  // Search waits until typing pauses, so we don't send a request per keystroke.
+  const query = useDebouncedValue(filters.query.trim(), 300);
+  const params: CustomerListParams = {
+    q: query || undefined,
+    status: filters.status,
+    assignedTo: filters.owner === 'all' ? undefined : filters.owner,
+    balance: filters.balance,
+    sort: filters.sort,
+    page,
+    pageSize: PAGE_SIZE,
+  };
+
+  const customersQuery = useCustomers(params);
+  const directory = useTeamDirectory();
+  const owners = useMemo(() => directory.data ?? [], [directory.data]);
+
+  const data = customersQuery.data;
+  const rows = useMemo(() => data?.items.map(toUiCustomer) ?? [], [data]);
+  const total = data?.total ?? 0;
+  const selectedIds = useMemo(() => new Set(selected.keys()), [selected]);
+  const allSelected = rows.length > 0 && rows.every((r) => selected.has(r.id));
+
+  const createCustomer = useCreateCustomer();
+  const updateCustomer = useUpdateCustomer();
+  const deleteCustomers = useDeleteCustomers();
+  const assignCustomers = useAssignCustomers();
+  const importMutation = useImportCustomers();
+
+  // Any filter change goes back to page 1 and clears the selection.
   const update = (patch: Partial<Filters>) => {
     setFilters((f) => ({ ...f, ...patch }));
     setPage(1);
-    setSelected(new Set());
+    setSelected(new Map());
   };
 
-  const rows = useMemo(
-    () => applyFilters(customers, filters),
-    [customers, filters],
-  );
-  // لو اتحذف آخر صف في آخر صفحة، نرجع لآخر صفحة موجودة بدل جدول فاضي
-  const page = Math.min(
-    requestedPage,
-    Math.max(1, Math.ceil(rows.length / PAGE_SIZE)),
-  );
-  const pageRows = rows.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
-  const allSelected =
-    pageRows.length > 0 && pageRows.every((r) => selected.has(r.id));
-
-  const tabs = useMemo(
-    () =>
-      TAB_KEYS.map((key) => ({
-        value: key,
-        label: t(`tabs.${key}`),
-        count:
-          key === 'all'
-            ? customers.length
-            : customers.filter((c) => c.status === key).length,
-        tone: key === 'overdue' ? ('danger' as const) : undefined,
-      })),
-    [customers, t],
-  );
+  const tabs = TAB_KEYS.map((key) => ({
+    value: key,
+    label: t(`tabs.${key}`),
+    count: data?.counts[key] ?? 0,
+    tone: key === 'overdue' ? ('danger' as const) : undefined,
+  }));
 
   const toggleRow = (id: string) =>
     setSelected((prev) => {
-      const next = new Set(prev);
+      const next = new Map(prev);
+      const row = rows.find((r) => r.id === id);
       if (next.has(id)) next.delete(id);
-      else next.add(id);
+      else if (row) next.set(id, row);
       return next;
     });
 
   const togglePage = (checked: boolean) =>
     setSelected((prev) => {
-      const next = new Set(prev);
-      for (const r of pageRows) {
-        if (checked) next.add(r.id);
+      const next = new Map(prev);
+      for (const r of rows) {
+        if (checked) next.set(r.id, r);
         else next.delete(r.id);
       }
       return next;
     });
 
-  function addCustomer(input: CustomerFormValues) {
-    const customer: Customer = {
-      id: `c-new-${Date.now()}`,
-      name: input.name,
-      city: input.city,
-      contact: input.contact,
-      phone: input.phone,
-      email: input.email,
-      ownerId:
-        OWNERS.find((owner) => owner.name === input.ownerId.trim())?.id ??
-        input.ownerId.trim(),
-      balance: 0,
-      lastActivityDaysAgo: 0,
-      status: 'active',
-      taxNumber: input.taxNumber || undefined,
-      notes: input.notes.trim() || undefined,
-    };
+  const ownerName = (id: string) => owners.find((o) => o.id === id)?.name ?? '';
 
-    // TODO: POST /customers لما نربط الـ API
-    setCustomers((prev) => [customer, ...prev]);
+  // -------------------------------------------------------------------------
+  // Create / edit
+  // -------------------------------------------------------------------------
 
-    // نرجّع الفلاتر والصفحة علشان العميل الجديد يظهر في أول الجدول
-    setFilters(DEFAULT_FILTERS);
-    setPage(1);
-    setSelected(new Set());
-
-    setAddOpen(false);
-    toast.success(t('toasts.added', { name: input.name }));
+  async function addCustomer(values: CustomerFormValues) {
+    try {
+      await createCustomer.mutateAsync(formToInput(values));
+      // Back to the default view so the new customer shows first.
+      setFilters(DEFAULT_FILTERS);
+      setPage(1);
+      setSelected(new Map());
+      setAddOpen(false);
+      toast.success(t('toasts.added', { name: values.name }));
+    } catch (error) {
+      toast.error(errorMessage(error));
+    }
   }
 
   function openEdit(customer: Customer) {
@@ -150,76 +166,66 @@ export default function CustomersView() {
     setEditOpen(true);
   }
 
-  function saveCustomer(values: CustomerFormValues) {
+  async function saveCustomer(values: CustomerFormValues) {
     if (!editing) return;
-    const id = editing.id;
-
-    // نفس معالجة المسؤول في الإضافة: بيقبل id أو اسم
-    const ownerId =
-      OWNERS.find((owner) => owner.name === values.ownerId.trim())?.id ??
-      values.ownerId.trim();
-
-    // TODO: PATCH /customers/:id لما نربط الـ API
-    setCustomers((prev) =>
-      prev.map((c) =>
-        c.id === id ? applyCustomerForm(c, { ...values, ownerId }) : c,
-      ),
-    );
-
-    setEditOpen(false);
-    toast.success(t('toasts.updated', { name: values.name }));
+    try {
+      await updateCustomer.mutateAsync({ id: editing.id, input: formToInput(values) });
+      setEditOpen(false);
+      toast.success(t('toasts.updated', { name: values.name }));
+    } catch (error) {
+      toast.error(errorMessage(error));
+    }
   }
+
+  // -------------------------------------------------------------------------
+  // Delete / assign
+  // -------------------------------------------------------------------------
 
   function deleteCustomer() {
     if (!deleting?.length) return;
-
-    const deletedIds = new Set(deleting.map((customer) => customer.id));
-    const nextCustomers = customers.filter(
-      (customer) => !deletedIds.has(customer.id),
-    );
-
-    // TODO: DELETE /customers/:id لما نربط الـ API
-    setCustomers(nextCustomers);
-    setSelected((current) => {
-      const next = new Set(current);
-      deletedIds.forEach((id) => next.delete(id));
-      return next;
-    });
-    setPage((currentPage) =>
-      Math.min(
-        currentPage,
-        Math.max(
-          1,
-          Math.ceil(applyFilters(nextCustomers, filters).length / PAGE_SIZE),
-        ),
-      ),
-    );
+    const victims = deleting;
+    const ids = victims.map((c) => c.id);
     setDeleting(null);
-    toast.success(
-      deleting.length === 1
-        ? t('toasts.deleted', { name: deleting[0].name })
-        : t('toasts.deletedMany', { count: deleting.length }),
-    );
+
+    deleteCustomers.mutate(ids, {
+      onSuccess: () => {
+        setSelected((current) => {
+          const next = new Map(current);
+          ids.forEach((id) => next.delete(id));
+          return next;
+        });
+        // If that emptied the current page, step back one.
+        const leftOnPage = rows.filter((r) => !ids.includes(r.id)).length;
+        if (leftOnPage === 0 && page > 1) setPage(page - 1);
+        toast.success(
+          victims.length === 1
+            ? t('toasts.deleted', { name: victims[0].name })
+            : t('toasts.deletedMany', { count: victims.length }),
+        );
+      },
+      onError: (error) => toast.error(errorMessage(error)),
+    });
   }
 
   function assignSelected(ownerId: string) {
-    const owner = OWNERS.find((o) => o.id === ownerId);
-    if (!owner) return;
-
-    // TODO: PATCH /customers لما نربط الـ API
-    setCustomers((list) =>
-      list.map((c) => (selected.has(c.id) ? { ...c, ownerId } : c)),
+    const ids = [...selected.keys()];
+    assignCustomers.mutate(
+      { ids, assignedToId: ownerId },
+      {
+        onSuccess: () => {
+          toast.success(t('toasts.assigned', { count: ids.length, owner: ownerName(ownerId) }));
+          setSelected(new Map());
+        },
+        onError: (error) => toast.error(errorMessage(error)),
+      },
     );
-    toast.success(
-      t('toasts.assigned', { count: selected.size, owner: owner.name }),
-    );
-    setSelected(new Set());
   }
 
-  function exportCustomers(
-    exportRows: Customer[] = rows,
-    filename = 'customers',
-  ) {
+  // -------------------------------------------------------------------------
+  // CSV export / import
+  // -------------------------------------------------------------------------
+
+  function downloadCustomers(exportRows: Customer[], filename: string) {
     if (exportRows.length === 0) {
       toast.error(t('importExport.noCustomersToExport'));
       return;
@@ -231,30 +237,31 @@ export default function CustomersView() {
       { header: t('columns.phone'), value: (customer) => customer.phone },
       { header: t('columns.email'), value: (customer) => customer.email },
       { header: t('columns.city'), value: (customer) => customer.city },
-      {
-        header: t('columns.owner'),
-        value: (customer) =>
-          OWNERS.find((owner) => owner.id === customer.ownerId)?.name ??
-          customer.ownerId,
-      },
+      { header: t('columns.owner'), value: (customer) => ownerName(customer.ownerId) },
       { header: t('columns.balance'), value: (customer) => customer.balance },
-      {
-        header: t('columns.status'),
-        value: (customer) => t(`status.${customer.status}`),
-      },
-      {
-        header: t('addSheet.taxNumber'),
-        value: (customer) => customer.taxNumber,
-      },
+      { header: t('columns.status'), value: (customer) => t(`status.${customer.status}`) },
+      { header: t('addSheet.taxNumber'), value: (customer) => customer.taxNumber },
       { header: t('addSheet.notes'), value: (customer) => customer.notes },
     ];
 
-    downloadCsv(
-      `${filename}-${new Date().toISOString().slice(0, 10)}.csv`,
-      columns,
-      exportRows,
-    );
+    downloadCsv(`${filename}-${new Date().toISOString().slice(0, 10)}.csv`, columns, exportRows);
     toast.success(t('importExport.exported', { count: exportRows.length }));
+  }
+
+  async function exportAll() {
+    try {
+      // Every customer matching the current filters, not just this page.
+      const items = await fetchCustomersForExport({
+        q: params.q,
+        status: params.status,
+        assignedTo: params.assignedTo,
+        balance: params.balance,
+        sort: params.sort,
+      });
+      downloadCustomers(items.map(toUiCustomer), 'customers');
+    } catch (error) {
+      toast.error(errorMessage(error));
+    }
   }
 
   async function importCustomers(event: ChangeEvent<HTMLInputElement>) {
@@ -274,68 +281,25 @@ export default function CustomersView() {
         return;
       }
 
-      const normalize = (value: string) =>
-        value.trim().toLocaleLowerCase().replace(/[_-]+/g, ' ');
+      const normalize = (value: string) => value.trim().toLocaleLowerCase().replace(/[_-]+/g, ' ');
+      // Balance and status are not imported: the backend works them out from
+      // invoices and activity.
       const aliases = {
-        name: [
-          t('columns.name'),
-          'name',
-          'customer',
-          'customer name',
-          'اسم العميل',
-          'العميل',
-        ],
-        contact: [
-          t('columns.contact'),
-          'contact',
-          'contact person',
-          'contact details',
-          'مسؤول التواصل',
-          'بيانات التواصل',
-        ],
-        phone: [
-          t('columns.phone'),
-          'phone',
-          'phone number',
-          'الهاتف',
-          'رقم الهاتف',
-        ],
+        name: [t('columns.name'), 'name', 'customer', 'customer name', 'اسم العميل', 'العميل'],
+        contact: [t('columns.contact'), 'contact', 'contact person', 'contact details', 'مسؤول التواصل', 'بيانات التواصل'],
+        phone: [t('columns.phone'), 'phone', 'phone number', 'الهاتف', 'رقم الهاتف'],
         email: [t('columns.email'), 'email', 'البريد الإلكتروني'],
         city: [t('columns.city'), 'city', 'المدينة'],
-        owner: [
-          t('columns.owner'),
-          'owner',
-          'account owner',
-          'المسؤول',
-          'المسؤول عن العميل',
-        ],
-        balance: [t('columns.balance'), 'balance', 'الرصيد'],
-        status: [t('columns.status'), 'status', 'الحالة'],
-        taxNumber: [
-          t('addSheet.taxNumber'),
-          'tax number',
-          'taxnumber',
-          'الرقم الضريبي',
-        ],
+        owner: [t('columns.owner'), 'owner', 'account owner', 'المسؤول', 'المسؤول عن العميل'],
+        taxNumber: [t('addSheet.taxNumber'), 'tax number', 'taxnumber', 'الرقم الضريبي'],
         notes: [t('addSheet.notes'), 'notes', 'ملاحظات'],
       } satisfies Record<string, string[]>;
 
       const findIndex = (key: keyof typeof aliases) =>
-        headers.findIndex((header) =>
-          aliases[key].some((label) => normalize(label) === normalize(header)),
-        );
-      const indexes = {
-        name: findIndex('name'),
-        contact: findIndex('contact'),
-        phone: findIndex('phone'),
-        email: findIndex('email'),
-        city: findIndex('city'),
-        owner: findIndex('owner'),
-        balance: findIndex('balance'),
-        status: findIndex('status'),
-        taxNumber: findIndex('taxNumber'),
-        notes: findIndex('notes'),
-      };
+        headers.findIndex((header) => aliases[key].some((label) => normalize(label) === normalize(header)));
+      const indexes = Object.fromEntries(
+        (Object.keys(aliases) as (keyof typeof aliases)[]).map((key) => [key, findIndex(key)]),
+      ) as Record<keyof typeof aliases, number>;
 
       if (indexes.name < 0) {
         toast.error(t('importExport.missingNameColumn'));
@@ -351,177 +315,155 @@ export default function CustomersView() {
       });
       const read = (record: string[], key: keyof typeof aliases) =>
         indexes[key] < 0 ? '' : (record[indexes[key]] ?? '').trim();
-      const statusMap: Record<string, Customer['status']> = {
-        active: 'active',
-        [normalize(t('status.active'))]: 'active',
-        overdue: 'overdue',
-        [normalize(t('status.overdue'))]: 'overdue',
-        inactive: 'inactive',
-        [normalize(t('status.inactive'))]: 'inactive',
-        نشط: 'active',
-        'متأخر السداد': 'overdue',
-        'غير نشط': 'inactive',
-      };
-      const imported: Customer[] = [];
+
+      const valid: CustomerInput[] = [];
       let invalidRows = 0;
 
       for (const record of records) {
-        const ownerName = read(record, 'owner');
+        const ownerCell = read(record, 'owner');
+        // A team member's name in the file; anyone else -> the person importing.
+        const ownerId = owners.find((o) => o.name === ownerCell)?.id ?? user.id;
         const parsed = schema.safeParse({
           name: read(record, 'name'),
           contact: read(record, 'contact'),
           phone: read(record, 'phone'),
           email: read(record, 'email'),
           city: read(record, 'city'),
-          ownerId:
-            (OWNERS.find((owner) => owner.name === ownerName)?.id ??
-              ownerName) ||
-            OWNERS[0].id,
+          ownerId,
           taxNumber: read(record, 'taxNumber'),
           notes: read(record, 'notes'),
         });
-        const rawBalance = read(record, 'balance');
-        const balance = rawBalance === '' ? 0 : Number(rawBalance);
-        const rawStatus = normalize(read(record, 'status'));
-        const status = rawStatus ? statusMap[rawStatus] : 'active';
-
-        if (!parsed.success || !Number.isFinite(balance) || !status) {
-          invalidRows += 1;
-          continue;
-        }
-
-        imported.push({
-          id: `c-import-${crypto.randomUUID()}`,
-          ...parsed.data,
-          balance,
-          lastActivityDaysAgo: 0,
-          status,
-        });
+        if (parsed.success) valid.push(formToInput(parsed.data));
+        else invalidRows += 1;
       }
 
-      if (imported.length === 0) {
+      if (valid.length === 0) {
         toast.error(t('importExport.noValidRows'));
         return;
       }
 
-      setCustomers((current) => [...imported, ...current]);
+      const { created } = await importMutation.mutateAsync(valid);
       setFilters(DEFAULT_FILTERS);
       setPage(1);
-      setSelected(new Set());
-      toast.success(t('importExport.imported', { count: imported.length }));
+      setSelected(new Map());
+      toast.success(t('importExport.imported', { count: created }));
       if (invalidRows > 0) {
         toast.warning(t('importExport.skippedRows', { count: invalidRows }));
       }
     } catch (error) {
-      console.error('Failed to import customer CSV', error);
-      toast.error(t('importExport.readFailed'));
+      if (error instanceof ApiError && error.code === 'IMPORT_INVALID_ROWS') {
+        const count = (error.details as { invalidCount?: number } | undefined)?.invalidCount ?? 1;
+        toast.error(tApi('importInvalidRows', { count }));
+      } else if (error instanceof ApiError) {
+        toast.error(errorMessage(error));
+      } else {
+        console.error('Failed to import customer CSV', error);
+        toast.error(t('importExport.readFailed'));
+      }
     } finally {
       input.value = '';
     }
   }
 
+  // -------------------------------------------------------------------------
+
   return (
     <div className="space-y-5">
-      <input
-        ref={importInputRef}
-        type="file"
-        accept=".csv,text/csv"
-        className="hidden"
-        onChange={importCustomers}
-      />
+      <input ref={importInputRef} type="file" accept=".csv,text/csv" className="hidden" onChange={importCustomers} />
       <PageHeader
         title={t('title')}
-        description={t('count', { count: customers.length })}
+        description={t('count', { count: data?.counts.all ?? 0 })}
         actions={
           <>
-            <Button
-              variant="outline"
-              className={outlineBtn}
-              onClick={() => importInputRef.current?.click()}
-            >
-              <Upload className="size-4" />
-              {t('import')}
-            </Button>
-            <Button
-              variant="outline"
-              className={outlineBtn}
-              onClick={() => exportCustomers()}
-            >
+            {canEdit && (
+              <Button
+                variant="outline"
+                className={outlineBtn}
+                disabled={importMutation.isPending}
+                onClick={() => importInputRef.current?.click()}
+              >
+                {importMutation.isPending ? <Loader2 className="size-4 animate-spin" /> : <Upload className="size-4" />}
+                {t('import')}
+              </Button>
+            )}
+            <Button variant="outline" className={outlineBtn} onClick={exportAll}>
               <Download className="size-4" />
               {t('export')}
             </Button>
-            <Button className={primaryBtn} onClick={() => setAddOpen(true)}>
-              <Plus className="size-4" />
-              {t('add')}
-            </Button>
+            {canEdit && (
+              <Button className={primaryBtn} onClick={() => setAddOpen(true)}>
+                <Plus className="size-4" />
+                {t('add')}
+              </Button>
+            )}
           </>
         }
       />
 
-      <FilterTabs
-        value={filters.status}
-        tabs={tabs}
-        onChange={(status) => update({ status })}
-      />
+      <FilterTabs value={filters.status} tabs={tabs} onChange={(status) => update({ status })} />
 
       <div className="rounded-card border-line bg-surface overflow-hidden border shadow-sm">
-        <CustomersToolbar filters={filters} onChange={update} />
+        <CustomersToolbar filters={filters} owners={owners} onChange={update} />
 
         {selected.size > 0 && (
           <BulkActionsBar
             count={selected.size}
-            owners={OWNERS}
+            owners={owners}
             onRemind={() => toast.info(t('comingSoon'))}
-            onAssign={assignSelected}
-            onDelete={() =>
-              setDeleting(customers.filter((c) => selected.has(c.id)))
-            }
-            onExport={() =>
-              exportCustomers(
-                customers.filter((customer) => selected.has(customer.id)),
-                'customers-selected',
-              )
-            }
+            onAssign={canEdit ? assignSelected : undefined}
+            onDelete={canDelete ? () => setDeleting([...selected.values()]) : undefined}
+            onExport={() => downloadCustomers([...selected.values()], 'customers-selected')}
           />
         )}
 
-        {rows.length === 0 ? (
-          <div className="border-line text-muted border-t px-4 py-14 text-center text-sm">
-            {t('empty')}
+        {customersQuery.isPending ? (
+          <div className="border-line text-muted flex justify-center border-t px-4 py-14">
+            <Loader2 className="size-5 animate-spin" />
           </div>
+        ) : customersQuery.isError ? (
+          <div className="border-line flex flex-col items-center gap-3 border-t px-4 py-14 text-center">
+            <p className="text-danger text-sm font-semibold">{tApi('loadError')}</p>
+            <Button variant="outline" className={outlineBtn} onClick={() => customersQuery.refetch()}>
+              {tApi('retry')}
+            </Button>
+          </div>
+        ) : rows.length === 0 ? (
+          <div className="border-line text-muted border-t px-4 py-14 text-center text-sm">{t('empty')}</div>
         ) : (
-          <>
+          // Dimmed while the next page or filter result loads.
+          <div className={customersQuery.isPlaceholderData ? 'opacity-60 transition-opacity' : undefined}>
             <CustomersTable
-              rows={pageRows}
-              selected={selected}
+              rows={rows}
+              selected={selectedIds}
               allSelected={allSelected}
               onToggleRow={toggleRow}
               onTogglePage={togglePage}
-              onEdit={openEdit}
-              onDelete={(customer) => setDeleting([customer])}
+              onEdit={canEdit ? openEdit : undefined}
+              onDelete={canDelete ? (customer) => setDeleting([customer]) : undefined}
             />
-            <Pagination
-              page={page}
-              pageSize={PAGE_SIZE}
-              total={rows.length}
-              onPageChange={setPage}
-            />
-          </>
+            <Pagination page={page} pageSize={PAGE_SIZE} total={total} onPageChange={setPage} />
+          </div>
         )}
       </div>
 
-      <AddCustomerSheet
-        open={addOpen}
-        onOpenChange={setAddOpen}
-        onSubmit={addCustomer}
-      />
+      {canEdit && (
+        <AddCustomerSheet
+          open={addOpen}
+          onOpenChange={setAddOpen}
+          owners={owners}
+          defaultOwnerId={user.id}
+          onSubmit={addCustomer}
+        />
+      )}
 
-      {editing && (
+      {canEdit && editing && (
         <AddCustomerSheet
           key={editing.id}
           mode="edit"
           open={editOpen}
           onOpenChange={setEditOpen}
+          owners={owners}
+          defaultOwnerId={user.id}
           initial={customerToFormValues(editing)}
           onSubmit={saveCustomer}
         />
@@ -534,7 +476,7 @@ export default function CustomersView() {
         }}
       >
         <AlertDialogContent className="rounded-card border-line bg-surface text-ink shadow-float gap-0 overflow-hidden border p-0 sm:max-w-sm">
-          <div className="flex flex-col items-center px-6 pb-6 pt-7 text-center">
+          <div className="flex flex-col items-center px-6 pt-7 pb-6 text-center">
             <span className="bg-danger-soft text-danger flex size-12 items-center justify-center rounded-full">
               <TriangleAlert className="size-5" />
             </span>
@@ -542,9 +484,7 @@ export default function CustomersView() {
               <AlertDialogTitle className="text-ink text-lg font-extrabold">
                 {deleting?.length === 1
                   ? t('deleteDialog.title', { name: deleting[0].name })
-                  : t('deleteDialog.titleMany', {
-                      count: deleting?.length ?? 0,
-                    })}
+                  : t('deleteDialog.titleMany', { count: deleting?.length ?? 0 })}
               </AlertDialogTitle>
               <AlertDialogDescription className="text-muted max-w-xs text-sm leading-6">
                 {t('deleteDialog.description')}

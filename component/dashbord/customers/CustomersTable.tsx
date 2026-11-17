@@ -55,8 +55,10 @@ export default function CustomersTable({
   allSelected: boolean;
   onToggleRow: (id: string) => void;
   onTogglePage: (checked: boolean) => void;
-  onEdit: (customer: Customer) => void;
-  onDelete: (customer: Customer) => void;
+  /** Omitted when the user's role can't edit customers: the menu item is hidden. */
+  onEdit?: (customer: Customer) => void;
+  /** Omitted when the user's role can't delete: the menu item is hidden. */
+  onDelete?: (customer: Customer) => void;
 }) {
   const t = useTranslations('Customers');
   const locale = useLocale();
@@ -178,24 +180,30 @@ export default function CustomersTable({
                         <Eye className="text-muted size-4" aria-hidden="true" />
                         {t('actions.view')}
                       </DropdownMenuItem>
-                      <DropdownMenuItem
-                        onClick={() => onEdit(c)}
-                        className="rounded-btn text-ink focus:bg-brand-soft focus:text-brand-deep data-highlighted:bg-brand-soft data-highlighted:text-brand-deep min-h-10 px-3 py-2 font-semibold"
-                      >
-                        <Pencil
-                          className="text-muted size-4"
-                          aria-hidden="true"
-                        />
-                        {t('actions.edit')}
-                      </DropdownMenuItem>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem
-                        onClick={() => onDelete(c)}
-                        className="text-danger focus:bg-danger-soft focus:text-danger data-highlighted:bg-danger-soft data-highlighted:text-danger rounded-btn min-h-10 px-3 py-2 font-semibold"
-                      >
-                        <Trash2 className="size-4" aria-hidden="true" />
-                        {t('actions.delete')}
-                      </DropdownMenuItem>
+                      {onEdit && (
+                        <DropdownMenuItem
+                          onClick={() => onEdit(c)}
+                          className="rounded-btn text-ink focus:bg-brand-soft focus:text-brand-deep data-highlighted:bg-brand-soft data-highlighted:text-brand-deep min-h-10 px-3 py-2 font-semibold"
+                        >
+                          <Pencil
+                            className="text-muted size-4"
+                            aria-hidden="true"
+                          />
+                          {t('actions.edit')}
+                        </DropdownMenuItem>
+                      )}
+                      {onDelete && (
+                        <>
+                          <DropdownMenuSeparator />
+                          <DropdownMenuItem
+                            onClick={() => onDelete(c)}
+                            className="text-danger focus:bg-danger-soft focus:text-danger data-highlighted:bg-danger-soft data-highlighted:text-danger rounded-btn min-h-10 px-3 py-2 font-semibold"
+                          >
+                            <Trash2 className="size-4" aria-hidden="true" />
+                            {t('actions.delete')}
+                          </DropdownMenuItem>
+                        </>
+                      )}
                     </DropdownMenuContent>
                   </DropdownMenu>
                 </td>

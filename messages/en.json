@@ -2494,5 +2494,13 @@
     "invalidBody": "It may have expired, been used already, or been revoked. Ask the company owner to send you a new invite.",
     "goLogin": "Go to login",
     "success": "Your account is ready. Log in to get started"
+  },
+  "CustomersApi": {
+    "loadError": "We couldn't load the customers.",
+    "retry": "Try again",
+    "importInvalidRows": "{count, plural, one {One row has an error} other {# rows have errors}}, so nothing was saved. Fix the file and try again.",
+    "notFoundTitle": "This customer doesn't exist",
+    "notFoundBody": "It may have been deleted, or the link is wrong.",
+    "backToList": "Back to customers"
   }
 }

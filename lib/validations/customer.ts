@@ -41,18 +41,3 @@ export function customerToFormValues(c: Customer): CustomerFormValues {
     notes: c.notes ?? '',
   };
 }
-
-// بيطبّق قيم النموذج على العميل ويسيب باقي بياناته (الرصيد والحالة...) زي ما هي
-export function applyCustomerForm(c: Customer, v: CustomerFormValues): Customer {
-  return {
-    ...c,
-    name: v.name,
-    contact: v.contact,
-    phone: v.phone,
-    email: v.email,
-    city: v.city,
-    ownerId: v.ownerId,
-    taxNumber: v.taxNumber || undefined,
-    notes: v.notes.trim() || undefined,
-  };
-}

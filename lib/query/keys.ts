@@ -16,6 +16,13 @@ export const queryKeys = {
     members: ['team', 'members'] as const,
     invitations: ['team', 'invitations'] as const,
   },
+  /** Names of everyone in the company (any role), for "assigned to" pickers. */
+  teamDirectory: ['team-directory'] as const,
+  customers: {
+    all: ['customers'] as const,
+    list: (params: object) => ['customers', 'list', params] as const,
+    detail: (id: string) => ['customers', 'detail', id] as const,
+  },
   /** Public: what an invite link points to (no login). */
   invitationPreview: (token: string) => ['invitation-preview', token] as const,
 };

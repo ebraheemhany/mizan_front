@@ -8,7 +8,10 @@ import { toast } from 'sonner';
 import PageHeader from '@/component/PageHeader';
 import { buttonVariants } from '@/components/ui/button';
 import { Link } from '@/i18n/navigation';
-import { CURRENT_USER } from '@/lib/mock/dashboard';
+import { useApiErrorMessage } from '@/lib/api/use-api-error';
+import { can } from '@/lib/auth/permissions';
+import { useSession } from '@/lib/auth/session';
+import { formToInput, useCreateCustomer, useTeamDirectory } from '@/lib/customers/hooks';
 import { MOCK_NOW } from '@/lib/mock/invoices';
 import type { CustomerFormValues } from '@/lib/validations/customer';
 import { cn } from '@/lib/utils';
@@ -28,10 +31,21 @@ export default function DashboardView() {
   const tCustomers = useTranslations('Customers');
   const format = useFormatter();
   const [addCustomerOpen, setAddCustomerOpen] = useState(false);
+  const user = useSession();
+  const canAddCustomer = can(user.role, 'editCustomers');
+  const directory = useTeamDirectory();
+  const createCustomer = useCreateCustomer();
+  const errorMessage = useApiErrorMessage();
+  const firstName = user.fullName.trim().split(/s+/)[0];
 
-  function addCustomer(values: CustomerFormValues) {
-    setAddCustomerOpen(false);
-    toast.success(tCustomers('toasts.added', { name: values.name }));
+  async function addCustomer(values: CustomerFormValues) {
+    try {
+      await createCustomer.mutateAsync(formToInput(values));
+      setAddCustomerOpen(false);
+      toast.success(tCustomers('toasts.added', { name: values.name }));
+    } catch (error) {
+      toast.error(errorMessage(error));
+    }
   }
 
   // TODO: التاريخ الحقيقي لما نربط الـ API
@@ -47,7 +61,7 @@ export default function DashboardView() {
   return (
     <div className="space-y-5">
       <PageHeader
-        title={t('greeting', { name: CURRENT_USER.firstName })}
+        title={t('greeting', { name: firstName })}
         description={t('subtitle', { date: today })}
         actions={
           <>
@@ -64,17 +78,19 @@ export default function DashboardView() {
               {t('newInvoice')}
             </Link>
 
-            <button
-              type="button"
-              onClick={() => setAddCustomerOpen(true)}
-              className={cn(
-                buttonVariants({ variant: 'outline' }),
-                outlineBtn,
-                'hidden sm:inline-flex',
-              )}
-            >
-              {t('addCustomer')}
-            </button>
+            {canAddCustomer && (
+              <button
+                type="button"
+                onClick={() => setAddCustomerOpen(true)}
+                className={cn(
+                  buttonVariants({ variant: 'outline' }),
+                  outlineBtn,
+                  'hidden sm:inline-flex',
+                )}
+              >
+                {t('addCustomer')}
+              </button>
+            )}
             <Link
               href="/deals"
               className={cn(
@@ -98,11 +114,15 @@ export default function DashboardView() {
 
       <RecentInvoices />
 
-      <AddCustomerSheet
-        open={addCustomerOpen}
-        onOpenChange={setAddCustomerOpen}
-        onSubmit={addCustomer}
-      />
+      {canAddCustomer && (
+        <AddCustomerSheet
+          open={addCustomerOpen}
+          onOpenChange={setAddCustomerOpen}
+          owners={directory.data ?? []}
+          defaultOwnerId={user.id}
+          onSubmit={addCustomer}
+        />
+      )}
     </div>
   );
 }

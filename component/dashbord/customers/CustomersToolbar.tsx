@@ -5,22 +5,25 @@ import { ArrowUpDown, Search, UserRound, WalletCards, X } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { OWNERS } from '@/lib/mock/customers';
+import type { Owner } from '@/lib/mock/customers';
 import FilterPopover, { type Option } from '../FilterPopover';
 import type { Filters } from './utils';
 
 export default function CustomersToolbar({
   filters,
+  owners,
   onChange,
 }: {
   filters: Filters;
+  /** Team members, for the "responsible" filter. */
+  owners: Owner[];
   onChange: (patch: Partial<Filters>) => void;
 }) {
   const t = useTranslations('Customers');
 
   const ownerOptions: Option[] = [
     { value: 'all', label: t('filters.ownerAll') },
-    ...OWNERS.map((o) => ({ value: o.id, label: o.name })),
+    ...owners.map((o) => ({ value: o.id, label: o.name })),
   ];
 
   const balanceOptions: Option[] = [

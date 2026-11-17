@@ -27,9 +27,11 @@ export default function BulkActionsBar({
   count: number;
   owners: Owner[];
   onRemind: () => void;
-  onAssign: (ownerId: string) => void;
+  /** Omitted when the user's role can't edit customers. */
+  onAssign?: (ownerId: string) => void;
   onExport: () => void;
-  onDelete: () => void;
+  /** Omitted when the user's role can't delete. */
+  onDelete?: () => void;
 }) {
   const t = useTranslations('Customers.bulk');
 
@@ -43,6 +45,7 @@ export default function BulkActionsBar({
         {t('remind')}
       </Button>
 
+      {onAssign && (
       <DropdownMenu modal={false}>
         <DropdownMenuTrigger
           className={cn(
@@ -69,11 +72,13 @@ export default function BulkActionsBar({
           ))}
         </DropdownMenuContent>
       </DropdownMenu>
+      )}
 
       <Button variant="outline" onClick={onExport} className={cn(base, green)}>
         {t('export')}
       </Button>
 
+      {onDelete && (
       <Button
         variant="outline"
         onClick={onDelete}
@@ -84,6 +89,7 @@ export default function BulkActionsBar({
       >
         {t('delete')}
       </Button>
+      )}
     </div>
   );
 }

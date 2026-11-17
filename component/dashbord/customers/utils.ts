@@ -1,5 +1,5 @@
 // components/customers/utils.ts
-import type { Customer, CustomerStatus } from '@/lib/mock/customers';
+import type { CustomerStatus } from '@/lib/mock/customers';
 
 export type StatusFilter = 'all' | CustomerStatus;
 
@@ -19,39 +19,7 @@ export const DEFAULT_FILTERS: Filters = {
   sort: 'recent',
 };
 
-const SORTERS: Record<Filters['sort'], (a: Customer, b: Customer) => number> = {
-  recent: (a, b) => a.lastActivityDaysAgo - b.lastActivityDaysAgo,
-  oldest: (a, b) => b.lastActivityDaysAgo - a.lastActivityDaysAgo,
-  balance: (a, b) => b.balance - a.balance,
-  name: (a, b) => a.name.localeCompare(b.name, 'ar'),
-};
-
-export function applyFilters(
-  list: Customer[],
-  f: Filters,
-  locale = 'ar',
-): Customer[] {
-  const q = f.query.trim().toLowerCase();
-
-  return list
-    .filter((c) => {
-      if (f.status !== 'all' && c.status !== f.status) return false;
-      if (f.owner !== 'all' && c.ownerId !== f.owner) return false;
-      if (f.balance === 'due' && c.balance <= 0) return false;
-      if (f.balance === 'zero' && c.balance !== 0) return false;
-      if (q && ![c.name, c.contact, c.phone, c.email].some((v) => v.toLowerCase().includes(q))) {
-        return false;
-      }
-      return true;
-    })
-    .sort(
-      f.sort === 'name'
-        ? (a, b) => a.name.localeCompare(b.name, locale)
-        : SORTERS[f.sort],
-    );
-}
-
-
+// Filtering, sorting and paging happen on the backend (GET /api/customers).
 export const PAGE_SIZE = 7;
 
 export function getPageItems(page: number, total: number): (number | 'dots')[] {
