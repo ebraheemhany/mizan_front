@@ -23,6 +23,11 @@ export const queryKeys = {
     list: (params: object) => ['customers', 'list', params] as const,
     detail: (id: string) => ['customers', 'detail', id] as const,
   },
+  products: {
+    all: ['products'] as const,
+    list: (params: object) => ['products', 'list', params] as const,
+    nextCode: (type: string) => ['products', 'next-code', type] as const,
+  },
   /** Public: what an invite link points to (no login). */
   invitationPreview: (token: string) => ['invitation-preview', token] as const,
 };

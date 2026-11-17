@@ -15,6 +15,7 @@ export type InvitableRole = (typeof INVITE_ROLES)[number];
 export const PERMISSIONS = [
   { key: 'viewCustomers', roles: ['owner', 'accountant', 'sales', 'viewer'] },
   { key: 'editCustomers', roles: ['owner', 'sales'] },
+  { key: 'editProducts', roles: ['owner', 'accountant'] },
   { key: 'issueInvoices', roles: ['owner', 'accountant'] },
   { key: 'recordPayments', roles: ['owner', 'accountant'] },
   { key: 'expenses', roles: ['owner', 'accountant'] },

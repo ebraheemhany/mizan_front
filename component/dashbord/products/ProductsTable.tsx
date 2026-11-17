@@ -30,8 +30,10 @@ export default function ProductsTable({
   onDelete,
 }: {
   rows: CatalogItem[];
-  onEdit: (item: CatalogItem) => void;
-  onDelete: (item: CatalogItem) => void;
+  /** Omitted when the user's role can't edit products: the menu item is hidden. */
+  onEdit?: (item: CatalogItem) => void;
+  /** Omitted when the user's role can't delete: the menu item is hidden. */
+  onDelete?: (item: CatalogItem) => void;
 }) {
   const t = useTranslations('Products');
   const format = useFormatter();
@@ -107,6 +109,7 @@ export default function ProductsTable({
                   })}
                 </td>
                 <td className={td}>
+                  {(onEdit || onDelete) && (
                   <DropdownMenu modal={false}>
                     <DropdownMenuTrigger
                       aria-label={t('table.actions')}
@@ -118,6 +121,7 @@ export default function ProductsTable({
                       align="end"
                       className="border-line bg-surface text-ink min-w-40 rounded-xl shadow-lg"
                     >
+                      {onEdit && (
                       <DropdownMenuItem
                         onClick={() => onEdit(item)}
                         className="rounded-lg px-3 py-2.5 text-xs font-semibold focus:bg-brand-soft focus:text-brand-deep data-highlighted:bg-brand-soft data-highlighted:text-brand-deep"
@@ -125,6 +129,8 @@ export default function ProductsTable({
                         <Pencil className="text-muted size-4" />
                         {t('actions.edit')}
                       </DropdownMenuItem>
+                      )}
+                      {onDelete && (
                       <DropdownMenuItem
                         onClick={() => onDelete(item)}
                         className="text-danger focus:bg-danger-soft focus:text-danger data-highlighted:bg-danger-soft data-highlighted:text-danger rounded-lg px-3 py-2.5 text-xs font-semibold"
@@ -132,8 +138,10 @@ export default function ProductsTable({
                         <Trash2 className="size-4" />
                         {t('actions.delete')}
                       </DropdownMenuItem>
+                      )}
                     </DropdownMenuContent>
                   </DropdownMenu>
+                  )}
                 </td>
               </tr>
             );

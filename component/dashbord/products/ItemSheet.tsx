@@ -5,6 +5,8 @@ import { useEffect } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 import { Controller, useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { Loader2 } from 'lucide-react';
+import { toast } from 'sonner';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -22,10 +24,12 @@ import {
   SheetHeader,
   SheetTitle,
 } from '@/components/ui/sheet';
+import { ApiError } from '@/lib/api/client';
+import { useApiErrorMessage } from '@/lib/api/use-api-error';
 import type { CatalogItem } from '@/lib/mock/products';
+import { useNextProductCode } from '@/lib/products/hooks';
 import { itemSchema, type ItemFormValues } from '@/lib/validations/products';
 import { CATEGORIES } from './ProductsToolbar';
-import { nextCode } from './utils';
 
 const label = 'text-ink-2 mb-1.5 block text-xs font-bold';
 const input =
@@ -35,15 +39,13 @@ const selectContent = 'border-line bg-surface text-ink rounded-xl shadow-lg';
 const selectItem =
   'rounded-btn min-h-10 px-3 py-2 text-xs font-semibold focus:bg-brand-soft focus:text-brand-deep data-highlighted:bg-brand-soft data-highlighted:text-brand-deep';
 
-function toDefaults(
-  item: CatalogItem | null,
-  items: CatalogItem[],
-): ItemFormValues {
+function toDefaults(item: CatalogItem | null): ItemFormValues {
   if (!item) {
     return {
       name: '',
       type: 'service',
-      code: nextCode(items, 'service'),
+      // Filled in from the server's suggestion (next-code) once it arrives.
+      code: '',
       price: '',
       taxRate: '14',
       category: 'software',
@@ -66,19 +68,19 @@ function toDefaults(
 export default function ItemSheet({
   open,
   item,
-  items,
   onOpenChange,
   onSubmit,
 }: {
   open: boolean;
   item: CatalogItem | null; // null = صنف جديد
-  items: CatalogItem[];
   onOpenChange: (open: boolean) => void;
-  onSubmit: (values: ItemFormValues) => void;
+  /** Saves on the server; throws on failure (the sheet shows the error). */
+  onSubmit: (values: ItemFormValues) => Promise<void>;
 }) {
   const t = useTranslations('Products.form');
   const tp = useTranslations('Products');
   const locale = useLocale();
+  const errorMessage = useApiErrorMessage();
 
   const {
     register,
@@ -87,26 +89,27 @@ export default function ItemSheet({
     setValue,
     setError,
     control,
-    formState: { errors, dirtyFields },
+    formState: { errors, dirtyFields, isSubmitting },
   } = useForm<ItemFormValues>({
     resolver: zodResolver(itemSchema),
-    defaultValues: toDefaults(item, items),
+    defaultValues: toDefaults(item),
   });
 
   // كل مرة الدرج يتفتح نبدأ من بيانات الصنف (أو فاضي)
   useEffect(() => {
-    if (open) reset(toDefaults(item, items));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    if (open) reset(toDefaults(item));
   }, [open, item, reset]);
 
   const type = useWatch({ control, name: 'type' });
+  // The server suggests the next free code for the chosen type.
+  const suggestedCode = useNextProductCode(type, open && !item);
 
   // في الصنف الجديد الكود المقترح يتغير مع النوع طالما ما اتعدّلش
   useEffect(() => {
-    if (open && !item && !dirtyFields.code) {
-      setValue('code', nextCode(items, type));
+    if (open && !item && !dirtyFields.code && suggestedCode.data) {
+      setValue('code', suggestedCode.data);
     }
-  }, [type, open, item, items, dirtyFields.code, setValue]);
+  }, [open, item, dirtyFields.code, suggestedCode.data, setValue]);
 
   const error = (key?: string) =>
     key ? (
@@ -115,17 +118,17 @@ export default function ItemSheet({
       </p>
     ) : null;
 
-  function submit(values: ItemFormValues) {
-    const taken = items.some(
-      (i) =>
-        i.id !== item?.id &&
-        i.code.toLowerCase() === values.code.trim().toLowerCase(),
-    );
-    if (taken) {
-      setError('code', { message: 'codeTaken' });
-      return;
+  async function submit(values: ItemFormValues) {
+    try {
+      await onSubmit(values);
+    } catch (error) {
+      // The server checks codes across the whole catalog, not just this page.
+      if (error instanceof ApiError && error.code === 'CODE_TAKEN') {
+        setError('code', { message: 'codeTaken' });
+      } else {
+        toast.error(errorMessage(error));
+      }
     }
-    onSubmit(values);
   }
 
   return (
@@ -322,8 +325,10 @@ export default function ItemSheet({
           <div className="border-line bg-surface sticky bottom-0 flex gap-2 border-t py-3">
             <Button
               type="submit"
-              className="rounded-btn bg-brand hover:bg-brand/90 h-10 flex-1 text-xs font-bold text-white"
+              disabled={isSubmitting}
+              className="rounded-btn bg-brand hover:bg-brand/90 h-10 flex-1 gap-2 text-xs font-bold text-white"
             >
+              {isSubmitting && <Loader2 className="size-4 animate-spin" />}
               {item ? t('saveEdit') : t('saveNew')}
             </Button>
             <Button
