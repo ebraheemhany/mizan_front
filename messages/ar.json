@@ -1544,7 +1544,8 @@
   "save": "حفظ المصروف",
   "errors": {
     "titleRequired": "اكتب البيان",
-    "amountInvalid": "اكتب مبلغ أكبر من صفر",
+    "amountInvalid": "اكتب مبلغ أكبر من صفر، وبحد أقصى رقمين بعد العلامة العشرية",
+    "titleTooLong": "البيان طويل، خليه 120 حرف بالكتير",
     "dateRequired": "اختار التاريخ"
   }
 }
@@ -1704,7 +1705,8 @@
     },
     "expenseDue": {
       "title": "مصروف مستحق: {title}",
-      "hint": "{amount} · يستحق {date}"
+      "hint": "{amount} · يستحق {date}",
+      "hintNoDate": "{amount} · مستحق"
     }
   }
 },
@@ -2435,6 +2437,7 @@
     "INVALID_REFRESH_TOKEN": "الجلسة خلصت، سجّل دخولك تاني",
     "REFRESH_TOKEN_REUSED": "اتقفلت الجلسة لأسباب أمنية، سجّل دخولك تاني",
     "INTERNAL_ERROR": "حصلت مشكلة، جرّب تاني",
+    "EXPENSE_NOT_DUE": "المصروف ده اتدفع بالفعل",
     "PAYMENT_NOT_PENDING": "الدفعة دي مش شيك قيد الصرف",
     "PAYMENT_NOT_REMOVABLE": "مينفعش تشيل الدفعة دي",
     "PAYMENT_EXCEEDS_BALANCE": "المبلغ أكبر من المتبقي على الفاتورة",
@@ -2560,5 +2563,26 @@
   },
   "DashboardApi": {
     "noComparison": "مفيش أرقام الشهر اللي فات للمقارنة"
+  },
+  "ExpensesApi": {
+    "paidFrom": "اتدفع من",
+    "retry": "حاول تاني",
+    "removed": "اتشال مصروف «{title}»",
+    "noComparison": "مفيش مصروفات الشهر اللي فات للمقارنة",
+    "columns": {
+      "date": "التاريخ",
+      "title": "البند",
+      "category": "التصنيف",
+      "vendor": "المورد",
+      "paidFrom": "اتدفع من",
+      "amount": "المبلغ",
+      "currency": "العملة",
+      "status": "الحالة",
+      "dueDate": "تاريخ الاستحقاق"
+    },
+    "statuses": {
+      "paid": "مدفوع",
+      "due": "مستحق"
+    }
   }
 }

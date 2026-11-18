@@ -6,6 +6,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { ApiError, onSessionExpired } from '@/lib/api/client';
 import { queryKeys } from './keys';
+import { dropUserData } from './reset';
 
 function makeQueryClient() {
   return new QueryClient({
@@ -30,10 +31,15 @@ export function QueryProvider({ children }: { children: ReactNode }) {
   // One client per browser tab, created once (not on every render).
   const [queryClient] = useState(makeQueryClient);
 
-  // When a request finds the session gone (refresh failed), mark it logged out;
-  // SessionProvider then sends the user to /login.
+  // When a request finds the session gone (refresh failed), mark it logged out first:
+  // SessionProvider is told, takes the app off the screen and sends the user to /login.
+  // Then drop the previous user's cached data.
   useEffect(
-    () => onSessionExpired(() => queryClient.setQueryData(queryKeys.session, null)),
+    () =>
+      onSessionExpired(() => {
+        queryClient.setQueryData(queryKeys.session, null);
+        dropUserData(queryClient);
+      }),
     [queryClient],
   );
 

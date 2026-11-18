@@ -27,7 +27,8 @@ import {
   type AppNotification,
   type NotificationKind,
 } from './utils';
-import { useExpenses, useTasks } from '@/component/dashbord/AppDataProvider';
+import { useTasks } from '@/component/dashbord/AppDataProvider';
+import { useExpenses } from '@/lib/expenses/hooks';
 const ICON: Record<NotificationKind, { Icon: LucideIcon; tone: string }> = {
   receivableOverdue: { Icon: Receipt, tone: 'bg-danger-soft text-danger' },
   taskOverdue: { Icon: ListChecks, tone: 'bg-danger-soft text-danger' },
@@ -66,6 +67,10 @@ export default function NotificationsMenu() {
     });
 
   function hint(n: AppNotification) {
+    // A due expense may have no due date: show just the amount, not a dangling "due".
+    if (n.kind === 'expenseDue' && !n.date) {
+      return t('items.expenseDue.hintNoDate', { amount: n.amount !== undefined ? money(n.amount) : '' });
+    }
     return t(`items.${n.kind}.hint`, {
       date: n.date ? date(n.date) : '',
       amount: n.amount !== undefined ? money(n.amount) : '',

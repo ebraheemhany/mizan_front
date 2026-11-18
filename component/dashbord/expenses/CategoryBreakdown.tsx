@@ -19,8 +19,11 @@ const BAR: Record<ExpenseCategory, string> = {
 
 export default function CategoryBreakdown({
   totals,
+  loading = false,
 }: {
   totals: { key: ExpenseCategory; amount: number }[];
+  /** While the totals aren't known yet (loading or failed): no "no expenses" message. */
+  loading?: boolean;
 }) {
   const t = useTranslations('Expenses');
   const money = useMoney();
@@ -33,7 +36,9 @@ export default function CategoryBreakdown({
         {t('breakdown.title')}
       </h2>
 
-      {totals.length === 0 ? (
+      {loading ? (
+        <p className="text-muted mt-4 text-xs">—</p>
+      ) : totals.length === 0 ? (
         <p className="text-muted mt-4 text-xs">{t('breakdown.empty')}</p>
       ) : (
         <ul className="mt-5 space-y-4">

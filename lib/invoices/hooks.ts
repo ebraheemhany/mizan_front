@@ -223,6 +223,8 @@ function useAfterInvoiceChange() {
     // Payments page and dashboard show invoice numbers too.
     void queryClient.invalidateQueries({ queryKey: queryKeys.payments.all });
     void queryClient.invalidateQueries({ queryKey: queryKeys.dashboard });
+    // The expenses page shows this month's revenue and net profit, both from issued invoices.
+    void queryClient.invalidateQueries({ queryKey: queryKeys.expenses.stats });
   };
 }
 

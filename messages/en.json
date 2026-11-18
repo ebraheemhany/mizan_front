@@ -1542,7 +1542,8 @@
   "save": "Save expense",
   "errors": {
     "titleRequired": "Enter a description",
-    "amountInvalid": "Enter an amount above zero",
+    "amountInvalid": "Enter an amount above zero, with up to 2 decimals",
+    "titleTooLong": "Keep the description to 120 characters",
     "dateRequired": "Pick a date"
   }
 }
@@ -1701,7 +1702,8 @@
     },
     "expenseDue": {
       "title": "Expense due: {title}",
-      "hint": "{amount} · due {date}"
+      "hint": "{amount} · due {date}",
+      "hintNoDate": "{amount} · due"
     }
   }
 },
@@ -2430,6 +2432,7 @@
     "INVALID_REFRESH_TOKEN": "Your session has expired, please log in again",
     "REFRESH_TOKEN_REUSED": "Your session was ended for security reasons, please log in again",
     "INTERNAL_ERROR": "Something went wrong, please try again",
+    "EXPENSE_NOT_DUE": "This expense is already paid",
     "PAYMENT_NOT_PENDING": "This payment is not a pending cheque",
     "PAYMENT_NOT_REMOVABLE": "This payment can't be removed",
     "PAYMENT_EXCEEDS_BALANCE": "The amount is more than what's left on the invoice",
@@ -2555,5 +2558,26 @@
   },
   "DashboardApi": {
     "noComparison": "Nothing last month to compare with"
+  },
+  "ExpensesApi": {
+    "paidFrom": "Paid from",
+    "retry": "Try again",
+    "removed": "Expense “{title}” removed",
+    "noComparison": "No expenses last month to compare with",
+    "columns": {
+      "date": "Date",
+      "title": "Item",
+      "category": "Category",
+      "vendor": "Vendor",
+      "paidFrom": "Paid from",
+      "amount": "Amount",
+      "currency": "Currency",
+      "status": "Status",
+      "dueDate": "Due date"
+    },
+    "statuses": {
+      "paid": "Paid",
+      "due": "Due"
+    }
   }
 }

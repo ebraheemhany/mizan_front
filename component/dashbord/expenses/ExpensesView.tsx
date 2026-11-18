@@ -3,102 +3,136 @@
 
 import { useMemo, useState } from 'react';
 import { useFormatter, useTranslations } from 'next-intl';
-import { Download, Plus } from 'lucide-react';
+import { Download, Loader2, Plus } from 'lucide-react';
 import { toast } from 'sonner';
 
 import Amount from '@/component/Amount';
 import PageHeader from '@/component/PageHeader';
-
 import StatCard from '@/component/StatCard';
 import { Button } from '@/components/ui/button';
-import { useMoney } from '@/lib/money';
-import { monthRevenue, type Expense } from '@/lib/mock/expenses';
-import { useExpenses } from '@/component/dashbord/AppDataProvider';
-import { CURRENT_MONTH } from '@/lib/mock/reports';
+import { useApiErrorMessage } from '@/lib/api/use-api-error';
+import { can } from '@/lib/auth/permissions';
+import { useSession } from '@/lib/auth/session';
+import { downloadCsv, type CsvColumn } from '@/lib/csv';
+import {
+  fetchExpensesForExport,
+  toUiExpense,
+  useAddExpense,
+  useDeleteExpense,
+  useExpenseList,
+  useExpenseStats,
+} from '@/lib/expenses/hooks';
+import type { Expense } from '@/lib/mock/expenses';
+import { DEFAULT_CURRENCY, useMoney } from '@/lib/money';
+import { useDebouncedValue } from '@/lib/use-debounced-value';
 import type { QuickExpenseValues } from '@/lib/validations/expenses';
-import { changePct, monthToDate } from '../reports/utils';
+import Pagination from '../Pagination';
+import { monthToDate } from '../reports/utils';
+import CategoryBreakdown from './CategoryBreakdown';
 import ExpensesTable from './ExpensesTable';
 import ExpensesToolbar from './ExpensesToolbar';
-import {
-  applyFilters,
-  computeExpenseStats,
-  DEFAULT_FILTERS,
-  PAGE_SIZE,
-  shiftMonth,
-  categoryTotals,
-  type Filters,
-} from './utils';
-import Pagination from '../Pagination';
-import CategoryBreakdown from './CategoryBreakdown';
 import QuickAddCard from './QuickAddCard';
+import { DEFAULT_FILTERS, PAGE_SIZE, shiftMonth, type Filters } from './utils';
 
 const primaryBtn =
   'rounded-btn bg-brand hover:bg-brand/90 h-10 gap-2 text-xs font-bold text-white';
 const outlineBtn =
   'rounded-btn border-line-strong bg-surface text-ink hover:bg-canvas h-10 gap-2 border text-xs font-bold';
 
+/** Expenses are for the roles with the "expenses" permission (owner + accountant). */
 export default function ExpensesView() {
+  const user = useSession();
+  const tErrors = useTranslations('ApiErrors');
+  if (!can(user.role, 'expenses')) {
+    return <p className="text-muted text-sm">{tErrors('FORBIDDEN')}</p>;
+  }
+  return <ExpensesContent />;
+}
+
+function ExpensesContent() {
   const t = useTranslations('Expenses');
+  const tApi = useTranslations('ExpensesApi');
   const format = useFormatter();
   const money = useMoney();
-
-  // TODO: لما نربط الـ API المصروفات دي بتيجي من الباك إند
-  const { expenses, setExpenses } = useExpenses();
+  const errorMessage = useApiErrorMessage();
 
   const [filters, setFilters] = useState<Filters>(DEFAULT_FILTERS);
-  const [requestedPage, setPage] = useState(1);
+  const [page, setPage] = useState(1);
+
+  const query = useDebouncedValue(filters.query.trim(), 300);
+  const listParams = { q: query || undefined, category: filters.category, period: filters.period };
+  const listQuery = useExpenseList({ ...listParams, page, pageSize: PAGE_SIZE });
+  const statsQuery = useExpenseStats();
+  const addExpense = useAddExpense();
+  const deleteExpense = useDeleteExpense();
+
+  const data = listQuery.data;
+  const rows = useMemo(() => data?.items.map(toUiExpense) ?? [], [data]);
+  const lastPage = data ? Math.max(1, Math.ceil(data.total / PAGE_SIZE)) : page;
+  if (data && !listQuery.isPlaceholderData && page > lastPage) setPage(lastPage);
+
+  // Stats numbers are shown only once they are known: no zeros while loading or after a failed
+  // first load. A failed background refetch keeps the last good numbers on screen.
+  const stats = statsQuery.data;
+  const statsReady = stats !== undefined;
+  // The business month comes from the server (Cairo date).
+  const month = stats?.month ?? new Date().toISOString().slice(0, 7);
 
   const update = (patch: Partial<Filters>) => {
     setFilters((f) => ({ ...f, ...patch }));
     setPage(1);
   };
 
-  function addExpense(values: QuickExpenseValues) {
-    // TODO: POST /expenses لما نربط الـ API
-    const expense: Expense = {
-      id: `e${Date.now()}`,
-      date: values.date,
-      title: values.title.trim(),
-      category: values.category,
-      amount: Number(values.amount),
-      status: 'paid',
-    };
-
-    setExpenses((list) => [expense, ...list]);
-
-    // نرجّع الفلاتر علشان المصروف الجديد يظهر في الجدول
-    setFilters({
-      ...DEFAULT_FILTERS,
-      period: values.date.startsWith(CURRENT_MONTH) ? 'thisMonth' : 'all',
-    });
-    setPage(1);
-
-    toast.success(t('toasts.added', { title: expense.title }), {
-      action: {
-        label: t('toasts.undo'),
-        onClick: () =>
-          setExpenses((list) => list.filter((x) => x.id !== expense.id)),
-      },
-    });
+  async function add(values: QuickExpenseValues) {
+    try {
+      const expense = await addExpense.mutateAsync({
+        title: values.title.trim(),
+        amount: values.amount,
+        category: values.category,
+        date: values.date,
+        paidFrom: values.paidFrom,
+      });
+      // Show the new expense: this month's view if it belongs to it, otherwise everything.
+      setFilters({ ...DEFAULT_FILTERS, period: values.date.startsWith(month) ? 'thisMonth' : 'all' });
+      setPage(1);
+      toast.success(t('toasts.added', { title: expense.title }), {
+        action: {
+          label: t('toasts.undo'),
+          onClick: () => {
+            deleteExpense.mutateAsync(expense.id).then(
+              () => toast.success(tApi('removed', { title: expense.title })),
+              (error: unknown) => toast.error(errorMessage(error)),
+            );
+          },
+        },
+      });
+      return true;
+    } catch (error) {
+      toast.error(errorMessage(error));
+      return false;
+    }
   }
 
-  const stats = computeExpenseStats({
-    expenses,
-    month: CURRENT_MONTH,
-    prevMonth: shiftMonth(CURRENT_MONTH, -1),
-    revenue: monthRevenue,
-  });
-  const totals = categoryTotals(expenses, CURRENT_MONTH);
-  const rows = useMemo(
-    () => applyFilters(expenses, filters, CURRENT_MONTH),
-    [expenses, filters],
-  );
-  // لو اتحذف آخر صف في آخر صفحة، نرجع لآخر صفحة موجودة بدل جدول فاضي
-  const page = Math.min(
-    requestedPage,
-    Math.max(1, Math.ceil(rows.length / PAGE_SIZE)),
-  );
-  const pageRows = rows.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+  async function exportAll() {
+    try {
+      const items = await fetchExpensesForExport(listParams);
+      if (items.length === 0) return;
+      const columns: CsvColumn<Expense>[] = [
+        { header: tApi('columns.date'), value: (e) => e.date },
+        { header: tApi('columns.title'), value: (e) => e.title },
+        { header: tApi('columns.category'), value: (e) => t(`categories.${e.category}`) },
+        { header: tApi('columns.vendor'), value: (e) => e.vendor },
+        { header: tApi('columns.paidFrom'), value: (e) => (e.paidFrom ? t(`sources.${e.paidFrom}`) : '') },
+        { header: tApi('columns.amount'), value: (e) => e.amount },
+        { header: tApi('columns.currency'), value: () => DEFAULT_CURRENCY },
+        { header: tApi('columns.status'), value: (e) => tApi(`statuses.${e.status}`) },
+        { header: tApi('columns.dueDate'), value: (e) => e.dueDate },
+      ];
+      downloadCsv(`expenses-${new Date().toISOString().slice(0, 10)}.csv`, columns, items);
+    } catch (error) {
+      toast.error(errorMessage(error));
+    }
+  }
 
   const pct = (value: number, signed = false) =>
     format.number(value / 100, {
@@ -108,41 +142,27 @@ export default function ExpensesView() {
       ...(signed ? { signDisplay: 'always' as const } : {}),
     });
 
-  const monthText = format.dateTime(monthToDate(CURRENT_MONTH), {
+  const monthText = format.dateTime(monthToDate(month), {
     month: 'long',
     year: 'numeric',
     timeZone: 'UTC',
     numberingSystem: 'latn',
   });
-
-  const prevMonthName = format.dateTime(
-    monthToDate(shiftMonth(CURRENT_MONTH, -1)),
-    { month: 'long', timeZone: 'UTC' },
-  );
+  const prevMonthName = format.dateTime(monthToDate(shiftMonth(month, -1)), { month: 'long', timeZone: 'UTC' });
+  const top = stats?.byCategory[0] ?? null;
 
   return (
     <div className="space-y-5">
       <PageHeader
         title={t('title')}
-        description={t('summary', {
-          month: monthText,
-          total: money(stats.total),
-        })}
+        description={statsReady ? t('summary', { month: monthText, total: money(stats.total) }) : monthText}
         actions={
           <>
-            <Button
-              variant="outline"
-              className={outlineBtn}
-              // TODO: تصدير CSV في الخطوة الجاية
-              onClick={() => toast.info(t('toasts.soon'))}
-            >
+            <Button variant="outline" className={outlineBtn} disabled={!data?.total} onClick={exportAll}>
               <Download className="size-4" />
               {t('actions.export')}
             </Button>
-            <Button
-              className={primaryBtn}
-              onClick={() => document.getElementById('qa-title')?.focus()}
-            >
+            <Button className={primaryBtn} onClick={() => document.getElementById('qa-title')?.focus()}>
               <Plus className="size-4" />
               {t('actions.new')}
             </Button>
@@ -150,39 +170,44 @@ export default function ExpensesView() {
         }
       />
 
+      {statsQuery.isError && !stats && (
+        <div className="rounded-card border-line bg-surface flex flex-wrap items-center justify-between gap-3 border px-4 py-3 shadow-sm">
+          <p className="text-danger text-sm font-semibold">{errorMessage(statsQuery.error)}</p>
+          <Button variant="outline" className={outlineBtn} onClick={() => statsQuery.refetch()}>
+            {tApi('retry')}
+          </Button>
+        </div>
+      )}
+
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <StatCard
           label={t('stats.total')}
-          value={<Amount amount={stats.total} />}
-          hint={t('stats.totalHint', {
-            pct: pct(changePct(stats.total, stats.prevTotal), true),
-            month: prevMonthName,
-          })}
+          value={statsReady ? <Amount amount={stats.total} /> : '—'}
+          hint={
+            !statsReady
+              ? ''
+              : stats.changePct === null
+                ? tApi('noComparison')
+                : t('stats.totalHint', { pct: pct(stats.changePct, true), month: prevMonthName })
+          }
           tone="danger"
           hintTone="default"
         />
         <StatCard
           label={t('stats.topCategory')}
-          value={stats.top ? t(`categories.${stats.top.key}`) : '—'}
-          hint={
-            stats.top
-              ? t('stats.topCategoryHint', {
-                  amount: money(stats.top.amount),
-                  pct: pct(stats.top.share * 100),
-                })
-              : ''
-          }
+          value={top ? t(`categories.${top.key}`) : '—'}
+          hint={top ? t('stats.topCategoryHint', { amount: money(top.amount), pct: pct(top.share) }) : ''}
         />
         <StatCard
           label={t('stats.due')}
-          value={<Amount amount={stats.dueAmount} />}
-          hint={t('stats.dueHint', { count: stats.dueVendors })}
+          value={statsReady ? <Amount amount={stats.due} /> : '—'}
+          hint={statsReady ? t('stats.dueHint', { count: stats.dueVendors }) : ''}
           tone="warning"
           hintTone="default"
         />
         <StatCard
           label={t('stats.netProfit')}
-          value={<Amount amount={stats.netProfit} />}
+          value={statsReady ? <Amount amount={stats.netProfit} /> : '—'}
           hint={t('stats.netProfitHint')}
           tone="brand"
           hintTone="default"
@@ -193,26 +218,30 @@ export default function ExpensesView() {
         <div className="rounded-card border-line bg-surface overflow-hidden border shadow-sm">
           <ExpensesToolbar filters={filters} onChange={update} />
 
-          {rows.length === 0 ? (
-            <div className="border-line text-muted border-t px-4 py-14 text-center text-sm">
-              {t('empty')}
+          {listQuery.isPending ? (
+            <div className="border-line text-muted flex justify-center border-t px-4 py-14">
+              <Loader2 className="size-5 animate-spin" />
             </div>
+          ) : listQuery.isError && !data ? (
+            <div className="border-line flex flex-col items-center gap-3 border-t px-4 py-14 text-center">
+              <p className="text-danger text-sm font-semibold">{errorMessage(listQuery.error)}</p>
+              <Button variant="outline" className={outlineBtn} onClick={() => listQuery.refetch()}>
+                {tApi('retry')}
+              </Button>
+            </div>
+          ) : data?.total === 0 ? (
+            <div className="border-line text-muted border-t px-4 py-14 text-center text-sm">{t('empty')}</div>
           ) : (
-            <>
-              <ExpensesTable rows={pageRows} />
-              <Pagination
-                page={page}
-                pageSize={PAGE_SIZE}
-                total={rows.length}
-                onPageChange={setPage}
-              />
-            </>
+            <div className={listQuery.isPlaceholderData ? 'opacity-60 transition-opacity' : undefined}>
+              <ExpensesTable rows={rows} />
+              <Pagination page={page} pageSize={PAGE_SIZE} total={data?.total ?? 0} onPageChange={setPage} />
+            </div>
           )}
         </div>
 
         <div className="space-y-4">
-          <CategoryBreakdown totals={totals} />
-          <QuickAddCard onAdd={addExpense} />
+          <CategoryBreakdown totals={stats?.byCategory ?? []} loading={!statsReady} />
+          <QuickAddCard onAdd={add} />
         </div>
       </div>
     </div>

@@ -10,26 +10,22 @@ import {
   type SetStateAction,
 } from 'react';
 
-import { mockExpenses, type Expense } from '@/lib/mock/expenses';
 import { mockTasks, type Task } from '@/lib/mock/tasks';
 
 type AppData = {
   tasks: Task[];
   setTasks: Dispatch<SetStateAction<Task[]>>;
-  expenses: Expense[];
-  setExpenses: Dispatch<SetStateAction<Expense[]>>;
 };
 
 const AppDataContext = createContext<AppData | null>(null);
 
 export function AppDataProvider({ children }: { children: ReactNode }) {
-  // TODO: لما نربط الـ API المهام والمصروفات دي تيجي من الباك إند
+  // TODO: لما نربط الـ API المهام دي تيجي من الباك إند (المصروفات بقت من الـ API)
   const [tasks, setTasks] = useState<Task[]>(mockTasks);
-  const [expenses, setExpenses] = useState<Expense[]>(mockExpenses);
 
   return (
     <AppDataContext.Provider
-      value={{ tasks, setTasks, expenses, setExpenses }}
+      value={{ tasks, setTasks }}
     >
       {children}
     </AppDataContext.Provider>
@@ -47,9 +43,4 @@ function useAppData() {
 export function useTasks() {
   const { tasks, setTasks } = useAppData();
   return { tasks, setTasks };
-}
-
-export function useExpenses() {
-  const { expenses, setExpenses } = useAppData();
-  return { expenses, setExpenses };
 }

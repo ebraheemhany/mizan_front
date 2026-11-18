@@ -8,6 +8,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from '@/i18n/navigation';
 import { api, login, logout, refreshSession, type SessionUser } from '@/lib/api/client';
 import { queryKeys } from '@/lib/query/keys';
+import { dropUserData } from '@/lib/query/reset';
 
 // ---------------------------------------------------------------------------
 // The current user, as a query
@@ -91,8 +92,12 @@ export function useLoginMutation() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: login,
-    // Fill the session straight away so the dashboard opens without another request.
-    onSuccess: (user) => queryClient.setQueryData(queryKeys.session, user),
+    // Start from an empty cache (nothing left over from an earlier session on this tab),
+    // then fill the session straight away so the dashboard opens without another request.
+    onSuccess: (user) => {
+      dropUserData(queryClient);
+      queryClient.setQueryData(queryKeys.session, user);
+    },
   });
 }
 
@@ -116,10 +121,10 @@ export function useLogoutMutation() {
   return useMutation({
     mutationFn: logout,
     onSettled: () => {
-      // Drop every cached query: the next person on this browser must not see
-      // the previous user's data. Then mark the session as logged out.
-      queryClient.clear();
+      // Mark the session as logged out (SessionProvider takes the app off the screen),
+      // then drop the cached data: the next person on this browser must not see it.
       queryClient.setQueryData(queryKeys.session, null);
+      dropUserData(queryClient);
       router.replace('/login');
     },
   });

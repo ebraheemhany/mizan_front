@@ -36,6 +36,12 @@ export const queryKeys = {
     openInvoices: ["payments", "open-invoices"] as const,
   },
   dashboard: ["dashboard"] as const,
+  expenses: {
+    all: ['expenses'] as const,
+    list: (params: object) => ['expenses', 'list', params] as const,
+    stats: ['expenses', 'stats'] as const,
+    due: ['expenses', 'due'] as const,
+  },
   /** Public: an invoice opened from its shareable link (no login). */
   publicInvoice: (token: string) => ['public-invoice', token] as const,
   /** Company settings (currency, numbering, details...). */

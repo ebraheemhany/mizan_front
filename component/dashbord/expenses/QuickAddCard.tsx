@@ -17,7 +17,8 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import DateField from '@/component/DateField';
-import { EXPENSES_TODAY, type ExpenseCategory } from '@/lib/mock/expenses';
+import { toIso } from '@/lib/iso-date';
+import type { ExpenseCategory, ExpenseSource } from '@/lib/mock/expenses';
 import {
   quickExpenseSchema,
   type QuickExpenseValues,
@@ -36,12 +37,17 @@ const inputClass =
   'rounded-btn border-line-strong bg-surface text-ink hover:border-brand/50 focus-visible:border-brand focus-visible:ring-brand/15 h-11 text-xs transition-colors focus-visible:ring-2';
 const label = 'text-ink-2 mb-1.5 block text-xs font-bold';
 
+const SOURCES: ExpenseSource[] = ['cash', 'bank', 'card'];
+
 export default function QuickAddCard({
   onAdd,
 }: {
-  onAdd: (values: QuickExpenseValues) => void;
+  /** Saves the expense; resolves to true when it was saved (the form then clears). */
+  onAdd: (values: QuickExpenseValues) => Promise<boolean>;
 }) {
   const t = useTranslations('Expenses.quickAdd');
+  const tSources = useTranslations('Expenses.sources');
+  const tApi = useTranslations('ExpensesApi');
   const fileRef = useRef<HTMLInputElement>(null);
   // TODO: رفع صورة الإيصال لما نربط الـ API، دلوقتي بنعرض الاسم بس
   const [receiptName, setReceiptName] = useState<string | null>(null);
@@ -51,14 +57,16 @@ export default function QuickAddCard({
     register,
     handleSubmit,
     reset,
-    formState: { errors },
+    formState: { errors, isSubmitting },
   } = useForm<QuickExpenseValues>({
     resolver: zodResolver(quickExpenseSchema),
     defaultValues: {
       title: '',
       amount: '',
       category: 'purchases',
-      date: EXPENSES_TODAY,
+      // Today on the user's device.
+      date: toIso(new Date()),
+      paidFrom: 'cash',
     },
   });
 
@@ -69,8 +77,8 @@ export default function QuickAddCard({
       </p>
     ) : null;
 
-  function submit(values: QuickExpenseValues) {
-    onAdd(values);
+  async function submit(values: QuickExpenseValues) {
+    if (!(await onAdd(values))) return;
     reset({ ...values, title: '', amount: '' });
     setReceiptName(null);
     if (fileRef.current) fileRef.current.value = '';
@@ -78,7 +86,7 @@ export default function QuickAddCard({
 
   return (
     <form
-      onSubmit={handleSubmit(submit)}
+      onSubmit={(e) => void handleSubmit(submit)(e)}
       noValidate
       className="rounded-card border-line bg-surface space-y-4 border p-5 shadow-sm"
     >
@@ -90,6 +98,7 @@ export default function QuickAddCard({
         </label>
         <Input
           id="qa-title"
+          maxLength={120}
           placeholder={t('placeholders.title')}
           className={inputClass}
           {...register('title')}
@@ -153,6 +162,40 @@ export default function QuickAddCard({
       </div>
 
       <div>
+        <label id="qa-paid-from-label" className={label}>
+          {tApi('paidFrom')}
+        </label>
+        <Controller
+          name="paidFrom"
+          control={control}
+          render={({ field: sourceField }) => (
+            <Select value={sourceField.value} onValueChange={sourceField.onChange}>
+              <SelectTrigger
+                id="qa-paid-from"
+                aria-labelledby="qa-paid-from-label"
+                ref={sourceField.ref}
+                onBlur={sourceField.onBlur}
+                className="rounded-btn border-line-strong bg-surface text-ink hover:border-brand/50 focus-visible:border-brand focus-visible:ring-brand/15 h-11 w-full text-xs font-semibold shadow-sm transition-colors focus-visible:ring-2"
+              >
+                <SelectValue>{tSources(sourceField.value)}</SelectValue>
+              </SelectTrigger>
+              <SelectContent className="border-line bg-surface text-ink rounded-xl shadow-lg">
+                {SOURCES.map((source) => (
+                  <SelectItem
+                    key={source}
+                    value={source}
+                    className="rounded-btn min-h-10 px-3 py-2 text-xs font-semibold focus:bg-brand-soft focus:text-brand-deep data-highlighted:bg-brand-soft data-highlighted:text-brand-deep"
+                  >
+                    {tSources(source)}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          )}
+        />
+      </div>
+
+      <div>
         <label htmlFor="qa-date" className={label}>
           {t('fields.date')}
         </label>
@@ -192,6 +235,7 @@ export default function QuickAddCard({
 
       <Button
         type="submit"
+        disabled={isSubmitting}
         className="rounded-btn bg-brand hover:bg-brand/90 h-10 w-full text-xs font-bold text-white"
       >
         {t('save')}
