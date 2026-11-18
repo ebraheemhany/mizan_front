@@ -24,7 +24,8 @@ export type NavItem = {
   key: NavKey;
   href: string;
   icon: LucideIcon;
-  // TODO: العدّادات دي مؤقتة، هتيجي من الـ API بعدين
+  // Fixed badges only; the invoices and tasks counts are set live in SidebarNav.
+  // TODO: the deals count is still a placeholder (deals step).
   badge?: { count: number; tone: 'brand' | 'danger' };
 };
 
@@ -34,7 +35,7 @@ export const NAV_GROUPS: NavItem[][] = [
     { key: 'customers', href: '/customers', icon: Users },
     { key: 'deals', href: '/deals', icon: Kanban, badge: { count: 12, tone: 'brand' } },
     { key: 'quotes', href: '/quotes', icon: FileSignature },
-    { key: 'invoices', href: '/invoices', icon: Receipt, badge: { count: 4, tone: 'danger' } },
+    { key: 'invoices', href: '/invoices', icon: Receipt },
     { key: 'expenses', href: '/expenses', icon: Wallet },
     { key: 'reports', href: '/reports', icon: BarChart3 },
     { key: 'products', href: '/products', icon: Package },

@@ -32,7 +32,8 @@ function EntryCard({ entry }: { entry: JournalEntry }) {
 
   const totalDebit = entry.lines.reduce((sum, l) => sum + l.debit, 0);
   const totalCredit = entry.lines.reduce((sum, l) => sum + l.credit, 0);
-  const balanced = totalDebit === totalCredit;
+  // Compared in cents: summing decimals as numbers can leave a tiny float difference.
+  const balanced = Math.round(totalDebit * 100) === Math.round(totalCredit * 100);
 
   const amount = (v: number) =>
     v === 0 ? <span className="text-muted">—</span> : money(v);

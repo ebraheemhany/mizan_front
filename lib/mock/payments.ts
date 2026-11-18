@@ -1,6 +1,7 @@
 // lib/mock/payments.ts
 // بيانات وهمية لصفحة الدفعات
 // TODO: تتربط بالـ API لما الباك إند يجهز
+import type { ReceivingAccount } from '@/lib/payments/constants'
 
 export type PaymentMethod =
   | 'bankTransfer'
@@ -11,14 +12,7 @@ export type PaymentMethod =
 
 // cleared = اتحصّلت، pending = شيك لسه قيد الصرف
 export type PaymentStatus = 'cleared' | 'pending'
-export type ReceivingAccount = 'bankAhli' | 'cashbox' | 'wallet'
 
-// TODO: تيجي من صفحة "الحسابات والقيود" لما نبنيها
-export const RECEIVING_ACCOUNTS: ReceivingAccount[] = [
-  'bankAhli',
-  'cashbox',
-  'wallet',
-]
 export type Payment = {
   id: string
   number: string // PAY-0212

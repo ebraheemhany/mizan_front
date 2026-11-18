@@ -24,7 +24,10 @@ import {
   type SearchItem,
 } from './items';
 import { useTasks } from '@/component/dashbord/AppDataProvider';
+import { useCustomers } from '@/lib/customers/hooks';
 import { useExpenses } from '@/lib/expenses/hooks';
+import { useDebouncedValue } from '@/lib/use-debounced-value';
+
 const GROUP_ORDER: SearchGroup[] = [
   'pages',
   'actions',
@@ -50,6 +53,23 @@ export default function CommandSearch({
   // The typed text, so each group is filtered before it is capped: otherwise only the
   // first few items of a group could ever be found.
   const [query, setQuery] = useState('');
+  // Customers are matched on the backend, once the user pauses typing, only while open.
+  const typed = query.trim();
+  const debouncedQuery = useDebouncedValue(typed, 250);
+  const customersQuery = useCustomers(
+    {
+      q: debouncedQuery.slice(0, 100), // the API's limit
+      status: 'all',
+      balance: 'all',
+      sort: 'recent',
+      page: 1,
+      pageSize: 20,
+    },
+    { enabled: open },
+  );
+  const customers = customersQuery.data?.items;
+  const searching = open && (typed !== debouncedQuery || customersQuery.isFetching);
+
   const items = useMemo<SearchItem[]>(
     () => [
       ...PAGE_KEYS.map((key) => ({
@@ -64,9 +84,9 @@ export default function CommandSearch({
         label: t(`actions.${key}`),
         href: ACTION_HREF[key],
       })),
-      ...dataItems(tasks, expenses),
+      ...dataItems(customers ?? [], tasks, expenses),
     ],
-    [t, tasks, expenses],
+    [t, customers, tasks, expenses],
   );
 
   function setOpen(next: boolean) {
@@ -79,8 +99,10 @@ export default function CommandSearch({
     router.push(href);
   }
 
-  // What a search is matched against: the label and the group name.
-  const matchText = (item: SearchItem) => `${item.label} ${t(`groups.${item.group}`)}`;
+  // What a search is matched against: the label, the hint (a customer's contact, phone
+  // and email, so one the server found by phone is not hidden) and the group name.
+  const matchText = (item: SearchItem) =>
+    [item.label, item.hint, t(`groups.${item.group}`)].filter(Boolean).join(' ');
   // cmdk's value must be unique, so it also carries the id.
   const valueOf = (item: SearchItem) => `${matchText(item)} ${item.id}`;
 
@@ -93,14 +115,14 @@ export default function CommandSearch({
     >
       <CommandInput placeholder={t('placeholder')} value={query} onValueChange={setQuery} />
       <CommandList>
-        <CommandEmpty>{t('empty')}</CommandEmpty>
+        <CommandEmpty>{searching ? t('searching') : t('empty')}</CommandEmpty>
 
         {GROUP_ORDER.map((group) => {
           const cap = MAX_PER_GROUP + (group === 'pages' ? 4 : 0);
           const inGroup = items.filter((i) => i.group === group);
-          // Keep the best matches, not the first ones. Scored on the label and group name
-          // only (the id in cmdk's value would let random letters match), with the text
-          // exactly as typed, the way cmdk filters it.
+          // Keep the best matches, not the first ones. Scored on matchText only (the id in
+          // cmdk's value would let random letters match), with the text exactly as typed,
+          // the way cmdk filters it.
           const list = !query
             ? inGroup.slice(0, cap)
             : inGroup
@@ -116,12 +138,17 @@ export default function CommandSearch({
               {list.map((item) => (
                 <CommandItem
                   key={item.id}
-                  // القيمة اللي cmdk بيفلتر بيها: النص + اسم المجموعة
+                  // The value cmdk filters on: matchText + the id (unique).
                   value={valueOf(item)}
                   onSelect={() => go(item.href)}
                   className="text-ink data-selected:bg-brand-soft data-selected:text-brand-deep text-sm"
                 >
-                  {item.label}
+                  <span className="min-w-0 flex-1 truncate">{item.label}</span>
+                  {item.hint && (
+                    <span className="text-muted max-w-[50%] shrink-0 truncate text-xs font-normal">
+                      {item.hint}
+                    </span>
+                  )}
                 </CommandItem>
               ))}
             </CommandGroup>

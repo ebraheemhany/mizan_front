@@ -20,11 +20,21 @@ export type Party = {
   phone?: string;
 };
 
+/** Every method the backend accepts (the payments page records all of them). */
+export type InvoicePaymentMethod = 'cash' | 'bank' | 'card' | 'instapay' | 'vodafoneCash' | 'cheque';
+
 export type Payment = {
   id: string;
+  /** Receipt number, e.g. PAY-0012. */
+  number?: string;
   amount: number;
-  date: string; 
-  method: 'cash' | 'bank' | 'card';
+  date: string;
+  method: InvoicePaymentMethod;
+  /** pending = a cheque not cleared yet. */
+  status?: 'cleared' | 'pending';
+  /** Where the money went in (cash box, bank account, e-wallet). */
+  account?: 'bank' | 'cashbox' | 'wallet';
+  reference?: string;
   note?: string;
 };
 

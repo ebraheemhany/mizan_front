@@ -1,14 +1,14 @@
 // component/dashbord/reports/ReportsView.tsx
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useFormatter, useTranslations } from 'next-intl';
 import { Check, ChevronDown, Download, FileSpreadsheet } from 'lucide-react';
 import { toast } from 'sonner';
 
 import PageHeader from '@/component/PageHeader';
 import StatCard from '@/component/StatCard';
-import { buttonVariants } from '@/components/ui/button';
+import { Button, buttonVariants } from '@/components/ui/button';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -16,107 +16,153 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { cn } from '@/lib/utils';
-import { printWithTitle } from '@/lib/print';
+import { useRouter } from '@/i18n/navigation';
+import { ApiError } from '@/lib/api/client';
+import { useApiErrorMessage } from '@/lib/api/use-api-error';
+import { can } from '@/lib/auth/permissions';
+import { useSession } from '@/lib/auth/session';
+import { useCustomers } from '@/lib/customers/hooks';
 import { downloadCsv } from '@/lib/export-csv';
+import { useMoney } from '@/lib/money';
+import { printWithTitle } from '@/lib/print';
 import {
-  agingBuckets,
-  agingRows,
-  balanceSheetInputs,
-  cashBalance,
-  cashFlowInputs,
-  CURRENT_MONTH,
-  pnlLines,
-  customerStatements,
-  VAT_RATE,
-  vatSummary,
-  topCustomers,
+  AGING_BUCKETS,
+  useCustomerStatement,
+  useReportAging,
+  useReportSummary,
+  useReportVat,
   type ReportPeriod,
-} from '@/lib/mock/reports';
+  type ReportSummary,
+} from '@/lib/reports/hooks';
+import { cn } from '@/lib/utils';
+import AgingCard from './AgingCard';
+import AgingTab from './AgingTab';
+import LedgerComingSoon from './LedgerComingSoon';
 import PnlStatement from './PnlStatement';
+import { outlineBtn, WithReport } from './ReportState';
+import ReportsPrintSheet from './ReportsPrintSheet';
 import ReportsTabs from './ReportsTabs';
 import RevenueExpensesChart from './RevenueExpensesChart';
-import {
-  buildSeries,
-  changePct,
-  computeBalanceSheet,
-  computeCashFlow,
-  computePnl,
-  computeStatement,
-  monthToDate,
-} from './utils';
-import { useReportMoney } from './useReportMoney';
+import { STATEMENT_CUSTOMERS } from './StatementCustomerPicker';
+import StatementTab, { type StatementCustomer } from './StatementTab';
 import TopCustomersTable from './TopCustomersTable';
-import AgingCard from './AgingCard';
+import {
+  deviceCairoMonth,
+  LEDGER_TABS,
+  monthToDate,
+  PERIOD_KEYWORDS,
+  recentMonths,
+  REPORT_TABS,
+  reportsSearch,
+  type ReportsUrlState,
+  type ReportTab,
+} from './utils';
 import VatCard from './VatCard';
-import BalanceSheetTab from './BalanceSheetTab';
-import CashFlowTab from './CashFlowTab';
-import AgingTab from './AgingTab';
 import VatTab from './VatTab';
-import StatementTab from './StatementTab';
-import ReportsPrintSheet from './ReportsPrintSheet';
 
-type TabKey =
-  'pnl' | 'balanceSheet' | 'cashFlow' | 'aging' | 'vat' | 'statement';
+const MENU_MONTHS = 12;
 
-const TAB_KEYS: TabKey[] = [
-  'pnl',
-  'balanceSheet',
-  'cashFlow',
-  'aging',
-  'vat',
-  'statement',
-];
+type CsvRow = (string | number | null)[];
 
-const PERIODS = [
-  'thisQuarter',
-  'thisYear',
-] as const;
+/** Reports are for the roles with the "reports" permission (owner + accountant). */
+export default function ReportsView({ initial }: { initial: ReportsUrlState }) {
+  const user = useSession();
+  const tErrors = useTranslations('ApiErrors');
+  if (!can(user.role, 'reports')) {
+    return <p className="text-muted text-sm">{tErrors('FORBIDDEN')}</p>;
+  }
+  return <ReportsContent initial={initial} />;
+}
 
-const outlineBtn =
-  'rounded-btn border-line-strong bg-surface text-ink hover:bg-canvas h-10 gap-2 border text-xs font-bold';
-
-// كله بيتحسب من قائمة الأرباح والخسائر
-// TODO: لما نربط الـ API الأرقام دي بتتغير حسب الفترة
-const PNL = computePnl(pnlLines);
-const SERIES = buildSeries(pnlLines);
-const PREV = SERIES[SERIES.length - 2];
-
-export default function ReportsView() {
+function ReportsContent({ initial }: { initial: ReportsUrlState }) {
   const t = useTranslations('Reports');
+  const tApi = useTranslations('ReportsApi');
+  const tStatus = useTranslations('Payments.status');
   const format = useFormatter();
-  const money = useReportMoney();
+  const money = useMoney();
+  const errorMessage = useApiErrorMessage();
+  const router = useRouter();
 
-  // TODO: لما نربط الـ API الفترة والتاب هيتبعتوا كـ query params
-  const [period, setPeriod] = useState<ReportPeriod>(CURRENT_MONTH);
-  const [tab, setTab] = useState<TabKey>('pnl');
-  const [statementCustomerId, setStatementCustomerId] = useState(
-    customerStatements[0].id,
+  // Start from the URL (?tab=&period=&customer=), then keep the URL in step below.
+  const [tab, setTab] = useState<ReportTab>(initial.tab);
+  const [period, setPeriod] = useState<ReportPeriod | null>(initial.period);
+  const [picked, setPicked] = useState<{ id: string; name: string | null } | null>(
+    initial.customer ? { id: initial.customer, name: null } : null,
+  );
+  const [deviceMonth] = useState(deviceCairoMonth);
+
+  const summaryQuery = useReportSummary(period);
+  const agingQuery = useReportAging({ enabled: tab === 'pnl' || tab === 'aging' });
+  const vatQuery = useReportVat(period, { enabled: tab === 'pnl' || tab === 'vat' });
+
+  // Statement: the picked customer, else the one with the largest balance.
+  const onStatement = tab === 'statement';
+  const firstCustomers = useCustomers(STATEMENT_CUSTOMERS, { enabled: onStatement && !picked });
+  const first = firstCustomers.data?.items[0];
+  const statementCustomer: StatementCustomer = picked
+    ? { status: 'ready', ...picked }
+    : first
+      ? { status: 'ready', id: first.id, name: first.name }
+      : firstCustomers.isError
+        ? { status: 'error', error: firstCustomers.error, retry: () => void firstCustomers.refetch() }
+        : firstCustomers.data
+          ? { status: 'none' }
+          : { status: 'loading' };
+  const statementQuery = useCustomerStatement(
+    onStatement && statementCustomer.status === 'ready' ? statementCustomer.id : null,
+    period,
   );
 
-  const monthYear = (date: Date) =>
-    format.dateTime(date, {
+  // A month after the current one (a hand-edited URL) is refused by the API: show this month.
+  if (period !== null && summaryQuery.error instanceof ApiError && summaryQuery.error.code === 'VALIDATION_ERROR') {
+    setPeriod(null);
+  }
+
+  const pickedId = picked?.id ?? null;
+  useEffect(() => {
+    const search = reportsSearch({ tab, period, customer: pickedId });
+    if (search === window.location.search.slice(1)) return;
+    router.replace(search ? `/reports?${search}` : '/reports', { scroll: false });
+  }, [tab, period, pickedId, router]);
+
+  // The business month comes from the server (Cairo); the device's is a stand-in until then.
+  const currentMonth =
+    summaryQuery.data?.currentMonth ??
+    vatQuery.data?.currentMonth ??
+    statementQuery.data?.currentMonth ??
+    deviceMonth;
+  const selected = period ?? currentMonth;
+
+  const monthYear = (ym: string) =>
+    format.dateTime(monthToDate(ym), {
       month: 'long',
       year: 'numeric',
       timeZone: 'UTC',
       numberingSystem: 'latn',
     });
+  const quarterText = (ym: string) =>
+    t('quarterLabel', { q: Math.ceil(Number(ym.slice(5, 7)) / 3), year: ym.slice(0, 4) });
 
-  const periodText = useMemo(() => {
-    const current = monthToDate(CURRENT_MONTH);
-    switch (period) {
-      case 'thisQuarter':
-        return t('quarterLabel', {
-          q: Math.ceil((current.getUTCMonth() + 1) / 3),
-          year: String(current.getUTCFullYear()),
-        });
-      case 'thisYear':
-        return String(current.getUTCFullYear());
-      default:
-        return monthYear(monthToDate(period));
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [period, t]);
+  // Calendar quarter/year containing the current month, or the chosen month.
+  const periodText =
+    selected === 'thisQuarter'
+      ? quarterText(currentMonth)
+      : selected === 'thisYear'
+        ? currentMonth.slice(0, 4)
+        : monthYear(selected);
+
+  const selectedPeriodLabel =
+    selected === 'thisQuarter' || selected === 'thisYear'
+      ? t(`periods.${selected}`)
+      : periodText;
+
+  // The previous period of the same kind: last month, last quarter or last year.
+  const previousText = (s: ReportSummary) => {
+    const month = s.previous.start.slice(0, 7);
+    if (s.period.key === 'thisQuarter') return quarterText(month);
+    if (s.period.key === 'thisYear') return month.slice(0, 4);
+    return format.dateTime(monthToDate(month), { month: 'long', timeZone: 'UTC' });
+  };
 
   const pct = (value: number, signed = false) =>
     format.number(value / 100, {
@@ -126,185 +172,129 @@ export default function ReportsView() {
       ...(signed ? { signDisplay: 'always' as const } : {}),
     });
 
-  const prevMonthName = format.dateTime(monthToDate(PREV.month), {
-    month: 'long',
-    timeZone: 'UTC',
-  });
+  const vsPrevious = (s: ReportSummary, change: number | null) =>
+    change === null
+      ? tApi('noComparison')
+      : t('stats.revenueHint', { pct: pct(change, true), month: previousText(s) });
 
-  const tabs = TAB_KEYS.map((key) => ({
+  const choosePeriod = (next: ReportPeriod) =>
+    setPeriod(next === currentMonth ? null : next);
+
+  const tabs = REPORT_TABS.map((key) => ({
     value: key,
     label: t(`tabs.${key}`),
   }));
 
-  const reportContent =
-    tab === 'pnl' ? (
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-        <RevenueExpensesChart series={SERIES} />
-        <PnlStatement lines={pnlLines} />
-        <AgingCard buckets={agingBuckets} />
-        <VatCard vat={vatSummary} />
-        <TopCustomersTable
-          customers={topCustomers}
-          totalRevenue={PNL.revenue}
-        />
-      </div>
-    ) : tab === 'balanceSheet' ? (
-      <BalanceSheetTab netProfit={PNL.netProfit} />
-    ) : tab === 'cashFlow' ? (
-      <CashFlowTab netProfit={PNL.netProfit} />
-    ) : tab === 'aging' ? (
-      <AgingTab />
-    ) : tab === 'vat' ? (
-      <VatTab />
-    ) : (
-      <StatementTab
-        customerId={statementCustomerId}
-        onCustomerChange={setStatementCustomerId}
-      />
-    );
+  const s = summaryQuery.data;
 
   const statCards = (
     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
       <StatCard
         label={t('stats.revenue')}
-        value={money(PNL.revenue)}
-        hint={t('stats.revenueHint', {
-          pct: pct(changePct(PNL.revenue, PREV.revenue), true),
-          month: prevMonthName,
-        })}
+        value={s ? money(s.revenue) : '—'}
+        hint={s ? vsPrevious(s, s.change.revenue) : ''}
         hintTone="brand"
       />
       <StatCard
         label={t('stats.expenses')}
-        value={money(PNL.expenses)}
-        hint={pct(changePct(PNL.expenses, PREV.expenses), true)}
+        value={s ? money(s.expenses) : '—'}
+        hint={s ? vsPrevious(s, s.change.expenses) : ''}
       />
       <StatCard
         label={t('stats.netProfit')}
-        value={money(PNL.netProfit)}
-        hint={t('stats.margin', { pct: pct(PNL.marginPct) })}
-        tone="brand"
+        value={s ? money(s.netProfit) : '—'}
+        hint={
+          !s
+            ? ''
+            : s.marginPct === null
+              ? tApi('noRevenue')
+              : t('stats.margin', { pct: pct(s.marginPct) })
+        }
+        tone={s && s.netProfit < 0 ? 'danger' : 'brand'}
         hintTone="default"
       />
       <StatCard
-        label={t('stats.cashBalance')}
-        value={money(cashBalance)}
-        hint={t('stats.cashHint')}
+        label={tApi('collected')}
+        value={s ? money(s.collected) : '—'}
+        hint={tApi('collectedHint')}
       />
     </div>
   );
 
-  const selectedPeriodLabel =
-    period === 'thisQuarter' || period === 'thisYear'
-      ? t(`periods.${period}`)
-      : periodText;
+  const reportContent =
+    tab === 'pnl' ? (
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+        <WithReport query={summaryQuery}>
+          {(data) => <RevenueExpensesChart series={data.series} />}
+        </WithReport>
+        <WithReport query={summaryQuery}>
+          {(data) => <PnlStatement summary={data} />}
+        </WithReport>
+        <WithReport query={agingQuery}>
+          {(data) => <AgingCard buckets={data.buckets} />}
+        </WithReport>
+        <WithReport query={vatQuery}>{(data) => <VatCard vat={data} />}</WithReport>
+        <WithReport query={summaryQuery} className="lg:col-span-2">
+          {(data) => (
+            <TopCustomersTable
+              customers={data.topCustomers}
+              totalRevenue={data.revenue}
+            />
+          )}
+        </WithReport>
+      </div>
+    ) : LEDGER_TABS.includes(tab) ? (
+      <LedgerComingSoon />
+    ) : tab === 'aging' ? (
+      <WithReport query={agingQuery}>{(data) => <AgingTab aging={data} />}</WithReport>
+    ) : tab === 'vat' ? (
+      <WithReport query={vatQuery}>{(data) => <VatTab vat={data} />}</WithReport>
+    ) : (
+      <StatementTab
+        customer={statementCustomer}
+        query={statementQuery}
+        onCustomerChange={setPicked}
+      />
+    );
 
-  function downloadExcel() {
-    const rows: (string | number | null)[][] = [
-      [t('title')],
-      [t(`tabs.${tab}`), periodText],
-      [],
-    ];
+  /** The current tab as CSV rows, or null while its data isn't loaded (or there is none yet). */
+  function exportRows(): CsvRow[] | null {
+    const aging = agingQuery.data;
+    const vat = vatQuery.data;
+    const statement = statementQuery.data;
+    const columns = (...keys: string[]) => keys.map((key) => t(`export.columns.${key}`));
 
     if (tab === 'pnl') {
-      rows.push([
-        t('export.columns.section'),
-        t('export.columns.item'),
-        t('export.columns.amount'),
-        t('export.columns.revenue'),
-        t('export.columns.expenses'),
-        t('export.columns.invoices'),
-      ]);
-      rows.push(
-        [
-          t('stats.revenue'),
-          '',
-          PNL.revenue,
-          null,
-          null,
-          null,
-        ],
-        [
-          t('stats.expenses'),
-          '',
-          PNL.expenses,
-          null,
-          null,
-          null,
-        ],
-        [
-          t('stats.netProfit'),
-          '',
-          PNL.netProfit,
-          null,
-          null,
-          null,
-        ],
-        [
-          t('stats.cashBalance'),
-          '',
-          cashBalance,
-          null,
-          null,
-          null,
-        ],
-        ...pnlLines.map((line) => [
-          t('pnl.title'),
-          t(`pnl.lines.${line.key}`),
-          line.kind === 'income' ? line.amount : -line.amount,
-          null,
-          null,
-          null,
-        ]),
-        [
-          t('pnl.title'),
-          t('pnl.lines.grossProfit'),
-          PNL.grossProfit,
-          null,
-          null,
-          null,
-        ],
-        [
-          t('pnl.title'),
-          t('pnl.lines.netProfit'),
-          PNL.netProfit,
-          null,
-          null,
-          null,
-        ],
-        ...SERIES.map((point) => [
+      if (!s || !aging || !vat) return null;
+      const row = (section: string, item: string, amount: number): CsvRow => [section, item, amount, null, null, null];
+      return [
+        columns('section', 'item', 'amount', 'revenue', 'expenses', 'invoices'),
+        row(t('stats.revenue'), '', s.revenue),
+        row(t('stats.expenses'), '', s.expenses),
+        row(t('stats.netProfit'), '', s.netProfit),
+        row(tApi('collected'), '', s.collected),
+        ...s.lines.map((line) =>
+          row(t('pnl.title'), t(`pnl.lines.${line.key}`), line.kind === 'income' ? line.amount : -line.amount),
+        ),
+        row(t('pnl.title'), t('pnl.lines.grossProfit'), s.grossProfit),
+        row(t('pnl.title'), t('pnl.lines.netProfit'), s.netProfit),
+        ...s.series.map((point): CsvRow => [
           t('chart.title'),
-          monthYear(monthToDate(point.month)),
+          monthYear(point.month),
           null,
           point.revenue,
           point.expenses,
           null,
         ]),
-        ...agingRows.flatMap((customer) =>
-          (['notDue', 'd1_30', 'd31_60', 'd60plus'] as const).map(
-            (bucket) => [
-              t('agingTab.table.title'),
-              `${customer.name} - ${t(`aging.buckets.${bucket}`)}`,
-              customer[bucket],
-              null,
-              null,
-              null,
-            ],
+        ...aging.rows.flatMap((customer) =>
+          AGING_BUCKETS.map((bucket) =>
+            row(t('agingTab.table.title'), `${customer.name} - ${t(`aging.buckets.${bucket}`)}`, customer[bucket]),
           ),
         ),
-        ...[
-          [t('vat.output'), vatSummary.output],
-          [t('vat.input'), vatSummary.input],
-          [t('vat.due'), vatSummary.output - vatSummary.input],
-        ].map(([label, amount]) => [
-          t('vat.title'),
-          label,
-          amount,
-          null,
-          null,
-          null,
-        ]),
-        ...topCustomers.map((customer) => [
+        row(t('vat.title'), t('vat.output'), vat.output),
+        row(t('vat.title'), t('vat.input'), vat.input),
+        row(t('vat.title'), t('vat.due'), vat.due),
+        ...s.topCustomers.map((customer): CsvRow => [
           t('topCustomers.title'),
           customer.name,
           customer.revenue,
@@ -312,186 +302,50 @@ export default function ReportsView() {
           null,
           customer.invoicesCount,
         ]),
-      );
-    } else if (tab === 'balanceSheet') {
-      const receivables = agingBuckets.reduce(
-        (sum, bucket) => sum + bucket.amount,
-        0,
-      );
-      const balanceSheet = computeBalanceSheet({
-        cash: cashBalance,
-        receivables,
-        vatDue: vatSummary.output - vatSummary.input,
-        netProfit: PNL.netProfit,
-        inputs: balanceSheetInputs,
-      });
+      ];
+    }
 
-      rows.push(
-        [
-          t('export.columns.section'),
-          t('export.columns.item'),
-          t('export.columns.amount'),
-        ],
-      );
-      rows.push(
-        ...[
-          [
-            t('balanceSheet.assets'),
-            t('balanceSheet.lines.cash'),
-            cashBalance,
-          ],
-          [
-            t('balanceSheet.assets'),
-            t('balanceSheet.lines.receivables'),
-            receivables,
-          ],
-          [
-            t('balanceSheet.assets'),
-            t('balanceSheet.lines.fixedAssets'),
-            balanceSheetInputs.fixedAssets,
-          ],
-          [
-            t('balanceSheet.assets'),
-            t('balanceSheet.totalAssets'),
-            balanceSheet.totalAssets,
-          ],
-          [
-            t('balanceSheet.liabilities'),
-            t('balanceSheet.lines.accountsPayable'),
-            balanceSheetInputs.accountsPayable,
-          ],
-          [
-            t('balanceSheet.liabilities'),
-            t('balanceSheet.lines.vatPayable'),
-            vatSummary.output - vatSummary.input,
-          ],
-          [
-            t('balanceSheet.liabilities'),
-            t('balanceSheet.totalLiabilities'),
-            balanceSheet.totalLiabilities,
-          ],
-          [
-            t('balanceSheet.equity'),
-            t('balanceSheet.lines.capital'),
-            balanceSheetInputs.capital,
-          ],
-          [
-            t('balanceSheet.equity'),
-            t('balanceSheet.lines.retainedEarnings'),
-            balanceSheet.retainedEarnings,
-          ],
-          [
-            t('balanceSheet.equity'),
-            t('balanceSheet.lines.currentProfit'),
-            PNL.netProfit,
-          ],
-          [
-            t('balanceSheet.equity'),
-            t('balanceSheet.totalEquity'),
-            balanceSheet.totalEquity,
-          ],
-        ],
-      );
-    } else if (tab === 'cashFlow') {
-      const cashFlow = computeCashFlow({
-        netProfit: PNL.netProfit,
-        closingCash: cashBalance,
-        inputs: cashFlowInputs,
-      });
-
-      rows.push(
-        [
-          t('export.columns.section'),
-          t('export.columns.item'),
-          t('export.columns.amount'),
-        ],
-      );
-      rows.push(
-        [
-          t('cashFlow.operating'),
-          t('cashFlow.lines.netProfit'),
-          PNL.netProfit,
-        ],
-        [
-          t('cashFlow.operating'),
-          t('cashFlow.lines.receivablesChange'),
-          -cashFlowInputs.receivablesIncrease,
-        ],
-        [
-          t('cashFlow.operating'),
-          t('cashFlow.lines.payablesChange'),
-          cashFlowInputs.payablesIncrease,
-        ],
-        [
-          t('cashFlow.operating'),
-          t('cashFlow.totalOperating'),
-          cashFlow.operating,
-        ],
-        [
-          t('cashFlow.investing'),
-          t('cashFlow.lines.equipment'),
-          -cashFlowInputs.equipmentPurchase,
-        ],
-        [
-          t('cashFlow.investing'),
-          t('cashFlow.totalInvesting'),
-          cashFlow.investing,
-        ],
-        [
-          t('cashFlow.financing'),
-          t('cashFlow.lines.ownerWithdrawals'),
-          -cashFlowInputs.ownerWithdrawals,
-        ],
-        [
-          t('cashFlow.financing'),
-          t('cashFlow.totalFinancing'),
-          cashFlow.financing,
-        ],
-        [t('cashFlow.summary.opening'), '', cashFlow.openingCash],
-        [t('cashFlow.summary.netChange'), '', cashFlow.netChange],
-        [t('cashFlow.summary.closing'), '', cashFlow.closingCash],
-      );
-    } else if (tab === 'aging') {
-      const buckets = ['notDue', 'd1_30', 'd31_60', 'd60plus'] as const;
-      rows.push(
+    if (tab === 'aging') {
+      if (!aging) return null;
+      return [
         [
           t('agingTab.table.customer'),
-          ...buckets.map((bucket) => t(`aging.buckets.${bucket}`)),
+          ...AGING_BUCKETS.map((bucket) => t(`aging.buckets.${bucket}`)),
           t('agingTab.table.total'),
         ],
-      );
-      rows.push(
-        ...agingRows.map((customer) => [
+        ...aging.rows.map((customer): CsvRow => [
           customer.name,
-          ...buckets.map((bucket) => customer[bucket]),
-          buckets.reduce((total, bucket) => total + customer[bucket], 0),
+          ...AGING_BUCKETS.map((bucket) => customer[bucket]),
+          customer.total,
         ]),
         [
           t('agingTab.table.total'),
-          ...buckets.map(
-            (bucket) =>
-              agingBuckets.find((item) => item.key === bucket)?.amount ?? 0,
-          ),
-          agingBuckets.reduce((total, bucket) => total + bucket.amount, 0),
+          ...AGING_BUCKETS.map((bucket) => aging.buckets.find((b) => b.key === bucket)?.amount ?? 0),
+          aging.total,
         ],
-      );
-    } else if (tab === 'vat') {
-      rows.push([t('export.columns.item'), t('export.columns.amount')]);
-      rows.push(
-        [t('vat.output'), vatSummary.output],
-        [t('vat.input'), vatSummary.input],
-        [t('vat.due'), vatSummary.output - vatSummary.input],
-        [t('vatTab.details.rate'), `${VAT_RATE * 100}%`],
-        [t('vatTab.details.taxableSales'), Math.round(vatSummary.output / VAT_RATE)],
-        [t('vat.dueDate'), vatSummary.dueDate],
-      );
-    } else {
-      const customer =
-        customerStatements.find((item) => item.id === statementCustomerId) ??
-        customerStatements[0];
-      const statement = computeStatement(customer);
+      ];
+    }
 
-      rows.push(
+    if (tab === 'vat') {
+      if (!vat) return null;
+      return [
+        columns('item', 'amount'),
+        [t('vat.output'), vat.output],
+        [t('vat.input'), vat.input],
+        [t('vat.due'), vat.due],
+        [t('vatTab.details.rate'), `${vat.rate}%`],
+        [t('vatTab.details.taxableSales'), vat.taxableSales],
+        [tApi('exemptSales'), vat.exemptSales],
+        [tApi('invoicesCount'), vat.invoicesCount],
+        [t('vat.dueDate'), vat.filingDueDate],
+      ];
+    }
+
+    if (tab === 'statement') {
+      if (!statement) return null;
+      return [
+        [t('statementTab.customer'), statement.customer.name],
+        [],
         [
           t('statementTab.table.date'),
           t('statementTab.table.description'),
@@ -500,36 +354,45 @@ export default function ReportsView() {
           t('statementTab.table.credit'),
           t('statementTab.table.balance'),
         ],
-      );
-      rows.push(
-        [
-          '',
-          t('statementTab.table.opening'),
-          '',
-          null,
-          null,
-          statement.opening,
-        ],
-        ...statement.rows.map((transaction) => [
-          transaction.date,
-          t(`statementTab.table.types.${transaction.type}`),
-          transaction.ref,
-          transaction.type === 'invoice' ? transaction.amount : null,
-          transaction.type === 'payment' ? transaction.amount : null,
-          transaction.balance,
+        ['', t('statementTab.table.opening'), '', null, null, statement.opening],
+        ...statement.txns.map((txn): CsvRow => [
+          txn.date,
+          [
+            t(`statementTab.table.types.${txn.type}`),
+            txn.invoiceRef && tApi('onInvoice', { ref: txn.invoiceRef }),
+            txn.pending && `(${tStatus('pending')})`,
+          ]
+            .filter(Boolean)
+            .join(' '),
+          txn.ref,
+          txn.type === 'invoice' ? txn.amount : null,
+          txn.type === 'payment' ? txn.amount : null,
+          txn.balance,
         ]),
-        [
-          '',
-          t('statementTab.table.closing'),
-          '',
-          statement.invoiced,
-          statement.paid,
-          statement.closing,
-        ],
-      );
+        ['', t('statementTab.table.closing'), '', statement.invoiced, statement.paid, statement.closing],
+      ];
     }
 
-    downloadCsv(`Reports-${period}-${tab}.csv`, rows);
+    // Balance sheet and cash flow: nothing real to export until the ledger exists.
+    return null;
+  }
+
+  // What each tab's export needs; balance sheet and cash flow have nothing real yet.
+  const exportReady: Record<ReportTab, boolean> = {
+    pnl: !!(s && agingQuery.data && vatQuery.data),
+    balanceSheet: false,
+    cashFlow: false,
+    aging: !!agingQuery.data,
+    vat: !!vatQuery.data,
+    statement: !!statementQuery.data,
+  };
+
+  function downloadExcel() {
+    const rows = exportRows();
+    if (!rows) return;
+    // Aging is as of today, whatever the period.
+    const when = tab === 'aging' && agingQuery.data ? agingQuery.data.asOf : periodText;
+    downloadCsv(`Reports-${selected}-${tab}.csv`, [[t('title')], [t(`tabs.${tab}`), when], [], ...rows]);
     toast.success(t('toasts.excelDownloaded'));
   }
 
@@ -559,14 +422,14 @@ export default function ReportsView() {
                   <div className="text-muted px-3 py-2 text-[10px] font-extrabold tracking-wide uppercase">
                     {t('filter.quickPeriods')}
                   </div>
-                  {PERIODS.map((p) => (
+                  {PERIOD_KEYWORDS.map((p) => (
                     <DropdownMenuItem
                       key={p}
-                      onClick={() => setPeriod(p)}
+                      onClick={() => choosePeriod(p)}
                       className="text-ink-2 h-10 justify-between rounded-btn px-3 text-xs font-semibold data-highlighted:bg-brand-soft data-highlighted:text-brand-deep"
                     >
                       {t(`periods.${p}`)}
-                      {p === period && (
+                      {p === selected && (
                         <Check className="text-brand size-4" />
                       )}
                     </DropdownMenuItem>
@@ -575,14 +438,14 @@ export default function ReportsView() {
                   <div className="text-muted px-3 py-2 text-[10px] font-extrabold tracking-wide uppercase">
                     {t('filter.months')}
                   </div>
-                  {[...SERIES].reverse().map(({ month }) => (
+                  {recentMonths(currentMonth, MENU_MONTHS).map((month) => (
                     <DropdownMenuItem
                       key={month}
-                      onClick={() => setPeriod(month)}
+                      onClick={() => choosePeriod(month)}
                       className="text-ink-2 h-10 justify-between rounded-btn px-3 text-xs font-semibold data-highlighted:bg-brand-soft data-highlighted:text-brand-deep"
                     >
-                      {monthYear(monthToDate(month))}
-                      {month === period && (
+                      {monthYear(month)}
+                      {month === selected && (
                         <Check className="text-brand size-4" />
                       )}
                     </DropdownMenuItem>
@@ -593,7 +456,7 @@ export default function ReportsView() {
               <button
                 type="button"
                 className={cn(buttonVariants({ variant: 'outline' }), outlineBtn)}
-                onClick={() => printWithTitle(`Reports-${period}`)}
+                onClick={() => printWithTitle(`Reports-${selected}-${tab}`)}
               >
                 <Download className="size-4" />
                 {t('actions.pdf')}
@@ -602,6 +465,7 @@ export default function ReportsView() {
               <button
                 type="button"
                 className={cn(buttonVariants({ variant: 'outline' }), outlineBtn)}
+                disabled={!exportReady[tab]}
                 onClick={downloadExcel}
               >
                 <FileSpreadsheet className="size-4" />
@@ -612,6 +476,16 @@ export default function ReportsView() {
         />
 
         <ReportsTabs value={tab} tabs={tabs} onChange={setTab} />
+
+        {summaryQuery.isError && !s && (
+          <div className="rounded-card border-line bg-surface flex flex-wrap items-center justify-between gap-3 border px-4 py-3 shadow-sm">
+            <p className="text-danger text-sm font-semibold">{errorMessage(summaryQuery.error)}</p>
+            <Button variant="outline" className={outlineBtn} onClick={() => summaryQuery.refetch()}>
+              {tApi('retry')}
+            </Button>
+          </div>
+        )}
+
         {statCards}
         {reportContent}
       </div>

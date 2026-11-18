@@ -207,6 +207,8 @@ function InvoiceForm({
         ...quoteValues,
         customerId: customers.find((c) => c.name === selectedQuote?.customer)?.id ?? '',
         issueDate: todayIso,
+        // The company's payment terms, not the 30 days the quote helper assumes.
+        terms: defaultTerms,
       }
     : initial;
   const resolvedSourceQuote =

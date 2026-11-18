@@ -5,12 +5,14 @@
 
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { api } from '@/lib/api/client';
-import type { OpenInvoice, Payment, PaymentMethod, ReceivingAccount } from '@/lib/mock/payments';
+import type { OpenInvoice, Payment, PaymentMethod } from '@/lib/mock/payments';
+import type { ReceivingAccount } from '@/lib/payments/constants';
 import { queryKeys } from '@/lib/query/keys';
 
-// The payments page names a few values differently from the backend.
+// The payments page names a few methods differently from the backend.
+// Receiving accounts use the backend's values as they are.
 type ApiMethod = 'cash' | 'bank' | 'card' | 'instapay' | 'vodafoneCash' | 'cheque';
-type ApiAccount = 'bank' | 'cashbox' | 'wallet';
+type ApiAccount = ReceivingAccount;
 
 const METHOD_TO_API: Record<PaymentMethod, ApiMethod> = {
   bankTransfer: 'bank',
@@ -19,13 +21,10 @@ const METHOD_TO_API: Record<PaymentMethod, ApiMethod> = {
   vodafoneCash: 'vodafoneCash',
   cheque: 'cheque',
 };
-const ACCOUNT_TO_API: Record<ReceivingAccount, ApiAccount> = { bankAhli: 'bank', cashbox: 'cashbox', wallet: 'wallet' };
 
 const methodFromApi = (m: ApiMethod): PaymentMethod =>
   // A card payment (recorded on an invoice page) has no own label here; it is shown as a bank payment.
   m === 'bank' || m === 'card' ? 'bankTransfer' : m;
-const accountFromApi = (a: ApiAccount | null): ReceivingAccount | undefined =>
-  a === null ? undefined : a === 'bank' ? 'bankAhli' : a;
 
 export type ApiPayment = {
   id: string;
@@ -58,8 +57,13 @@ export type ApiOpenInvoice = {
   daysOverdue: number | null;
 };
 
-/** An open invoice as the payments page uses it, plus what the reminders need. */
-export type OpenInvoiceRow = OpenInvoice & { id: string; phone: string | null; daysOverdue: number | null };
+/** An open invoice as the payments page uses it, plus what the reminders and the bell need. */
+export type OpenInvoiceRow = OpenInvoice & {
+  id: string;
+  customerId: string;
+  phone: string | null;
+  daysOverdue: number | null;
+};
 
 export type PaymentStats = {
   collectedThisMonth: number;
@@ -91,7 +95,7 @@ export function toUiPayment(p: ApiPayment): Payment {
     method: methodFromApi(p.method),
     amount: Number(p.amount),
     status: p.status,
-    account: accountFromApi(p.account),
+    account: p.account ?? undefined,
     reference: p.reference ?? undefined,
     note: p.note ?? undefined,
   };
@@ -100,6 +104,7 @@ export function toUiPayment(p: ApiPayment): Payment {
 const toOpenInvoice = (i: ApiOpenInvoice): OpenInvoiceRow => ({
   id: i.id,
   number: i.number,
+  customerId: i.customerId,
   customer: i.customer,
   balance: Number(i.balance),
   issued: i.issueDate,
@@ -156,6 +161,8 @@ export function useOpenInvoices() {
   return useQuery({
     queryKey: queryKeys.payments.openInvoices,
     queryFn: async () => (await api<{ invoices: ApiOpenInvoice[] }>('/api/payments/open-invoices')).invoices.map(toOpenInvoice),
+    // The notifications bell reads this on every page; payments and invoice changes invalidate it.
+    staleTime: 60_000,
   });
 }
 
@@ -171,7 +178,14 @@ export async function fetchPaymentsForExport(params: Omit<PaymentListParams, 'pa
 function useAfterPaymentChange() {
   const queryClient = useQueryClient();
   return () => {
-    for (const key of [queryKeys.payments.all, queryKeys.invoices.all, queryKeys.customers.all, queryKeys.dashboard]) {
+    // Reports too: collected cash, aging and customer statements.
+    for (const key of [
+      queryKeys.payments.all,
+      queryKeys.invoices.all,
+      queryKeys.customers.all,
+      queryKeys.dashboard,
+      queryKeys.reports.all,
+    ]) {
       void queryClient.invalidateQueries({ queryKey: key });
     }
   };
@@ -194,7 +208,7 @@ export function useRecordPayment() {
       (
         await api<{ payment: ApiPayment }>('/api/payments', {
           method: 'POST',
-          body: { ...input, method: METHOD_TO_API[input.method], account: ACCOUNT_TO_API[input.account] },
+          body: { ...input, method: METHOD_TO_API[input.method] },
         })
       ).payment,
     onSuccess: after,

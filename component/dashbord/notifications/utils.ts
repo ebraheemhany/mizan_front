@@ -1,8 +1,7 @@
 // component/dashbord/notifications/utils.ts
-// component/dashbord/notifications/utils.ts
-import { agingRows } from '@/lib/mock/reports';
 import type { Expense } from '@/lib/mock/expenses';
 import { TASKS_TODAY, type Task } from '@/lib/mock/tasks';
+import type { OpenInvoiceRow } from '@/lib/payments/hooks';
 
 export type NotificationKind =
   | 'receivableOverdue'
@@ -19,22 +18,35 @@ export type AppNotification = {
   href: string;
 };
 
-// TODO: لما نربط الـ API الإشعارات تيجي من الباك إند
-// وتتضاف "عرض سعر اتقبل" من العروض
+/** Customers with overdue invoices, biggest overdue balance first. */
+function overdueReceivables(openInvoices: OpenInvoiceRow[]): AppNotification[] {
+  // Summed in cents so the total is exact (balances are 2-decimal amounts).
+  const byCustomer = new Map<string, { name: string; cents: number }>();
+  for (const invoice of openInvoices) {
+    if (invoice.daysOverdue === null) continue;
+    const row = byCustomer.get(invoice.customerId) ?? { name: invoice.customer, cents: 0 };
+    row.cents += Math.round(invoice.balance * 100);
+    byCustomer.set(invoice.customerId, row);
+  }
+  return [...byCustomer]
+    .filter(([, row]) => row.cents > 0)
+    .sort((a, b) => b[1].cents - a[1].cents)
+    .map(([customerId, row]) => ({
+      id: `receivable-${customerId}`,
+      kind: 'receivableOverdue' as const,
+      title: row.name,
+      amount: row.cents / 100,
+      href: `/customers/${customerId}`,
+    }));
+}
+
+// TODO: tasks are still local data (tasks step); accepted quotes come with the quotes step.
 export function buildNotifications(
+  openInvoices: OpenInvoiceRow[],
   tasks: Task[],
   expenses: Expense[],
 ): AppNotification[] {
-  const receivables = agingRows
-    .map((r) => ({ r, overdue: r.d1_30 + r.d31_60 + r.d60plus }))
-    .filter((x) => x.overdue > 0)
-    .map(({ r, overdue }) => ({
-      id: `receivable-${r.id}`,
-      kind: 'receivableOverdue' as const,
-      title: r.name,
-      amount: overdue,
-      href: '/reports',
-    }));
+  const receivables = overdueReceivables(openInvoices);
 
   const overdueTasks = tasks
     .filter((t) => !t.done && t.due < TASKS_TODAY)

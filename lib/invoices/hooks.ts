@@ -5,7 +5,7 @@
 
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { api } from '@/lib/api/client';
-import type { HistoryEvent, InvoiceDetail } from '@/lib/mock/invoice-details';
+import type { HistoryEvent, InvoiceDetail, InvoicePaymentMethod } from '@/lib/mock/invoice-details';
 import type { Invoice, InvoiceStatus } from '@/lib/mock/invoices';
 import { queryKeys } from '@/lib/query/keys';
 
@@ -46,7 +46,17 @@ export type ApiInvoiceDetail = ApiInvoice & {
   vat: string;
   rounding: string;
   note: string | null;
-  payments: { id: string; amount: string; date: string; method: 'cash' | 'bank' | 'card'; note: string | null }[];
+  payments: {
+    id: string;
+    number: string;
+    amount: string;
+    date: string;
+    method: InvoicePaymentMethod;
+    status: 'cleared' | 'pending';
+    account: 'bank' | 'cashbox' | 'wallet' | null;
+    reference: string | null;
+    note: string | null;
+  }[];
   /** Only for logged-in users (not on the public link). */
   publicToken?: string | null;
   history?: { id: string; type: HistoryEvent['type']; at: string; values: Record<string, string | number> }[];
@@ -135,7 +145,17 @@ export function toUiDetail(d: ApiInvoiceDetail): InvoiceDetail {
     vat: Number(d.vat),
     rounding: Number(d.rounding),
     note: d.note ?? '',
-    payments: d.payments.map((p) => ({ id: p.id, amount: Number(p.amount), date: p.date, method: p.method, note: p.note ?? undefined })),
+    payments: d.payments.map((p) => ({
+      id: p.id,
+      number: p.number,
+      amount: Number(p.amount),
+      date: p.date,
+      method: p.method,
+      status: p.status,
+      account: p.account ?? undefined,
+      reference: p.reference ?? undefined,
+      note: p.note ?? undefined,
+    })),
     history: (d.history ?? []).map((h) => ({ id: h.id, type: h.type, at: h.at, values: h.values })),
   };
 }
@@ -225,6 +245,8 @@ function useAfterInvoiceChange() {
     void queryClient.invalidateQueries({ queryKey: queryKeys.dashboard });
     // The expenses page shows this month's revenue and net profit, both from issued invoices.
     void queryClient.invalidateQueries({ queryKey: queryKeys.expenses.stats });
+    // Every report is built from invoices (revenue, aging, VAT, statements).
+    void queryClient.invalidateQueries({ queryKey: queryKeys.reports.all });
   };
 }
 

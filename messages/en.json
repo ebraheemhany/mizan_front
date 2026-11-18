@@ -544,7 +544,10 @@
   "methods": {
     "cash": "Cash",
     "bank": "Bank transfer",
-    "card": "Card"
+    "card": "Card",
+    "instapay": "InstaPay",
+    "vodafoneCash": "Vodafone Cash",
+    "cheque": "Cheque"
   }
 },
 "history": {
@@ -636,6 +639,7 @@
     "cash": "Cash",
     "bank": "Bank",
     "card": "Card clearing",
+    "wallet": "E-wallet",
     "receivable": "Accounts receivable",
     "vat": "VAT payable",
     "revenue": "Sales revenue",
@@ -899,6 +903,7 @@
 "CustomerDetail": {
   "back": "Back to customers",
   "newInvoice": "New invoice",
+  "statement": "Statement",
   "owner": "Owner: {name}",
   "edit": "Edit",
   "stats": {
@@ -1256,7 +1261,7 @@
 },
 "Reports": {
   "title": "Reports",
-  "basis": "Cash basis",
+  "basis": "Accrual basis",
   "periodLabel": "Period",
   "quarterLabel": "Q{q} {year}",
   "filter": {
@@ -1283,10 +1288,8 @@
     "revenue": "Revenue",
     "expenses": "Expenses",
     "netProfit": "Net profit",
-    "cashBalance": "Cash balance",
     "revenueHint": "{pct} vs {month}",
-    "margin": "Margin {pct}",
-    "cashHint": "Bank + cash on hand"
+    "margin": "Margin {pct}"
   },
   "toasts": {
     "excelDownloaded": "Report downloaded as an Excel-compatible CSV file"
@@ -1305,7 +1308,7 @@
   "comingSoon": "This tab is still being designed",
 
 "chart": {
-  "title": "Revenue vs expenses (EGP thousands)",
+  "title": "Revenue vs expenses (last 6 months)",
   "revenue": "Revenue",
   "expenses": "Expenses"
 },
@@ -1313,11 +1316,13 @@
   "title": "Profit & loss statement",
   "lines": {
     "salesRevenue": "Sales revenue",
-    "costOfServices": "Cost of services",
+    "purchases": "Purchases (cost of sales)",
     "grossProfit": "Gross profit",
     "salaries": "Salaries & wages",
-    "rent": "Rent & utilities",
+    "rent": "Rent",
+    "utilities": "Utilities",
     "marketing": "Marketing & ads",
+    "software": "Software & subscriptions",
     "netProfit": "Net profit"
   }
 },
@@ -1410,7 +1415,7 @@
     "output": "Output VAT",
     "outputHint": "Collected from customers",
     "input": "Input VAT",
-    "inputHint": "Deducted from suppliers",
+    "inputHint": "Not recorded on expenses yet",
     "due": "Net due",
     "dueHint": "Payable to the tax authority"
   },
@@ -1418,7 +1423,7 @@
     "title": "Calculation details",
     "rate": "VAT rate",
     "taxableSales": "Taxable sales",
-    "note": "Taxable sales = output VAT ÷ rate."
+    "note": "From invoices issued in the period, before VAT. Drafts and cancelled invoices aren't counted."
   }
 },
 "statementTab": {
@@ -1660,6 +1665,7 @@
   "description": "Search for a page, customer, task or expense",
   "placeholder": "Type to search…",
   "empty": "No results.",
+  "searching": "Searching…",
   "groups": {
     "pages": "Pages",
     "actions": "Quick actions",
@@ -1813,12 +1819,12 @@
     "cheque": "Cheque"
   },
   "accounts": {
-    "bankAhli": "National Bank — Current account",
+    "bank": "Bank account",
     "cashbox": "Cash box",
     "wallet": "E-wallet"
   },
   "save": "Save payment",
-  "entryNote": "An accounting entry is created automatically: from {account} to the customer account.",
+  "entryNote": "The amount is deducted from the invoice and customer balances and recorded under {account}.",
   "errors": {
     "invoiceRequired": "Pick an invoice",
     "amountInvalid": "Enter an amount above zero",
@@ -2579,5 +2585,24 @@
       "paid": "Paid",
       "due": "Due"
     }
+  },
+  "ReportsApi": {
+    "retry": "Try again",
+    "noComparison": "Nothing in the previous period to compare with",
+    "noRevenue": "No revenue in this period",
+    "collected": "Collected in the period",
+    "collectedHint": "Cleared payments; pending cheques not included",
+    "noTopCustomers": "No issued invoices in this period",
+    "noReceivables": "No customer owes anything right now",
+    "noActivity": "No invoices or payments in this period",
+    "pickCustomer": "Choose a customer",
+    "searchCustomers": "Search by name, phone or email",
+    "searching": "Searching…",
+    "noMatches": "No matching customers",
+    "noCustomers": "No customers yet. Add a customer to see their statement.",
+    "onInvoice": "on {ref}",
+    "exemptSales": "Sales without VAT",
+    "invoicesCount": "Invoices in the period",
+    "ledgerHint": "This report will be built from the general ledger once it is ready."
   }
 }

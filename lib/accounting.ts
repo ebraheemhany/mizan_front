@@ -1,13 +1,14 @@
 // lib/accounting.ts
-import type { InvoiceDetail } from '@/lib/mock/invoice-details';
+import type { InvoiceDetail, Payment } from '@/lib/mock/invoice-details';
 
-export type AccountKey = 'cash' | 'bank' | 'card' | 'receivable' | 'vat' | 'revenue' | 'rounding';
+export type AccountKey = 'cash' | 'bank' | 'card' | 'wallet' | 'receivable' | 'vat' | 'revenue' | 'rounding';
 
 // TODO: الأكواد دي وهمية، هتيجي من دليل الحسابات لما نبني صفحة الحسابات والقيود
 export const ACCOUNT_CODES: Record<AccountKey, string> = {
   cash: '1101',
   bank: '1102',
   card: '1103',
+  wallet: '1104',
   receivable: '1201',
   vat: '2101',
   revenue: '4101',
@@ -23,6 +24,29 @@ export type JournalEntry = {
   reference: string;
   lines: JournalLine[];
 };
+
+/** The account a payment is debited to: the receiving account if one was chosen, else by method. */
+export function paymentAccount(p: Pick<Payment, 'method' | 'account'>): AccountKey {
+  switch (p.account) {
+    case 'cashbox':
+      return 'cash';
+    case 'wallet':
+      return 'wallet';
+    case 'bank':
+      return 'bank';
+  }
+  switch (p.method) {
+    case 'cash':
+      return 'cash';
+    case 'card':
+      return 'card';
+    case 'vodafoneCash':
+      return 'wallet';
+    default:
+      // bank transfer, InstaPay and cheques all land in the bank.
+      return 'bank';
+  }
+}
 
 export function buildJournalEntries(invoice: InvoiceDetail): JournalEntry[] {
   // المسودات والملغاة مفيهاش ترحيل
@@ -60,7 +84,7 @@ export function buildJournalEntries(invoice: InvoiceDetail): JournalEntry[] {
         date: p.date,
         reference: `JE-${invoice.number}-${i + 2}`,
         lines: [
-          { account: p.method, debit: p.amount, credit: 0 },
+          { account: paymentAccount(p), debit: p.amount, credit: 0 },
           { account: 'receivable', debit: 0, credit: p.amount },
         ],
       });

@@ -3,11 +3,9 @@
 
 import { useFormatter, useTranslations } from 'next-intl';
 
-import type { MonthlyPoint } from '@/lib/mock/reports';
-import { monthToDate } from './utils';
-import { useReportMoney } from './useReportMoney';
-
-const STEP = 20000;
+import { useMoney } from '@/lib/money';
+import type { MonthlyPoint } from '@/lib/reports/hooks';
+import { monthToDate, niceMax } from './utils';
 
 export default function RevenueExpensesChart({
   series,
@@ -16,11 +14,11 @@ export default function RevenueExpensesChart({
 }) {
   const t = useTranslations('Reports.chart');
   const format = useFormatter();
-  const money = useReportMoney();
+  const money = useMoney();
 
-  const max = Math.max(...series.flatMap((p) => [p.revenue, p.expenses]));
-  const top = Math.ceil(max / STEP) * STEP;
-  const height = (value: number) => `${(value / top) * 100}%`;
+  // A round top for the scale; all-zero months get flat bars instead of NaN heights.
+  const top = niceMax(Math.max(0, ...series.flatMap((p) => [p.revenue, p.expenses])));
+  const height = (value: number) => `${(Math.max(0, value) / top) * 100}%`;
 
   return (
     <div className="rounded-card border-line bg-surface border p-5 shadow-sm">

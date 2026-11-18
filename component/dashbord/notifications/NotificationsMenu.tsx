@@ -29,6 +29,8 @@ import {
 } from './utils';
 import { useTasks } from '@/component/dashbord/AppDataProvider';
 import { useExpenses } from '@/lib/expenses/hooks';
+import { useOpenInvoices } from '@/lib/payments/hooks';
+
 const ICON: Record<NotificationKind, { Icon: LucideIcon; tone: string }> = {
   receivableOverdue: { Icon: Receipt, tone: 'bg-danger-soft text-danger' },
   taskOverdue: { Icon: ListChecks, tone: 'bg-danger-soft text-danger' },
@@ -45,12 +47,13 @@ export default function NotificationsMenu() {
   const money = useMoney();
   const router = useRouter();
 
-
   const { tasks } = useTasks();
   const { expenses } = useExpenses();
+  // Overdue balances per customer come from the open invoices (any role may read them).
+  const openInvoices = useOpenInvoices().data;
   const all = useMemo(
-    () => buildNotifications(tasks, expenses),
-    [tasks, expenses],
+    () => buildNotifications(openInvoices ?? [], tasks, expenses),
+    [openInvoices, tasks, expenses],
   );
   const [read, setRead] = useState<Set<string>>(new Set());
 

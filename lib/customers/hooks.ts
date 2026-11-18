@@ -126,12 +126,13 @@ export function useTeamDirectory() {
   });
 }
 
-export function useCustomers(params: CustomerListParams) {
+export function useCustomers(params: CustomerListParams, opts?: { enabled?: boolean }) {
   return useQuery({
     queryKey: queryKeys.customers.list(params),
     queryFn: () => api<CustomerListResponse>(`/api/customers${toQueryString(params)}`),
     // Keep showing the current page while the next one loads (no flashing table).
     placeholderData: keepPreviousData,
+    enabled: opts?.enabled ?? true,
   });
 }
 
@@ -159,7 +160,11 @@ export async function fetchCustomersForExport(params: Omit<CustomerListParams, '
 
 function useInvalidateCustomers() {
   const queryClient = useQueryClient();
-  return () => queryClient.invalidateQueries({ queryKey: queryKeys.customers.all });
+  return () => {
+    // Reports show customer names (top customers, aging, statements).
+    void queryClient.invalidateQueries({ queryKey: queryKeys.reports.all });
+    return queryClient.invalidateQueries({ queryKey: queryKeys.customers.all });
+  };
 }
 
 export function useCreateCustomer() {

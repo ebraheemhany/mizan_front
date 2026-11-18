@@ -3,15 +3,14 @@
 
 import { useFormatter, useTranslations } from 'next-intl';
 
-import type { VatSummary } from '@/lib/mock/reports';
-import { useReportMoney } from './useReportMoney';
+import { useMoney } from '@/lib/money';
+import type { VatReport } from '@/lib/reports/hooks';
 
-export default function VatCard({ vat }: { vat: VatSummary }) {
+export default function VatCard({ vat }: { vat: VatReport }) {
   const t = useTranslations('Reports.vat');
   const format = useFormatter();
-  const money = useReportMoney();
-
-  const due = vat.output - vat.input;
+  // VAT is filed to the piaster.
+  const money = useMoney({ cents: true });
 
   const row = 'flex items-center justify-between gap-4 py-3 text-xs';
 
@@ -35,13 +34,13 @@ export default function VatCard({ vat }: { vat: VatSummary }) {
         <li className={row}>
           <span className="text-ink font-extrabold">{t('due')}</span>
           <span className="text-danger font-extrabold tabular-nums">
-            {money(due)}
+            {money(vat.due)}
           </span>
         </li>
         <li className={row}>
           <span className="text-ink-2 font-semibold">{t('dueDate')}</span>
           <span className="text-ink font-bold tabular-nums">
-            {format.dateTime(new Date(vat.dueDate), {
+            {format.dateTime(new Date(`${vat.filingDueDate}T00:00:00Z`), {
               day: 'numeric',
               month: 'long',
               year: 'numeric',

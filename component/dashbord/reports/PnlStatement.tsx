@@ -3,10 +3,9 @@
 
 import { useTranslations } from 'next-intl';
 
+import { useMoney } from '@/lib/money';
+import type { PnlKind, ReportSummary } from '@/lib/reports/hooks';
 import { cn } from '@/lib/utils';
-import type { PnlLine } from '@/lib/mock/reports';
-import { computePnl } from './utils';
-import { useReportMoney } from './useReportMoney';
 
 type Row = {
   key: string;
@@ -14,17 +13,17 @@ type Row = {
   subtotal?: boolean;
 };
 
-export default function PnlStatement({ lines }: { lines: PnlLine[] }) {
+/** The lines and both profits as the server worked them out (nothing is summed here). */
+export default function PnlStatement({ summary }: { summary: ReportSummary }) {
   const t = useTranslations('Reports.pnl');
-  const money = useReportMoney();
-  const pnl = computePnl(lines);
+  const money = useMoney();
 
-  const of = (kind: PnlLine['kind']) => lines.filter((l) => l.kind === kind);
+  const of = (kind: PnlKind) => summary.lines.filter((l) => l.kind === kind);
 
   const rows: Row[] = [
     ...of('income').map((l) => ({ key: l.key, amount: l.amount })),
     ...of('cost').map((l) => ({ key: l.key, amount: -l.amount })),
-    { key: 'grossProfit', amount: pnl.grossProfit, subtotal: true },
+    { key: 'grossProfit', amount: summary.grossProfit, subtotal: true },
     ...of('expense').map((l) => ({ key: l.key, amount: -l.amount })),
   ];
 
@@ -64,8 +63,13 @@ export default function PnlStatement({ lines }: { lines: PnlLine[] }) {
         <span className="text-ink text-sm font-extrabold">
           {t('lines.netProfit')}
         </span>
-        <span className="text-brand text-lg font-extrabold tabular-nums">
-          {money(pnl.netProfit)}
+        <span
+          className={cn(
+            'text-lg font-extrabold tabular-nums',
+            summary.netProfit < 0 ? 'text-danger' : 'text-brand',
+          )}
+        >
+          {money(summary.netProfit)}
         </span>
       </div>
     </div>

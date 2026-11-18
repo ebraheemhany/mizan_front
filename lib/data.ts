@@ -25,13 +25,15 @@ export function useDateTime() {
   return (value: string) => {
     const hasTime = value.includes('T');
     const d = new Date(hasTime ? value : `${value}T00:00:00Z`);
+    // A plain date is shown as is; a real moment (from the API, in UTC) in Egypt's time.
+    const timeZone = hasTime ? 'Africa/Cairo' : 'UTC';
 
     const day = format.dateTime(d, {
       day: 'numeric',
       month: 'long',
       year: 'numeric',
       numberingSystem: 'latn',
-      timeZone: 'UTC',
+      timeZone,
     });
     if (!hasTime) return day;
 
@@ -40,7 +42,7 @@ export function useDateTime() {
       minute: '2-digit',
       hour12: true,
       numberingSystem: 'latn',
-      timeZone: 'UTC',
+      timeZone,
     });
     return `${day} · ${time}`;
   };

@@ -47,14 +47,14 @@ export default function DashboardView() {
     }
   }
 
-  // TODO: التاريخ الحقيقي لما نربط الـ API
+  // Today in Egypt (the business day), whatever the device's time zone.
   const today = format.dateTime(new Date(), {
     weekday: 'long',
     day: 'numeric',
     month: 'long',
     year: 'numeric',
     numberingSystem: 'latn',
-    timeZone: 'UTC',
+    timeZone: 'Africa/Cairo',
   });
 
   return (

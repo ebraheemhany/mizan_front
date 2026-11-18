@@ -2,6 +2,7 @@
 
 import { useTranslations } from 'next-intl';
 import { downloadCsv, type CsvColumn } from '@/lib/csv';
+import { toIso } from '@/lib/iso-date';
 import type { Payment } from '@/lib/mock/payments';
 import { DEFAULT_CURRENCY } from '@/lib/money';
 
@@ -38,7 +39,8 @@ export function useExportPayments() {
       },
     ];
 
-    const date = new Date().toISOString().slice(0, 10);
+    // Today on the user's device (toISOString would give the UTC day).
+    const date = toIso(new Date());
     downloadCsv(`payments-${date}.csv`, columns, rows);
   };
 }

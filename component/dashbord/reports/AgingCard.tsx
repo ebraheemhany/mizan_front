@@ -5,11 +5,11 @@ import { useTranslations } from 'next-intl';
 
 import { buttonVariants } from '@/components/ui/button';
 import { Link } from '@/i18n/navigation';
+import { useMoney } from '@/lib/money';
+import type { AgingBucket, AgingBucketKey } from '@/lib/reports/hooks';
 import { cn } from '@/lib/utils';
-import type { AgingBucket } from '@/lib/mock/reports';
-import { useReportMoney } from './useReportMoney';
 
-const BAR: Record<AgingBucket['key'], string> = {
+const BAR: Record<AgingBucketKey, string> = {
   notDue: 'bg-brand',
   d1_30: 'bg-[#dba35a]',
   d31_60: 'bg-amber-800',
@@ -18,7 +18,7 @@ const BAR: Record<AgingBucket['key'], string> = {
 
 export default function AgingCard({ buckets }: { buckets: AgingBucket[] }) {
   const t = useTranslations('Reports.aging');
-  const money = useReportMoney();
+  const money = useMoney();
 
   const max = Math.max(...buckets.map((b) => b.amount), 1);
 
@@ -51,7 +51,6 @@ export default function AgingCard({ buckets }: { buckets: AgingBucket[] }) {
         ))}
       </ul>
 
-      {/* TODO: نبعت فلتر المتأخرة لقائمة الفواتير لما نضيف الـ query param */}
       <Link
         href="/invoices"
         className={cn(

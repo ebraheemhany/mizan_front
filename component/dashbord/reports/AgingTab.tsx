@@ -4,84 +4,83 @@
 import { useFormatter, useTranslations } from 'next-intl';
 
 import StatCard from '@/component/StatCard';
+import { Link } from '@/i18n/navigation';
+import { useMoney } from '@/lib/money';
+import { AGING_BUCKETS, type AgingReport } from '@/lib/reports/hooks';
 import { cn } from '@/lib/utils';
-import { agingBuckets, agingRows, type AgingBucket } from '@/lib/mock/reports';
 import AgingCard from './AgingCard';
-import { useReportMoney } from './useReportMoney';
-
-const BUCKETS: AgingBucket['key'][] = ['notDue', 'd1_30', 'd31_60', 'd60plus'];
 
 const th = 'text-ink-2 px-4 py-3 text-start text-xs font-bold';
 const td = 'px-4 py-3.5 text-xs tabular-nums';
 
-export default function AgingTab() {
+/** Open balances by days past due. Every total here comes from the server. */
+export default function AgingTab({ aging }: { aging: AgingReport }) {
   const t = useTranslations('Reports');
+  const tApi = useTranslations('ReportsApi');
   const format = useFormatter();
-  const money = useReportMoney();
+  const money = useMoney();
 
-  const total = agingBuckets.reduce((s, b) => s + b.amount, 0);
-  const notDue = agingBuckets.find((b) => b.key === 'notDue')?.amount ?? 0;
-  const overdue = total - notDue;
-  const overdueShare = total > 0 ? overdue / total : 0;
-  const overdueCustomers = agingRows.filter(
-    (r) => r.d1_30 + r.d31_60 + r.d60plus > 0,
-  ).length;
+  const bucketTotal = (key: (typeof AGING_BUCKETS)[number]) =>
+    aging.buckets.find((b) => b.key === key)?.amount ?? 0;
 
   return (
     <div className="space-y-4">
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         <StatCard
           label={t('agingTab.stats.total')}
-          value={money(total)}
+          value={money(aging.total)}
           hint={t('agingTab.stats.totalHint')}
         />
         <StatCard
           label={t('agingTab.stats.overdue')}
-          value={money(overdue)}
-          hint={format.number(overdueShare, {
+          value={money(aging.overdue)}
+          hint={format.number(aging.total > 0 ? aging.overdue / aging.total : 0, {
             style: 'percent',
             maximumFractionDigits: 0,
             numberingSystem: 'latn',
           })}
-          tone={overdue > 0 ? 'danger' : 'brand'}
+          tone={aging.overdue > 0 ? 'danger' : 'brand'}
           hintTone="default"
         />
         <StatCard
           label={t('agingTab.stats.customers')}
-          value={format.number(overdueCustomers, { numberingSystem: 'latn' })}
+          value={format.number(aging.overdueCustomers, { numberingSystem: 'latn' })}
           hint={t('agingTab.stats.customersHint')}
         />
       </div>
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
-        <AgingCard buckets={agingBuckets} />
+        <AgingCard buckets={aging.buckets} />
 
         <div className="rounded-card border-line bg-surface overflow-hidden border shadow-sm lg:col-span-2">
           <h2 className="text-ink px-5 pt-5 text-sm font-extrabold">
             {t('agingTab.table.title')}
           </h2>
-          <div className="mt-4 overflow-x-auto">
-            <table className="w-full min-w-[640px] border-collapse">
-              <thead className="bg-neutral-soft/70">
-                <tr>
-                  <th className={th}>{t('agingTab.table.customer')}</th>
-                  {BUCKETS.map((key) => (
-                    <th key={key} className={th}>
-                      {t(`aging.buckets.${key}`)}
-                    </th>
-                  ))}
-                  <th className={th}>{t('agingTab.table.total')}</th>
-                </tr>
-              </thead>
-              <tbody>
-                {agingRows.map((row) => {
-                  const rowTotal = BUCKETS.reduce((s, k) => s + row[k], 0);
-                  return (
+          {aging.rows.length === 0 ? (
+            <p className="text-muted px-5 py-14 text-center text-sm">{tApi('noReceivables')}</p>
+          ) : (
+            <div className="mt-4 overflow-x-auto">
+              <table className="w-full min-w-[640px] border-collapse">
+                <thead className="bg-neutral-soft/70">
+                  <tr>
+                    <th className={th}>{t('agingTab.table.customer')}</th>
+                    {AGING_BUCKETS.map((key) => (
+                      <th key={key} className={th}>
+                        {t(`aging.buckets.${key}`)}
+                      </th>
+                    ))}
+                    <th className={th}>{t('agingTab.table.total')}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {aging.rows.map((row) => (
                     <tr key={row.id} className="border-line/70 border-t">
                       <td className={cn(td, 'text-ink font-bold')}>
-                        {row.name}
+                        <Link href={`/customers/${row.id}`} className="hover:text-brand-deep hover:underline">
+                          {row.name}
+                        </Link>
                       </td>
-                      {BUCKETS.map((key) => (
+                      {AGING_BUCKETS.map((key) => (
                         <td
                           key={key}
                           className={cn(
@@ -97,14 +96,25 @@ export default function AgingTab() {
                         </td>
                       ))}
                       <td className={cn(td, 'text-ink font-extrabold')}>
-                        {money(rowTotal)}
+                        {money(row.total)}
                       </td>
                     </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
+                  ))}
+                </tbody>
+                <tfoot>
+                  <tr className="border-line-strong bg-neutral-soft/70 border-t">
+                    <td className={cn(td, 'text-ink font-extrabold')}>{t('agingTab.table.total')}</td>
+                    {AGING_BUCKETS.map((key) => (
+                      <td key={key} className={cn(td, 'text-ink font-extrabold')}>
+                        {money(bucketTotal(key))}
+                      </td>
+                    ))}
+                    <td className={cn(td, 'text-ink font-extrabold')}>{money(aging.total)}</td>
+                  </tr>
+                </tfoot>
+              </table>
+            </div>
+          )}
         </div>
       </div>
     </div>

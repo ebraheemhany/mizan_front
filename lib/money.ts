@@ -6,7 +6,8 @@ import { useFormatter, useLocale } from 'next-intl';
 // TODO: العملة هتيجي من إعدادات الشركة
 export const DEFAULT_CURRENCY = 'EGP';
 
-export function useMoney() {
+/** Money as text: whole pounds, or with `{ cents: true }` always 2 decimals (statements, VAT). */
+export function useMoney({ cents = false }: { cents?: boolean } = {}) {
   const format = useFormatter();
 
   return (amount: number, currency: string = DEFAULT_CURRENCY) =>
@@ -14,7 +15,7 @@ export function useMoney() {
       style: 'currency',
       currency,
       numberingSystem: 'latn',
-      maximumFractionDigits: 0,
+      ...(cents ? { minimumFractionDigits: 2, maximumFractionDigits: 2 } : { maximumFractionDigits: 0 }),
     });
 }
 

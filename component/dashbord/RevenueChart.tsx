@@ -4,14 +4,7 @@
 import { useFormatter, useTranslations } from 'next-intl';
 import { useMoney } from '@/lib/money';
 import { useDashboard } from '@/lib/payments/hooks';
-
-/** A round top for the scale (1, 2, 2.5 or 5 x a power of ten), so ticks read nicely. */
-function niceMax(value: number) {
-  if (value <= 0) return 1000;
-  const power = 10 ** Math.floor(Math.log10(value));
-  const step = [1, 2, 2.5, 5, 10].find((s) => s * power >= value) ?? 10;
-  return step * power;
-}
+import { niceMax } from './reports/utils';
 
 const shortAmount = (v: number) =>
   v === 0 ? '0' : v >= 1_000_000 ? `${v / 1_000_000}m` : v >= 1000 ? `${v / 1000}k` : String(v);

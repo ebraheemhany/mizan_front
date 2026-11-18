@@ -4,8 +4,9 @@ import { useFormatter, useTranslations } from 'next-intl';
 
 import { Link, usePathname } from '@/i18n/navigation';
 import { useTasks } from '@/component/dashbord/AppDataProvider';
+import { useInvoiceStats } from '@/lib/invoices/hooks';
 import { cn } from '@/lib/utils';
-import { NAV_GROUPS } from './nav-config';
+import { NAV_GROUPS, type NavItem, type NavKey } from './nav-config';
 
 export default function SidebarNav({
   onNavigate,
@@ -19,9 +20,17 @@ export default function SidebarNav({
   const isActive = (href: string) =>
     pathname === href || pathname.startsWith(`${href}/`);
 
-  // TODO: الأرقام دي تيجي من الـ API / Provider مشترك
+  // TODO: tasks are still local data (tasks step).
   const { tasks } = useTasks();
   const openTasks = tasks.filter((task) => !task.done).length;
+  // Overdue invoices, from the same stats as the invoices page (every role may read them).
+  const overdueInvoices = useInvoiceStats().data?.overdueCount ?? 0;
+
+  const liveBadge = (key: NavKey, staticBadge: NavItem['badge']): NavItem['badge'] => {
+    if (key === 'tasks') return openTasks > 0 ? { count: openTasks, tone: 'brand' } : undefined;
+    if (key === 'invoices') return overdueInvoices > 0 ? { count: overdueInvoices, tone: 'danger' } : undefined;
+    return staticBadge;
+  };
 
   return (
     <nav aria-label={t('menuTitle')} className="flex flex-col gap-4 px-3">
@@ -34,12 +43,7 @@ export default function SidebarNav({
           )}
         >
           {group.map(({ key, href, icon: Icon, badge: staticBadge }) => {
-            const badge =
-              key === 'tasks' && openTasks > 0
-                ? { count: openTasks, tone: 'brand' as const }
-                : key === 'tasks'
-                  ? undefined
-                  : staticBadge;
+            const badge = liveBadge(key, staticBadge);
             const active = isActive(href);
 
             return (

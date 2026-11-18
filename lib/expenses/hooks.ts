@@ -159,6 +159,8 @@ function useAfterExpenseChange() {
   return () => {
     void queryClient.invalidateQueries({ queryKey: queryKeys.expenses.all });
     void queryClient.invalidateQueries({ queryKey: queryKeys.dashboard });
+    // The profit and loss report sums expenses.
+    void queryClient.invalidateQueries({ queryKey: queryKeys.reports.all });
   };
 }
 

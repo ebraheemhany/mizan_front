@@ -1,13 +1,15 @@
 // components/customers/CustomerDetailView.tsx
 'use client';
 
-import { ArrowLeft, Plus } from 'lucide-react';
+import { ArrowLeft, FileText, Plus } from 'lucide-react';
 import { useLocale, useTranslations } from 'next-intl';
 import Amount from '@/component/Amount';
 import PageHeader from '@/component/PageHeader';
 import StatCard from '@/component/StatCard';
 import { buttonVariants } from '@/components/ui/button';
 import { Link } from '@/i18n/navigation';
+import { can } from '@/lib/auth/permissions';
+import { useSession } from '@/lib/auth/session';
 import type { CustomerDetail } from '@/lib/mock/customer-details';
 import { formatDaysAgo } from '@/lib/relative-time';
 import { cn } from '@/lib/utils';
@@ -28,6 +30,7 @@ export default function CustomerDetailView({
 }) {
   const t = useTranslations('CustomerDetail');
   const locale = useLocale();
+  const user = useSession();
   const {
     customer,
     ownerName,
@@ -77,6 +80,16 @@ export default function CustomerDetailView({
               <ArrowLeft className="size-4 rtl:rotate-180" />
               {t('back')}
             </Link>
+            {/* The customer's account statement (reports are for owner + accountant). */}
+            {can(user.role, 'reports') && (
+              <Link
+                href={`/reports?tab=statement&customer=${customer.id}`}
+                className={cn(buttonVariants({ variant: 'outline' }), outlineBtn)}
+              >
+                <FileText className="size-4" />
+                {t('statement')}
+              </Link>
+            )}
             <Link
               href="/invoices/new"
               className={cn(buttonVariants(), primaryBtn)}

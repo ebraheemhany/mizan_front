@@ -42,6 +42,14 @@ export const queryKeys = {
     stats: ['expenses', 'stats'] as const,
     due: ['expenses', 'due'] as const,
   },
+  /** Financial reports; `period` null = the current month (the server's default). */
+  reports: {
+    all: ['reports'] as const,
+    summary: (period: string | null) => ['reports', 'summary', period] as const,
+    aging: ['reports', 'aging'] as const,
+    vat: (period: string | null) => ['reports', 'vat', period] as const,
+    statement: (customerId: string, period: string | null) => ['reports', 'statement', customerId, period] as const,
+  },
   /** Public: an invoice opened from its shareable link (no login). */
   publicInvoice: (token: string) => ['public-invoice', token] as const,
   /** Company settings (currency, numbering, details...). */

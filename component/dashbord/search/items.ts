@@ -1,7 +1,8 @@
 // component/dashbord/search/items.ts
-import { customerStatements } from '@/lib/mock/reports';
+import type { ApiCustomer } from '@/lib/customers/hooks';
 import type { Expense } from '@/lib/mock/expenses';
 import type { Task } from '@/lib/mock/tasks';
+
 export type SearchGroup =
   | 'pages'
   | 'actions'
@@ -46,15 +47,20 @@ export const ACTION_HREF: Record<(typeof ACTION_KEYS)[number], string> = {
   newQuote: '/quotes/new',
 };
 
-// TODO: لما نربط الـ API البحث يبقى استعلام على الباك إند
-// وتتضاف الفواتير والعروض والصفقات
-export function dataItems(tasks: Task[], expenses: Expense[]): SearchItem[] {
+// Customers are searched on the backend (name, contact, phone, email).
+// TODO: invoices, quotes and deals could be added the same way.
+export function dataItems(
+  customers: ApiCustomer[],
+  tasks: Task[],
+  expenses: Expense[],
+): SearchItem[] {
   return [
-    ...customerStatements.map((c) => ({
+    ...customers.map((c) => ({
       id: `customer-${c.id}`,
       group: 'customers' as const,
       label: c.name,
-      href: '/customers',
+      hint: [c.contactName, c.phone, c.email].filter(Boolean).join(' · ') || undefined,
+      href: `/customers/${c.id}`,
     })),
     ...tasks.map((task) => ({
       id: `task-${task.id}`,

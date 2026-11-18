@@ -19,7 +19,8 @@ import { Textarea } from '@/components/ui/textarea';
 import DateField from '@/component/DateField';
 import { useMoney } from '@/lib/money';
 import { toIso } from '@/lib/iso-date';
-import { RECEIVING_ACCOUNTS, type OpenInvoice } from '@/lib/mock/payments';
+import type { OpenInvoice } from '@/lib/mock/payments';
+import { RECEIVING_ACCOUNTS } from '@/lib/payments/constants';
 import {
   paymentSchema,
   type PaymentFormValues,
@@ -61,7 +62,7 @@ export default function RecordPaymentCard({
       // Today on the user's device.
       date: toIso(new Date()),
       method: 'bankTransfer',
-      account: 'bankAhli',
+      account: 'bank',
       reference: '',
       note: '',
     },
