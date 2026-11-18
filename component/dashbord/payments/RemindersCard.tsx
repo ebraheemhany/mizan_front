@@ -8,32 +8,45 @@ import { toast } from 'sonner';
 
 import { Button } from '@/components/ui/button';
 import { useMoney } from '@/lib/money';
-import {
-  customerPhones,
-  PAYMENTS_TODAY,
-  type OpenInvoice,
-} from '@/lib/mock/payments';
-import { overdueInvoices } from './utils';
+import type { OpenInvoice } from '@/lib/mock/payments';
+import type { OpenInvoiceRow } from '@/lib/payments/hooks';
+
+/**
+ * WhatsApp needs the number in international form without "+":
+ * an Egyptian "010 1234 5678" becomes "201012345678".
+ */
+export function toWhatsAppNumber(phone: string | null) {
+  if (!phone) return null;
+  const digits = phone.replace(/D/g, '');
+  if (digits.startsWith('00')) return digits.slice(2);
+  if (digits.startsWith('0')) return `20${digits.slice(1)}`;
+  return digits || null;
+}
 
 export default function RemindersCard({
   invoices,
 }: {
-  invoices: OpenInvoice[];
+  invoices: OpenInvoiceRow[];
 }) {
   const t = useTranslations('Payments.reminders');
   const format = useFormatter();
   const money = useMoney();
 
+  // Overdue invoices, most overdue first (the server works out the days).
   const list = useMemo(
-    () => overdueInvoices(invoices, PAYMENTS_TODAY),
+    () =>
+      invoices
+        .filter((invoice) => (invoice.daysOverdue ?? 0) > 0)
+        .map((invoice) => ({ invoice, daysLate: invoice.daysOverdue ?? 0 }))
+        .sort((a, b) => b.daysLate - a.daysLate),
     [invoices],
   );
 
   const num = (v: number) =>
     format.number(v, { useGrouping: false, numberingSystem: 'latn' });
 
-  function sendWhatsApp(inv: OpenInvoice, daysLate: number) {
-    const phone = customerPhones[inv.customer];
+  function sendWhatsApp(inv: OpenInvoice & { phone: string | null }, daysLate: number) {
+    const phone = toWhatsAppNumber(inv.phone);
     if (!phone) {
       toast.error(t('noPhone', { customer: inv.customer }));
       return;

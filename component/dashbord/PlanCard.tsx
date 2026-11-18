@@ -6,7 +6,7 @@ import { useFormatter, useTranslations } from 'next-intl';
 import { ArrowUpRight, Sparkles } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
-import { INVOICES, MOCK_NOW } from '@/lib/mock/invoices';
+import { useDashboard } from '@/lib/payments/hooks';
 import { PLANS } from '@/lib/mock/plan';
 import { cn } from '@/lib/utils';
 import { UpgradePlanDialog } from './settings/UpgradePlanDialog';
@@ -15,14 +15,13 @@ export default function PlanCard() {
   const t = useTranslations('PlanCard');
   const format = useFormatter();
   const [upgradeOpen, setUpgradeOpen] = useState(false);
+  const { data } = useDashboard();
 
   const freePlan = PLANS.find((plan) => plan.id === 'free');
   if (!freePlan || freePlan.invoicesLimit === null) return null;
 
-  const currentMonth = MOCK_NOW.toISOString().slice(0, 7);
-  const invoicesUsed = INVOICES.filter((invoice) =>
-    invoice.issueDate.startsWith(currentMonth),
-  ).length;
+  // Invoices created this month (any status), counted by the server.
+  const invoicesUsed = data?.invoicesThisMonth ?? 0;
   const invoicesLimit = freePlan.invoicesLimit;
   const ratio = Math.min(invoicesUsed / invoicesLimit, 1);
   const nearLimit = ratio >= 0.9;

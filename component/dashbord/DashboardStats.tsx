@@ -4,43 +4,55 @@
 import { useFormatter, useTranslations } from 'next-intl';
 import Amount from '@/component/Amount';
 import StatCard from '@/component/StatCard';
-import { DASHBOARD_STATS as s } from '@/lib/mock/dashboard';
-import { INVOICE_STATS } from '@/lib/mock/invoices';
 import { useMoney } from '@/lib/money';
+import { useDashboard } from '@/lib/payments/hooks';
 
 export default function DashboardStats() {
   const t = useTranslations('Dashboard.stats');
+  const tApi = useTranslations('DashboardApi');
   const format = useFormatter();
   const money = useMoney();
+  const { data } = useDashboard();
 
-  const change = (v: number) =>
-    format.number(v, { signDisplay: 'exceptZero', numberingSystem: 'latn' });
+  // Change vs last month, or a plain note when there is nothing to compare with.
+  const change = (v: number | null) =>
+    v === null
+      ? tApi('noComparison')
+      : t('change', { change: format.number(v, { signDisplay: 'exceptZero', numberingSystem: 'latn' }) });
+
+  const f = data?.financials;
+  const receivable = (
+    <StatCard
+      label={t('receivable')}
+      value={<Amount amount={Number(data?.receivable.outstanding ?? 0)} />}
+      hint={t('overdueHint', { amount: money(Number(data?.receivable.overdue ?? 0)) })}
+      hintTone="danger"
+    />
+  );
+
+  // Roles that may not see financial reports only get what is owed to the company.
+  if (data && !f) return <div className="grid grid-cols-2 gap-3 xl:grid-cols-4">{receivable}</div>;
 
   return (
     <div className="grid grid-cols-2 gap-3 xl:grid-cols-4">
       <StatCard
         label={t('revenue')}
-        value={<Amount amount={s.revenue} />}
-        hint={t('change', { change: change(s.revenueChange) })}
+        value={<Amount amount={Number(f?.revenue ?? 0)} />}
+        hint={change(f?.revenueChange ?? null)}
         hintTone="brand"
       />
       <StatCard
         label={t('expenses')}
-        value={<Amount amount={s.expenses} />}
-        hint={t('change', { change: change(s.expensesChange) })}
+        value={<Amount amount={Number(f?.expenses ?? 0)} />}
+        hint={change(f?.expensesChange ?? null)}
       />
       <StatCard
         label={t('netProfit')}
-        value={<Amount amount={s.netProfit} />}
-        hint={t('change', { change: change(s.netProfitChange) })}
+        value={<Amount amount={Number(f?.netProfit ?? 0)} />}
+        hint={change(f?.netProfitChange ?? null)}
         hintTone="brand"
       />
-      <StatCard
-        label={t('receivable')}
-        value={<Amount amount={INVOICE_STATS.outstanding} />}
-        hint={t('overdueHint', { amount: money(INVOICE_STATS.overdue) })}
-        hintTone="danger"
-      />
+      {receivable}
     </div>
   );
 }

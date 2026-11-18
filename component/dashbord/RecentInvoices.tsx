@@ -5,7 +5,7 @@ import { useTranslations } from 'next-intl';
 import { thClass } from '@/component/table-styles';
 import { Link } from '@/i18n/navigation';
 import { useDate } from '@/lib/data';
-import { RECENT_INVOICES } from '@/lib/mock/dashboard';
+import { toUiInvoice, useInvoices } from '@/lib/invoices/hooks';
 import { useMoney } from '@/lib/money';
 import { cn } from '@/lib/utils';
 import StatusBadge from './invoices/StatusBadge';
@@ -14,6 +14,8 @@ export default function RecentInvoices() {
   const t = useTranslations('Dashboard.recent');
   const money = useMoney();
   const date = useDate();
+  const { data } = useInvoices({ status: 'all', period: 'all', sort: 'recent', page: 1, pageSize: 5 });
+  const recent = data?.items.map(toUiInvoice) ?? [];
 
   return (
     <section className="rounded-card border-line bg-surface overflow-hidden border shadow-sm">
@@ -40,7 +42,7 @@ export default function RecentInvoices() {
           </thead>
 
           <tbody>
-            {RECENT_INVOICES.map((inv) => (
+            {recent.map((inv) => (
               <tr
                 key={inv.id}
                 className="border-line hover:bg-canvas/50 border-t transition-colors"

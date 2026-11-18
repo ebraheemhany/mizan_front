@@ -220,6 +220,9 @@ function useAfterInvoiceChange() {
     }
     void queryClient.invalidateQueries({ queryKey: queryKeys.invoices.all });
     void queryClient.invalidateQueries({ queryKey: queryKeys.customers.all });
+    // Payments page and dashboard show invoice numbers too.
+    void queryClient.invalidateQueries({ queryKey: queryKeys.payments.all });
+    void queryClient.invalidateQueries({ queryKey: queryKeys.dashboard });
   };
 }
 

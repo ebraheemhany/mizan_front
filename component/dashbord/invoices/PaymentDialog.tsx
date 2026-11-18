@@ -36,7 +36,6 @@ import {
 import { Textarea } from '@/components/ui/textarea';
 import { rtlLocales } from '@/i18n/routing';
 
-import { MOCK_NOW } from '@/lib/mock/invoices';
 import { useMoney, useMoneyParts } from '@/lib/money';
 import { cn } from '@/lib/utils';
 import {
@@ -102,8 +101,8 @@ function PaymentForm({
   const { symbol } = moneyParts(remaining);
   const [dateOpen, setDateOpen] = useState(false);
 
-  // TODO: التاريخ الحقيقي لما نربط الـ API
-  const todayIso = MOCK_NOW.toISOString().slice(0, 10);
+  // Today on the user's device (payments can't be in the future).
+  const todayIso = toIso(new Date());
 
   const schema = useMemo(
     () =>

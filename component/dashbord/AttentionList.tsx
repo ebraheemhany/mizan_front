@@ -4,7 +4,8 @@
 import { FileSignature, Kanban, Receipt, type LucideIcon } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/navigation';
-import { ATTENTION, type AttentionType } from '@/lib/mock/dashboard';
+import type { AttentionType } from '@/lib/mock/dashboard';
+import { useDashboard } from '@/lib/payments/hooks';
 import { useMoney } from '@/lib/money';
 import { cn } from '@/lib/utils';
 
@@ -17,16 +18,27 @@ const STYLES: Record<AttentionType, { icon: LucideIcon; box: string; days: strin
 export default function AttentionList() {
   const t = useTranslations('Dashboard.attention');
   const money = useMoney();
+  const { data } = useDashboard();
+  // Overdue invoices for now; stale deals and waiting quotes come with those modules.
+  const items = (data?.attention ?? []).map((a) => ({
+    id: a.id,
+    type: a.type as AttentionType,
+    number: a.number,
+    customer: a.customer,
+    amount: Number(a.amount),
+    days: a.days,
+    href: `/invoices/${a.number}`,
+  }));
 
   return (
     <section className="rounded-card border-line bg-surface border p-5 shadow-sm sm:p-6">
       <h2 className="text-ink text-base font-extrabold">{t('title')}</h2>
 
-      {ATTENTION.length === 0 ? (
+      {items.length === 0 ? (
         <p className="text-muted mt-4 py-6 text-center text-sm">{t('empty')}</p>
       ) : (
         <ul className="mt-3 space-y-1">
-          {ATTENTION.map((item) => {
+          {items.map((item) => {
             const { icon: Icon, box, days } = STYLES[item.type];
 
             return (

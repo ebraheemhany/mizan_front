@@ -18,11 +18,8 @@ import {
 import { Textarea } from '@/components/ui/textarea';
 import DateField from '@/component/DateField';
 import { useMoney } from '@/lib/money';
-import {
-  PAYMENTS_TODAY,
-  RECEIVING_ACCOUNTS,
-  type OpenInvoice,
-} from '@/lib/mock/payments';
+import { toIso } from '@/lib/iso-date';
+import { RECEIVING_ACCOUNTS, type OpenInvoice } from '@/lib/mock/payments';
 import {
   paymentSchema,
   type PaymentFormValues,
@@ -38,7 +35,8 @@ export default function RecordPaymentCard({
   onAdd,
 }: {
   invoices: OpenInvoice[];
-  onAdd: (values: PaymentFormValues, invoice: OpenInvoice) => void;
+  /** May be async: the form waits for it before allowing another submit. */
+  onAdd: (values: PaymentFormValues, invoice: OpenInvoice) => void | Promise<void>;
 }) {
   const t = useTranslations('Payments.form');
   const format = useFormatter();
@@ -54,13 +52,14 @@ export default function RecordPaymentCard({
     setError,
     getValues,
     control,
-    formState: { errors },
+    formState: { errors, isSubmitting },
   } = useForm<PaymentFormValues>({
     resolver: zodResolver(paymentSchema),
     defaultValues: {
       invoice: first ? String(first.number) : '',
       amount: first ? String(first.balance) : '',
-      date: PAYMENTS_TODAY,
+      // Today on the user's device.
+      date: toIso(new Date()),
       method: 'bankTransfer',
       account: 'bankAhli',
       reference: '',
@@ -96,7 +95,7 @@ export default function RecordPaymentCard({
       </p>
     ) : null;
 
-  function submit(values: PaymentFormValues) {
+  async function submit(values: PaymentFormValues) {
     const inv = invoices.find((i) => String(i.number) === values.invoice);
     if (!inv) return;
 
@@ -104,7 +103,7 @@ export default function RecordPaymentCard({
       setError('amount', { message: 'amountTooHigh' });
       return;
     }
-    onAdd(values, inv);
+    await onAdd(values, inv);
   }
 
   const num = (v: number) =>
@@ -306,6 +305,7 @@ export default function RecordPaymentCard({
 
           <Button
             type="submit"
+            disabled={isSubmitting}
             className="rounded-btn bg-brand hover:bg-brand/90 h-10 w-full text-xs font-bold text-white"
           >
             {t('save')}

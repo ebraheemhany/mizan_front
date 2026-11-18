@@ -12,7 +12,6 @@ import { useApiErrorMessage } from '@/lib/api/use-api-error';
 import { can } from '@/lib/auth/permissions';
 import { useSession } from '@/lib/auth/session';
 import { formToInput, useCreateCustomer, useTeamDirectory } from '@/lib/customers/hooks';
-import { MOCK_NOW } from '@/lib/mock/invoices';
 import type { CustomerFormValues } from '@/lib/validations/customer';
 import { cn } from '@/lib/utils';
 import AttentionList from './AttentionList';
@@ -36,7 +35,7 @@ export default function DashboardView() {
   const directory = useTeamDirectory();
   const createCustomer = useCreateCustomer();
   const errorMessage = useApiErrorMessage();
-  const firstName = user.fullName.trim().split(/s+/)[0];
+  const firstName = user.fullName.trim().split(/\s+/)[0];
 
   async function addCustomer(values: CustomerFormValues) {
     try {
@@ -49,7 +48,7 @@ export default function DashboardView() {
   }
 
   // TODO: التاريخ الحقيقي لما نربط الـ API
-  const today = format.dateTime(MOCK_NOW, {
+  const today = format.dateTime(new Date(), {
     weekday: 'long',
     day: 'numeric',
     month: 'long',

@@ -553,6 +553,7 @@
     "created": { "title": "أنشئت الفاتورة", "detail": "بواسطة {name}" },
     "sent": { "title": "أُصدرت الفاتورة" },
     "cancelled": { "title": "أُلغيت الفاتورة" },
+    "paymentRemoved": { "title": "اتشالت دفعة", "detail": "بقيمة {amount}" },
     "viewed": { "title": "شاهد العميل الفاتورة" },
     "reminder": { "title": "تذكير تلقائي", "detail": "أُرسل عبر واتساب" },
     "payment": { "title": "سُجّلت دفعة", "detail": "بقيمة {amount}" },
@@ -2434,6 +2435,18 @@
     "INVALID_REFRESH_TOKEN": "الجلسة خلصت، سجّل دخولك تاني",
     "REFRESH_TOKEN_REUSED": "اتقفلت الجلسة لأسباب أمنية، سجّل دخولك تاني",
     "INTERNAL_ERROR": "حصلت مشكلة، جرّب تاني",
+    "PAYMENT_NOT_PENDING": "الدفعة دي مش شيك قيد الصرف",
+    "PAYMENT_NOT_REMOVABLE": "مينفعش تشيل الدفعة دي",
+    "PAYMENT_EXCEEDS_BALANCE": "المبلغ أكبر من المتبقي على الفاتورة",
+    "INVOICE_NOT_PAYABLE": "الفاتورة دي مينفعش يتسجل عليها دفعة",
+    "PAYMENT_DATE_IN_FUTURE": "تاريخ الدفعة مينفعش يكون في المستقبل",
+    "PAYMENT_BEFORE_ISSUE": "تاريخ الدفعة مينفعش يكون قبل تاريخ الفاتورة",
+    "INVOICE_NOT_CANCELLABLE": "الفاتورة دي مينفعش تتلغي (عليها دفعات)",
+    "INVOICE_NOT_DRAFT": "الفاتورة دي اتصدرت بالفعل",
+    "INVOICE_NOT_REMINDABLE": "الفاتورة دي مش محتاجة تذكير",
+    "INVALID_CUSTOMER": "اختار عميل من عملاء الشركة",
+    "CUSTOMER_HAS_INVOICES": "مينفعش تمسح عميل عليه فواتير",
+    "INVOICE_NUMBER_USED": "رقم الفاتورة ده اتستخدم قبل كده",
     "INVALID_CURRENT_PASSWORD": "كلمة المرور الحالية غلط",
     "CODE_TAKEN": "فيه صنف تاني بنفس الكود",
     "INVALID_ASSIGNEE": "الشخص المسؤول لازم يكون من فريق الشركة",
@@ -2538,5 +2551,14 @@
     "draftSaved": "اتحفظت الفاتورة {number} كمسودة",
     "noCustomers": "لسه مفيش عملاء. ضيف عميل الأول من صفحة العملاء.",
     "issuedBy": "صادرة من {name}"
+  },
+  "PaymentsApi": {
+    "retry": "حاول تاني",
+    "markCleared": "اتصرف",
+    "cleared": "اتصرف الشيك {number}",
+    "removed": "اتشالت الدفعة {number}"
+  },
+  "DashboardApi": {
+    "noComparison": "مفيش أرقام الشهر اللي فات للمقارنة"
   }
 }

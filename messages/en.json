@@ -553,6 +553,7 @@
     "created": { "title": "Invoice created", "detail": "by {name}" },
     "sent": { "title": "Invoice issued" },
     "cancelled": { "title": "Invoice cancelled" },
+    "paymentRemoved": { "title": "Payment removed", "detail": "for {amount}" },
     "viewed": { "title": "Customer viewed the invoice" },
     "reminder": { "title": "Automatic reminder", "detail": "Sent via WhatsApp" },
     "payment": { "title": "Payment recorded", "detail": "for {amount}" },
@@ -2429,6 +2430,18 @@
     "INVALID_REFRESH_TOKEN": "Your session has expired, please log in again",
     "REFRESH_TOKEN_REUSED": "Your session was ended for security reasons, please log in again",
     "INTERNAL_ERROR": "Something went wrong, please try again",
+    "PAYMENT_NOT_PENDING": "This payment is not a pending cheque",
+    "PAYMENT_NOT_REMOVABLE": "This payment can't be removed",
+    "PAYMENT_EXCEEDS_BALANCE": "The amount is more than what's left on the invoice",
+    "INVOICE_NOT_PAYABLE": "Payments can't be recorded on this invoice",
+    "PAYMENT_DATE_IN_FUTURE": "The payment date can't be in the future",
+    "PAYMENT_BEFORE_ISSUE": "The payment date can't be before the invoice date",
+    "INVOICE_NOT_CANCELLABLE": "This invoice can't be cancelled (it has payments)",
+    "INVOICE_NOT_DRAFT": "This invoice has already been issued",
+    "INVOICE_NOT_REMINDABLE": "This invoice doesn't need a reminder",
+    "INVALID_CUSTOMER": "Choose one of the company's customers",
+    "CUSTOMER_HAS_INVOICES": "A customer with invoices can't be deleted",
+    "INVOICE_NUMBER_USED": "This invoice number is already used",
     "INVALID_CURRENT_PASSWORD": "Your current password is incorrect",
     "CODE_TAKEN": "Another item already uses this code",
     "INVALID_ASSIGNEE": "The responsible person must be a member of the team",
@@ -2533,5 +2546,14 @@
     "draftSaved": "Invoice {number} saved as a draft",
     "noCustomers": "No customers yet. Add one first on the customers page.",
     "issuedBy": "Issued by {name}"
+  },
+  "PaymentsApi": {
+    "retry": "Try again",
+    "markCleared": "Cleared",
+    "cleared": "Cheque {number} marked as cleared",
+    "removed": "Payment {number} removed"
+  },
+  "DashboardApi": {
+    "noComparison": "Nothing last month to compare with"
   }
 }

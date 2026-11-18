@@ -3,6 +3,7 @@
 
 import { useFormatter, useTranslations } from 'next-intl';
 
+import { Link } from '@/i18n/navigation';
 import { cn } from '@/lib/utils';
 import { useMoney } from '@/lib/money';
 import type { Payment } from '@/lib/mock/payments';
@@ -10,8 +11,16 @@ import type { Payment } from '@/lib/mock/payments';
 const th = 'text-ink-2 px-4 py-3 text-start text-xs font-bold';
 const td = 'px-4 py-3.5 text-xs';
 
-export default function PaymentsTable({ rows }: { rows: Payment[] }) {
+export default function PaymentsTable({
+  rows,
+  onClear,
+}: {
+  rows: Payment[];
+  /** Marks a pending cheque as cleared. Omitted when the user's role can't record payments. */
+  onClear?: (payment: Payment) => void;
+}) {
   const t = useTranslations('Payments');
+  const tApi = useTranslations('PaymentsApi');
   const format = useFormatter();
   const money = useMoney();
 
@@ -43,12 +52,13 @@ export default function PaymentsTable({ rows }: { rows: Payment[] }) {
               <td className={cn(td, 'text-ink-2 font-semibold tabular-nums')}>
                 {p.number}
               </td>
-              {/* TODO: رابط لتفاصيل الفاتورة لما نربط الصفحات */}
               <td className={cn(td, 'text-brand-deep font-extrabold tabular-nums')}>
-                #{format.number(p.invoiceNo, {
-                  useGrouping: false,
-                  numberingSystem: 'latn',
-                })}
+                <Link href={`/invoices/${p.invoiceNo}`} className="hover:underline">
+                  #{format.number(p.invoiceNo, {
+                    useGrouping: false,
+                    numberingSystem: 'latn',
+                  })}
+                </Link>
               </td>
               <td className={cn(td, 'text-ink font-bold')}>{p.customer}</td>
               <td className={cn(td, 'text-ink-2 tabular-nums')}>
@@ -61,6 +71,15 @@ export default function PaymentsTable({ rows }: { rows: Payment[] }) {
                     <span className="rounded-full bg-amber-50 px-2 py-0.5 text-[10px] font-bold text-amber-800">
                       {t('status.pending')}
                     </span>
+                  )}
+                  {p.status === 'pending' && onClear && (
+                    <button
+                      type="button"
+                      onClick={() => onClear(p)}
+                      className="text-brand-deep hover:bg-brand-soft rounded-full border border-brand-mint px-2 py-0.5 text-[10px] font-bold"
+                    >
+                      {tApi('markCleared')}
+                    </button>
                   )}
                 </span>
               </td>
