@@ -163,6 +163,8 @@ function useInvalidateCustomers() {
   return () => {
     // Reports show customer names (top customers, aging, statements).
     void queryClient.invalidateQueries({ queryKey: queryKeys.reports.all });
+    // So do tasks linked to a customer.
+    void queryClient.invalidateQueries({ queryKey: queryKeys.tasks.all });
     return queryClient.invalidateQueries({ queryKey: queryKeys.customers.all });
   };
 }

@@ -1572,7 +1572,6 @@
     "done": "مكتملة"
   },
   "toasts": {
-    "soon": "الميزة دي هتتفعّل في الخطوات الجاية",
     "completed": "اتكملت المهمة «{title}»",
 "reopened": "اتفتحت المهمة «{title}» تاني",
 "undo": "تراجع",
@@ -1595,8 +1594,7 @@
   "doneOn": "أنجزت {date}"
 },
 "links": {
-  "customer": "عميل: {name}",
-  "deal": "صفقة: {name}"
+  "customer": "عميل: {name}"
 },
 "calendar": {
   "prev": "الشهر السابق",
@@ -1614,12 +1612,10 @@
     "due": "تاريخ الاستحقاق",
     "priority": "الأولوية",
     "kind": "النوع",
-    "link": "مرتبطة بـ",
-    "linkName": "الاسم"
+    "customer": "العميل (اختياري)"
   },
   "placeholders": {
-    "title": "مثال: متابعة دفعة عميل",
-    "linkName": "اسم العميل أو الصفقة"
+    "title": "مثال: متابعة دفعة عميل"
   },
   "priorities": {
     "urgent": "عاجل",
@@ -1634,17 +1630,12 @@
     "deadline": "موعد نهائي",
     "admin": "إداري"
   },
-  "linkTypes": {
-    "none": "بدون",
-    "customer": "عميل",
-    "deal": "صفقة"
-  },
   "save": "حفظ المهمة",
   "cancel": "إلغاء",
   "errors": {
     "titleRequired": "اكتب عنوان المهمة",
     "dueRequired": "اختار التاريخ",
-    "linkNameRequired": "اكتب الاسم"
+    "titleTooLong": "العنوان طويل، الحد 200 حرف"
   }
 }
 },
@@ -2066,6 +2057,7 @@
       "recordPayments": "تسجيل الدفعات",
       "expenses": "المصروفات والقيود",
       "reports": "التقارير المالية",
+      "tasks": "إضافة وتعديل المهام",
       "settings": "الإعدادات والمستخدمين",
       "deleteData": "حذف البيانات"
     }
@@ -2611,5 +2603,15 @@
     "exemptSales": "مبيعات من غير ضريبة",
     "invoicesCount": "عدد فواتير الفترة",
     "ledgerHint": "التقرير ده هيتبني من دفتر الأستاذ العام لما يجهز."
+  },
+  "TasksApi": {
+    "loading": "جاري تحميل المهام…",
+    "retry": "حاول تاني",
+    "removed": "اتشالت المهمة «{title}»",
+    "customerNone": "بدون عميل",
+    "customerClear": "شيل العميل",
+    "searchCustomers": "ابحث بالاسم أو التليفون أو الإيميل",
+    "searching": "جاري البحث…",
+    "noMatches": "مفيش عملاء مطابقين"
   }
 }

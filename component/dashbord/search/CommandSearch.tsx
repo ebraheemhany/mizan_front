@@ -23,9 +23,9 @@ import {
   type SearchGroup,
   type SearchItem,
 } from './items';
-import { useTasks } from '@/component/dashbord/AppDataProvider';
 import { useCustomers } from '@/lib/customers/hooks';
 import { useExpenses } from '@/lib/expenses/hooks';
+import { useTasks } from '@/lib/tasks/hooks';
 import { useDebouncedValue } from '@/lib/use-debounced-value';
 
 const GROUP_ORDER: SearchGroup[] = [

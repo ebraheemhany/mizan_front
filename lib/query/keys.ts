@@ -50,6 +50,14 @@ export const queryKeys = {
     vat: (period: string | null) => ['reports', 'vat', period] as const,
     statement: (customerId: string, period: string | null) => ['reports', 'statement', customerId, period] as const,
   },
+  /**
+   * Tasks: one list for the whole company (open ones + the last 60 days' completed ones),
+   * shared by the tasks page, the notifications bell, the search and the sidebar badge.
+   */
+  tasks: {
+    all: ['tasks'] as const,
+    list: ['tasks', 'list'] as const,
+  },
   /** Public: an invoice opened from its shareable link (no login). */
   publicInvoice: (token: string) => ['public-invoice', token] as const,
   /** Company settings (currency, numbering, details...). */

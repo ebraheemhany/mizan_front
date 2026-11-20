@@ -3,8 +3,9 @@
 
 import { useEffect } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
-import { Controller, useForm, useWatch } from 'react-hook-form';
+import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { Loader2 } from 'lucide-react';
 
 import DateField from '@/component/DateField';
 import { Button } from '@/components/ui/button';
@@ -23,8 +24,9 @@ import {
   SheetHeader,
   SheetTitle,
 } from '@/components/ui/sheet';
-import type { TaskKind, TaskPriority } from '@/lib/mock/tasks';
+import type { TaskKind, TaskPriority } from '@/lib/tasks/hooks';
 import { taskSchema, type TaskFormValues } from '@/lib/validations/tasks';
+import TaskCustomerPicker from './TaskCustomerPicker';
 
 const PRIORITIES: TaskPriority[] = ['urgent', 'important', 'normal'];
 const KINDS: TaskKind[] = [
@@ -49,7 +51,8 @@ export default function NewTaskSheet({
   open: boolean;
   defaultDate: string;
   onOpenChange: (open: boolean) => void;
-  onSubmit: (values: TaskFormValues) => void;
+  /** Saves the task; true when it was saved (the sheet closes), false to keep it open. */
+  onSubmit: (values: TaskFormValues) => Promise<boolean>;
 }) {
   const t = useTranslations('Tasks.form');
   const locale = useLocale();
@@ -59,7 +62,7 @@ export default function NewTaskSheet({
     handleSubmit,
     reset,
     control,
-    formState: { errors },
+    formState: { errors, isSubmitting },
   } = useForm<TaskFormValues>({
     resolver: zodResolver(taskSchema),
     defaultValues: {
@@ -67,8 +70,7 @@ export default function NewTaskSheet({
       due: defaultDate,
       priority: 'normal',
       kind: 'admin',
-      linkType: 'none',
-      linkName: '',
+      customer: null,
     },
   });
 
@@ -80,13 +82,15 @@ export default function NewTaskSheet({
         due: defaultDate,
         priority: 'normal',
         kind: 'admin',
-        linkType: 'none',
-        linkName: '',
+        customer: null,
       });
     }
   }, [open, defaultDate, reset]);
 
-  const linkType = useWatch({ control, name: 'linkType' });
+  // لو الحفظ فشل الدرج يفضل مفتوح بالبيانات (الرسالة بتظهر في toast)
+  async function save(values: TaskFormValues) {
+    if (await onSubmit(values)) onOpenChange(false);
+  }
 
   const error = (key?: string) =>
     key ? (
@@ -111,7 +115,7 @@ export default function NewTaskSheet({
         </SheetHeader>
 
         <form
-          onSubmit={handleSubmit(onSubmit)}
+          onSubmit={handleSubmit(save)}
           noValidate
           className="space-y-5 px-6 py-5"
         >
@@ -230,67 +234,31 @@ export default function NewTaskSheet({
             </div>
           </div>
 
+          {/* TODO: ربط المهمة بصفقة لما الصفقات تتربط بالـ API */}
           <div>
-            <label htmlFor="task-link-type" className={label}>
-              {t('fields.link')}
+            <label htmlFor="task-customer" className={label}>
+              {t('fields.customer')}
             </label>
             <Controller
-              name="linkType"
+              name="customer"
               control={control}
-              render={({ field: linkTypeField }) => (
-                <Select
-                  value={linkTypeField.value}
-                  onValueChange={(value) => {
-                    if (value) linkTypeField.onChange(value);
-                  }}
-                >
-                  <SelectTrigger
-                    id="task-link-type"
-                    ref={linkTypeField.ref}
-                    onBlur={linkTypeField.onBlur}
-                    className={`${inputClass} w-full font-semibold shadow-sm`}
-                  >
-                    <SelectValue>
-                      {t(`linkTypes.${linkTypeField.value}`)}
-                    </SelectValue>
-                  </SelectTrigger>
-                  <SelectContent className="border-line bg-surface text-ink rounded-xl p-1.5 shadow-lg">
-                    {(['none', 'customer', 'deal'] as const).map((linkType) => (
-                      <SelectItem
-                        key={linkType}
-                        value={linkType}
-                        className="rounded-btn min-h-10 px-3 py-2 text-xs font-semibold transition-colors focus:bg-brand-soft focus:text-brand-deep data-highlighted:bg-brand-soft data-highlighted:text-brand-deep data-[selected]:bg-brand-soft data-[selected]:text-brand-deep"
-                      >
-                        {t(`linkTypes.${linkType}`)}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+              render={({ field: customerField }) => (
+                <TaskCustomerPicker
+                  id="task-customer"
+                  value={customerField.value}
+                  onChange={customerField.onChange}
+                />
               )}
             />
           </div>
 
-          {/* TODO: نبدّل حقل النص ده بـ CustomerCombobox / اختيار صفقة */}
-          {linkType !== 'none' && (
-            <div>
-              <label htmlFor="task-link-name" className={label}>
-                {t('fields.linkName')}
-              </label>
-              <Input
-                id="task-link-name"
-                placeholder={t('placeholders.linkName')}
-                className={inputClass}
-                {...register('linkName')}
-              />
-              {error(errors.linkName?.message)}
-            </div>
-          )}
-
           <div className="flex gap-2 pt-2">
             <Button
               type="submit"
-              className="rounded-btn bg-brand hover:bg-brand/90 h-10 flex-1 text-xs font-bold text-white"
+              disabled={isSubmitting}
+              className="rounded-btn bg-brand hover:bg-brand/90 h-10 flex-1 gap-2 text-xs font-bold text-white"
             >
+              {isSubmitting && <Loader2 className="size-4 animate-spin" />}
               {t('save')}
             </Button>
             <Button

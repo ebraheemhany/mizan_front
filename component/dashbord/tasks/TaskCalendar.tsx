@@ -1,13 +1,13 @@
 // component/dashbord/tasks/TaskCalendar.tsx
 'use client';
 
-import { useMemo } from 'react';
+import { useMemo, type KeyboardEvent } from 'react';
 import { useFormatter, useTranslations } from 'next-intl';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import type { Task, TaskKind } from '@/lib/mock/tasks';
+import type { Task, TaskKind } from '@/lib/tasks/hooks';
 import { monthGrid, shiftMonth, tasksByDate } from './utils';
 
 const KIND: Record<TaskKind, string> = {
@@ -35,7 +35,8 @@ export default function TaskCalendar({
   tasks: Task[];
   today: string;
   onMonthChange: (month: string) => void;
-  onDayClick: (iso: string) => void;
+  /** Opens a new task on that day; left out for roles that may not add tasks. */
+  onDayClick?: (iso: string) => void;
 }) {
   const t = useTranslations('Tasks.calendar');
   const format = useFormatter();
@@ -110,26 +111,35 @@ export default function TaskCalendar({
               const dayTasks = byDate.get(iso) ?? [];
               const extra = dayTasks.length - MAX_CHIPS;
 
+              // A day is a button only for those who may add tasks.
+              const clickable = onDayClick
+                ? {
+                    role: 'button',
+                    tabIndex: 0,
+                    'aria-label': t('addOn', { date: iso }),
+                    onClick: () => onDayClick(iso),
+                    onKeyDown: (e: KeyboardEvent<HTMLDivElement>) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        onDayClick(iso);
+                      }
+                    },
+                  }
+                : {};
+
               return (
                 <div
                   key={iso}
-                  role="button"
-                  tabIndex={0}
-                  aria-label={t('addOn', { date: iso })}
-                  onClick={() => onDayClick(iso)}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter' || e.key === ' ') {
-                      e.preventDefault();
-                      onDayClick(iso);
-                    }
-                  }}
+                  {...clickable}
                   className={cn(
-                    'focus-visible:ring-brand/30 min-h-24 cursor-pointer p-1.5 outline-none focus-visible:ring-2 focus-visible:ring-inset',
+                    'min-h-24 p-1.5',
+                    onDayClick &&
+                      'focus-visible:ring-brand/30 cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-inset',
                     isToday
                       ? 'bg-brand-soft/60'
                       : inMonth
-                        ? 'bg-surface hover:bg-canvas/60'
-                        : 'bg-canvas/50 hover:bg-canvas',
+                        ? cn('bg-surface', onDayClick && 'hover:bg-canvas/60')
+                        : cn('bg-canvas/50', onDayClick && 'hover:bg-canvas'),
                   )}
                 >
                   <div className="mb-1 flex justify-end">

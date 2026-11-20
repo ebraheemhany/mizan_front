@@ -4,9 +4,10 @@
 import { useFormatter, useTranslations } from 'next-intl';
 import { Check } from 'lucide-react';
 
+import { Link } from '@/i18n/navigation';
 import { addDaysIso } from '@/lib/iso-date';
 import { cn } from '@/lib/utils';
-import type { Task, TaskPriority } from '@/lib/mock/tasks';
+import type { Task, TaskPriority } from '@/lib/tasks/hooks';
 import { isOverdue } from './utils';
 
 const BADGE: Record<TaskPriority | 'done', { box: string; dot: string }> = {
@@ -20,10 +21,14 @@ export default function TaskList({
   tasks,
   today,
   onToggle,
+  busyIds,
 }: {
   tasks: Task[];
   today: string;
-  onToggle: (task: Task) => void;
+  /** Left out for roles that may not change tasks: the checkboxes are then read-only. */
+  onToggle?: (task: Task) => void;
+  /** Tasks whose change is still being saved (their checkbox waits). */
+  busyIds?: ReadonlySet<string>;
 }) {
   const t = useTranslations('Tasks');
   const format = useFormatter();
@@ -38,8 +43,8 @@ export default function TaskList({
     });
 
   function dueText(task: Task) {
-    if (task.done && task.completedAt) {
-      return t('due.doneOn', { date: date(task.completedAt, false) });
+    if (task.done && task.completedOn) {
+      return t('due.doneOn', { date: date(task.completedOn, false) });
     }
     if (task.due === today) return t('due.today');
     if (task.due === addDaysIso(today, 1)) return t('due.tomorrow');
@@ -57,6 +62,7 @@ export default function TaskList({
           {tasks.map((task) => {
             const badge = BADGE[task.done ? 'done' : task.priority];
             const overdue = isOverdue(task, today);
+            const busy = busyIds?.has(task.id) ?? false;
 
             return (
               <li
@@ -68,12 +74,15 @@ export default function TaskList({
                   role="checkbox"
                   aria-checked={task.done}
                   aria-label={task.title}
-                  onClick={() => onToggle(task)}
+                  aria-busy={busy || undefined}
+                  disabled={!onToggle || busy}
+                  onClick={() => onToggle?.(task)}
                   className={cn(
-                    'focus-visible:ring-brand/30 mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-md border transition-colors outline-none focus-visible:ring-2',
+                    'focus-visible:ring-brand/30 mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-md border transition-colors outline-none focus-visible:ring-2 disabled:cursor-default',
                     task.done
                       ? 'border-brand bg-brand text-white'
-                      : 'border-line-strong bg-surface hover:border-brand',
+                      : cn('border-line-strong bg-surface', onToggle && 'hover:border-brand'),
+                    busy && 'opacity-60',
                   )}
                 >
                   {task.done && <Check className="size-3.5" strokeWidth={3} />}
@@ -95,10 +104,15 @@ export default function TaskList({
                     )}
                   >
                     {dueText(task)}
-                    {task.link && !task.done && (
+                    {task.customer && !task.done && (
                       <>
                         {' · '}
-                        {t(`links.${task.link.type}`, { name: task.link.name })}
+                        <Link
+                          href={`/customers/${task.customer.id}`}
+                          className="focus-visible:ring-brand/30 rounded-sm underline-offset-2 outline-none hover:underline focus-visible:ring-2"
+                        >
+                          {t('links.customer', { name: task.customer.name })}
+                        </Link>
                       </>
                     )}
                   </p>

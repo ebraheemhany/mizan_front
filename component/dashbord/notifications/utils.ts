@@ -1,7 +1,7 @@
 // component/dashbord/notifications/utils.ts
 import type { Expense } from '@/lib/mock/expenses';
-import { TASKS_TODAY, type Task } from '@/lib/mock/tasks';
 import type { OpenInvoiceRow } from '@/lib/payments/hooks';
+import type { Task } from '@/lib/tasks/hooks';
 
 export type NotificationKind =
   | 'receivableOverdue'
@@ -40,16 +40,18 @@ function overdueReceivables(openInvoices: OpenInvoiceRow[]): AppNotification[] {
     }));
 }
 
-// TODO: tasks are still local data (tasks step); accepted quotes come with the quotes step.
+// TODO: accepted quotes come with the quotes step.
+/** `today` is the server's business date (YYYY-MM-DD), the one tasks are due against. */
 export function buildNotifications(
   openInvoices: OpenInvoiceRow[],
   tasks: Task[],
+  today: string,
   expenses: Expense[],
 ): AppNotification[] {
   const receivables = overdueReceivables(openInvoices);
 
   const overdueTasks = tasks
-    .filter((t) => !t.done && t.due < TASKS_TODAY)
+    .filter((t) => !t.done && t.due < today)
     .map((t) => ({
       id: `task-${t.id}`,
       kind: 'taskOverdue' as const,
@@ -59,7 +61,7 @@ export function buildNotifications(
     }));
 
   const todayTasks = tasks
-    .filter((t) => !t.done && t.due === TASKS_TODAY)
+    .filter((t) => !t.done && t.due === today)
     .map((t) => ({
       id: `task-${t.id}`,
       kind: 'taskToday' as const,

@@ -20,6 +20,8 @@ export const PERMISSIONS = [
   { key: 'recordPayments', roles: ['owner', 'accountant'] },
   { key: 'expenses', roles: ['owner', 'accountant'] },
   { key: 'reports', roles: ['owner', 'accountant'] },
+  /** Add, edit, complete and delete tasks (everyone can see them). */
+  { key: 'tasks', roles: ['owner', 'accountant', 'sales'] },
   { key: 'settings', roles: ['owner'] },
   { key: 'deleteData', roles: ['owner'] },
 ] as const satisfies readonly { key: string; roles: readonly Role[] }[];

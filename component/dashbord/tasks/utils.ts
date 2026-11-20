@@ -1,6 +1,6 @@
 // component/dashbord/tasks/utils.ts
 import { addDaysIso } from '@/lib/iso-date';
-import type { Task } from '@/lib/mock/tasks';
+import type { Task } from '@/lib/tasks/hooks';
 
 export type TaskFilter = 'all' | 'today' | 'week' | 'overdue' | 'done';
 
@@ -26,15 +26,16 @@ export function isOverdue(task: Task, today: string) {
   return !task.done && task.due < today;
 }
 
+// "Today", "this week" and "overdue" are what is still to do; finished tasks are under "done".
 export function matchesFilter(task: Task, filter: TaskFilter, today: string) {
   switch (filter) {
     case 'all':
       return true;
     case 'today':
-      return task.due === today;
+      return !task.done && task.due === today;
     case 'week': {
       const { start, end } = weekRange(today);
-      return task.due >= start && task.due <= end;
+      return !task.done && task.due >= start && task.due <= end;
     }
     case 'overdue':
       return isOverdue(task, today);

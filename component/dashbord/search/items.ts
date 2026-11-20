@@ -1,7 +1,7 @@
 // component/dashbord/search/items.ts
 import type { ApiCustomer } from '@/lib/customers/hooks';
 import type { Expense } from '@/lib/mock/expenses';
-import type { Task } from '@/lib/mock/tasks';
+import type { Task } from '@/lib/tasks/hooks';
 
 export type SearchGroup =
   | 'pages'
@@ -66,6 +66,8 @@ export function dataItems(
       id: `task-${task.id}`,
       group: 'tasks' as const,
       label: task.title,
+      // The linked customer, so a task can also be found by its customer's name.
+      hint: task.customer?.name,
       href: '/tasks',
     })),
     ...expenses.map((e) => ({

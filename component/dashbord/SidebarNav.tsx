@@ -3,8 +3,8 @@
 import { useFormatter, useTranslations } from 'next-intl';
 
 import { Link, usePathname } from '@/i18n/navigation';
-import { useTasks } from '@/component/dashbord/AppDataProvider';
 import { useInvoiceStats } from '@/lib/invoices/hooks';
+import { useTasks } from '@/lib/tasks/hooks';
 import { cn } from '@/lib/utils';
 import { NAV_GROUPS, type NavItem, type NavKey } from './nav-config';
 
@@ -20,7 +20,7 @@ export default function SidebarNav({
   const isActive = (href: string) =>
     pathname === href || pathname.startsWith(`${href}/`);
 
-  // TODO: tasks are still local data (tasks step).
+  // Open tasks of the company (every role may read them).
   const { tasks } = useTasks();
   const openTasks = tasks.filter((task) => !task.done).length;
   // Overdue invoices, from the same stats as the invoices page (every role may read them).

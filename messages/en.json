@@ -1570,7 +1570,6 @@
     "done": "Done"
   },
   "toasts": {
-    "soon": "This will be enabled in the next steps",
     "completed": "Task “{title}” completed",
 "reopened": "Task “{title}” reopened",
 "undo": "Undo",
@@ -1592,8 +1591,7 @@
   "doneOn": "Done {date}"
 },
 "links": {
-  "customer": "Customer: {name}",
-  "deal": "Deal: {name}"
+  "customer": "Customer: {name}"
 },
 "calendar": {
   "prev": "Previous month",
@@ -1611,12 +1609,10 @@
     "due": "Due date",
     "priority": "Priority",
     "kind": "Type",
-    "link": "Linked to",
-    "linkName": "Name"
+    "customer": "Customer (optional)"
   },
   "placeholders": {
-    "title": "e.g. Follow up on customer payment",
-    "linkName": "Customer or deal name"
+    "title": "e.g. Follow up on customer payment"
   },
   "priorities": {
     "urgent": "Urgent",
@@ -1631,17 +1627,12 @@
     "deadline": "Deadline",
     "admin": "Admin"
   },
-  "linkTypes": {
-    "none": "None",
-    "customer": "Customer",
-    "deal": "Deal"
-  },
   "save": "Save task",
   "cancel": "Cancel",
   "errors": {
     "titleRequired": "Enter a task title",
     "dueRequired": "Pick a date",
-    "linkNameRequired": "Enter a name"
+    "titleTooLong": "The title can be at most 200 characters"
   }
 }
 },
@@ -2061,6 +2052,7 @@
       "recordPayments": "Record payments",
       "expenses": "Expenses and entries",
       "reports": "Financial reports",
+      "tasks": "Add and edit tasks",
       "settings": "Settings and users",
       "deleteData": "Delete data"
     }
@@ -2606,5 +2598,15 @@
     "exemptSales": "Sales without VAT",
     "invoicesCount": "Invoices in the period",
     "ledgerHint": "This report will be built from the general ledger once it is ready."
+  },
+  "TasksApi": {
+    "loading": "Loading tasks…",
+    "retry": "Try again",
+    "removed": "Task “{title}” removed",
+    "customerNone": "No customer",
+    "customerClear": "Remove the customer",
+    "searchCustomers": "Search by name, phone or email",
+    "searching": "Searching…",
+    "noMatches": "No matching customers"
   }
 }
