@@ -301,6 +301,9 @@ function InvoiceForm({
       } catch (error) {
         if (error instanceof ApiError && error.code === 'INVALID_CUSTOMER') {
           setError('customerId', { message: t('errors.customerRequired') });
+        } else if (error instanceof ApiError && error.code === 'FUTURE_ISSUE_DATE') {
+          // Sending with a date after today: say so on the date field.
+          setError('issueDate', { message: errorMessage(error) }, { shouldFocus: true });
         } else {
           toast.error(errorMessage(error));
         }
@@ -481,7 +484,7 @@ function InvoiceForm({
                     <div
                       role="radiogroup"
                       aria-labelledby="terms-label"
-                      className="grid grid-cols-2 gap-2.5 sm:grid-cols-4"
+                      className="grid grid-cols-3 gap-2.5 sm:grid-cols-5"
                     >
                       {TERMS.map((n) => {
                         const selected = field.value === n;

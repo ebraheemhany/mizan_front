@@ -684,6 +684,7 @@
       "d0": "On receipt",
       "d15": "15 days",
       "d30": "30 days",
+      "d45": "45 days",
       "d60": "60 days"
     },
     "dueDate": "Due date"
@@ -2447,6 +2448,7 @@
     "PAYMENT_BEFORE_ISSUE": "The payment date can't be before the invoice date",
     "INVOICE_NOT_CANCELLABLE": "This invoice can't be cancelled (it has payments)",
     "INVOICE_NOT_DRAFT": "This invoice has already been issued",
+    "FUTURE_ISSUE_DATE": "An invoice can't be issued with a date after today. Use today or an earlier date, or save it as a draft.",
     "INVOICE_NOT_REMINDABLE": "This invoice doesn't need a reminder",
     "INVALID_CUSTOMER": "Choose one of the company's customers",
     "CUSTOMER_HAS_INVOICES": "A customer with invoices can't be deleted",
