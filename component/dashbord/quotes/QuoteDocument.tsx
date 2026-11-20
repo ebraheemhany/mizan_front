@@ -3,31 +3,19 @@
 
 import { useTranslations } from 'next-intl';
 import { useDate } from '@/lib/data';
-import type { QuoteDetail } from '@/lib/mock/quote-details';
-import { displayStatus, effectiveStatus } from '@/lib/mock/quotes';
 import { useMoney } from '@/lib/money';
+import { displayStatus, type QuoteDetail, type QuoteParty } from '@/lib/quotes/hooks';
 import { cn } from '@/lib/utils';
 
-function PartyBlock({
-  label,
-  name,
-  taxNumber,
-  location,
-}: {
-  label: string;
-  name: string;
-  taxNumber: string;
-  location: string;
-}) {
+function PartyBlock({ label, party }: { label: string; party: QuoteParty }) {
   const t = useTranslations('InvoiceDetail');
+  const details = [party.taxNumber && t('taxNumber', { number: party.taxNumber }), party.location].filter(Boolean);
 
   return (
     <div>
       <p className="text-muted text-xs font-semibold">{label}</p>
-      <p className="text-ink mt-1 text-base font-extrabold">{name}</p>
-      <p className="text-muted mt-1 text-xs">
-        {t('taxNumber', { number: taxNumber })} · {location}
-      </p>
+      <p className="text-ink mt-1 text-base font-extrabold">{party.name}</p>
+      {details.length > 0 && <p className="text-muted mt-1 text-xs">{details.join(' · ')}</p>}
     </div>
   );
 }
@@ -51,21 +39,25 @@ function SummaryRow({
   );
 }
 
+/** The quote itself (parties, lines, totals): on the quote page and on the customer's link. */
 export default function QuoteDocument({ quote }: { quote: QuoteDetail }) {
   const t = useTranslations('InvoiceDetail');
   const tq = useTranslations('Quotes.columns');
   const td = useTranslations('QuoteDetail');
   const money = useMoney();
   const date = useDate();
+  // The quote's own currency when it's an ISO code (Intl throws on anything else).
+  const currency = /^[A-Z]{3}$/.test(quote.currency) ? quote.currency : undefined;
+  const format = (amount: number) => money(amount, currency);
 
-  const expired = effectiveStatus(quote) === 'expired';
+  const expired = quote.status === 'expired';
   const expiring = displayStatus(quote) === 'expiringSoon';
 
   return (
     <section className="rounded-card border-line bg-surface border p-6 shadow-sm sm:p-8">
       <div className="grid gap-6 sm:grid-cols-[1fr_1fr_auto]">
-        <PartyBlock label={t('from')} {...quote.issuer} />
-        <PartyBlock label={t('to')} {...quote.client} />
+        <PartyBlock label={t('from')} party={quote.issuer} />
+        <PartyBlock label={t('to')} party={quote.client} />
 
         <dl className="space-y-2 text-sm">
           <div className="flex items-center justify-between gap-6">
@@ -74,12 +66,7 @@ export default function QuoteDocument({ quote }: { quote: QuoteDetail }) {
           </div>
           <div className="flex items-center justify-between gap-6">
             <dt className="text-muted text-xs">{tq('validUntil')}</dt>
-            <dd
-              className={cn(
-                'font-bold',
-                expired ? 'text-danger' : expiring ? 'text-amber-700' : 'text-ink',
-              )}
-            >
+            <dd className={cn('font-bold', expired ? 'text-danger' : expiring ? 'text-amber-700' : 'text-ink')}>
               {date(quote.validUntil)}
             </dd>
           </div>
@@ -100,17 +87,10 @@ export default function QuoteDocument({ quote }: { quote: QuoteDetail }) {
           <tbody>
             {quote.lines.map((line) => (
               <tr key={line.id} className="border-line border-t">
-                <td className="px-4 py-3">
-                  <p className="text-ink font-bold">{line.title}</p>
-                  {line.description && <p className="text-muted mt-0.5 text-xs">{line.description}</p>}
-                </td>
+                <td className="text-ink px-4 py-3 font-bold">{line.title}</td>
                 <td className="text-body px-4 py-3 tabular-nums">{line.quantity}</td>
-                <td className="text-body px-4 py-3 whitespace-nowrap tabular-nums">
-                  {money(line.unitPrice)}
-                </td>
-                <td className="text-ink px-4 py-3 font-bold whitespace-nowrap tabular-nums">
-                  {money(line.quantity * line.unitPrice)}
-                </td>
+                <td className="text-body px-4 py-3 whitespace-nowrap tabular-nums">{format(line.unitPrice)}</td>
+                <td className="text-ink px-4 py-3 font-bold whitespace-nowrap tabular-nums">{format(line.amount)}</td>
               </tr>
             ))}
           </tbody>
@@ -119,19 +99,14 @@ export default function QuoteDocument({ quote }: { quote: QuoteDetail }) {
 
       {/* الإجماليات */}
       <dl className="mt-6 space-y-3 text-sm">
-        <SummaryRow label={t('summary.subtotal')} value={money(quote.subtotal)} />
-        <SummaryRow
-          label={t('summary.vat', { rate: quote.vatRate })}
-          value={money(quote.vat)}
-        />
-        {quote.rounding !== 0 && (
-          <SummaryRow label={t('summary.rounding')} value={money(quote.rounding)} />
-        )}
+        <SummaryRow label={t('summary.subtotal')} value={format(quote.subtotal)} />
+        <SummaryRow label={t('summary.vat', { rate: quote.vatRate })} value={format(quote.vat)} />
+        {quote.rounding !== 0 && <SummaryRow label={t('summary.rounding')} value={format(quote.rounding)} />}
 
         <div className="border-ink border-t-2 pt-4">
           <SummaryRow
             label={t('summary.total')}
-            value={money(quote.total)}
+            value={format(quote.total)}
             labelClass="text-ink text-lg font-extrabold"
             valueClass="text-xl font-extrabold"
           />
@@ -140,9 +115,11 @@ export default function QuoteDocument({ quote }: { quote: QuoteDetail }) {
 
       <div className="text-muted border-line mt-6 space-y-1 border-t pt-4 text-xs leading-6">
         <p>{td('validity', { date: date(quote.validUntil) })}</p>
-        <p>
-          {t('note')}: {quote.note || td('defaultNote')}
-        </p>
+        {quote.note && (
+          <p className="whitespace-pre-line">
+            {t('note')}: {quote.note}
+          </p>
+        )}
       </div>
     </section>
   );

@@ -2,6 +2,8 @@
 'use client';
 
 import { useMemo, useState } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
+import { queryKeys } from '@/lib/query/keys';
 import { Controller, useFieldArray, useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useLocale, useTranslations } from 'next-intl';
@@ -9,6 +11,7 @@ import {
   ArrowLeft,
   CalendarDays,
   ChevronDown,
+  Loader2,
   Plus,
   Trash2,
 } from 'lucide-react';
@@ -28,7 +31,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Link, useRouter } from '@/i18n/navigation';
 import { rtlLocales } from '@/i18n/routing';
 import { useDate } from '@/lib/data';
-import { addDaysIso, fromIso, toIso } from '@/lib/iso-date';
+import { addDaysIso, deviceCairoToday, fromIso, toIso } from '@/lib/iso-date';
 import { ApiError } from '@/lib/api/client';
 import { useApiErrorMessage } from '@/lib/api/use-api-error';
 import { can } from '@/lib/auth/permissions';
@@ -36,9 +39,8 @@ import { useSession } from '@/lib/auth/session';
 import { useCreateCustomer, useCustomers } from '@/lib/customers/hooks';
 import { useCreateInvoice } from '@/lib/invoices/hooks';
 import { useSettings } from '@/lib/settings/hooks';
-import { quoteLabel, type Quote } from '@/lib/mock/quotes';
 import { useMoney } from '@/lib/money';
-import { quoteToInvoiceValues } from '@/lib/prefill';
+import { toUiQuoteDetail, useQuote, type QuoteDetail } from '@/lib/quotes/hooks';
 import { cn } from '@/lib/utils';
 import {
   calcTotals,
@@ -49,7 +51,6 @@ import {
   VAT_RATE,
   type InvoiceFormValues,
 } from '@/lib/validations/invoice';
-import { useQuotes } from '@/component/dashbord/quotes/QuotesProvider';
 import CustomerCombobox from './CustomerCombobox';
 
 const outlineBtn =
@@ -118,59 +119,139 @@ function SummaryRow({
 }
 
 export default function NewInvoiceView({
-  initial,
   sourceQuote,
 }: {
-  /** قيم النموذج لو الفاتورة معبّأة من عرض سعر */
-  initial?: InvoiceFormValues;
-  /** رقم عرض السعر المصدر، لعرض الشريط الأخضر */
+  /** The accepted quote (its number) to convert: the form is pre-filled from it. */
   sourceQuote?: number;
 }) {
   const t = useTranslations('InvoiceForm');
   const tApiErrors = useTranslations('ApiErrors');
   const user = useSession();
-  const { quotes, hydrated } = useQuotes();
   const settings = useSettings();
   // Customers to choose from (first 100 by name).
   const customers = useCustomers({ status: 'all', balance: 'all', sort: 'name', page: 1, pageSize: 100 });
-  const selectedQuote = sourceQuote
-    ? quotes.find((quote) => quote.number === sourceQuote)
-    : undefined;
+  const quoteQuery = useQuote(sourceQuote ?? 0, { enabled: sourceQuote !== undefined });
+  // The quote the form was filled from. Kept once the form shows: creating the invoice
+  // marks the quote converted, and that refetch must not swap the form for "already
+  // converted" while the page moves on to the new invoice.
+  const [formQuote, setFormQuote] = useState<QuoteDetail | null>(null);
+  const queryClient = useQueryClient();
+  /** The quote was converted or changed meanwhile: show the fresh state instead of the form. */
+  async function quoteGone() {
+    await queryClient.invalidateQueries({ queryKey: queryKeys.quotes.all });
+    setFormQuote(null);
+  }
 
   if (!can(user.role, 'issueInvoices')) {
     return <p className="text-muted text-sm">{tApiErrors('FORBIDDEN')}</p>;
   }
-  if ((sourceQuote && !hydrated) || settings.isPending || customers.isPending) {
-    return <p className="text-muted text-sm">{t('fromQuote.loading')}</p>;
+  if ((sourceQuote !== undefined && !formQuote && quoteQuery.isPending) || settings.isPending || customers.isPending) {
+    return (
+      <p className="text-muted flex items-center justify-center gap-2 py-20 text-sm">
+        <Loader2 className="size-4 animate-spin" />
+        {sourceQuote !== undefined && t('fromQuote.loading')}
+      </p>
+    );
+  }
+
+  let quote: QuoteDetail | undefined;
+  if (sourceQuote !== undefined && formQuote) {
+    quote = formQuote;
+  } else if (sourceQuote !== undefined) {
+    if (!quoteQuery.data) {
+      return <QuoteNotConvertible number={sourceQuote} error={quoteQuery.error} onRetry={() => quoteQuery.refetch()} />;
+    }
+    const loaded = toUiQuoteDetail(quoteQuery.data);
+    // Only an accepted quote that has no invoice yet can be converted (the server checks too).
+    if (loaded.status !== 'accepted' || loaded.invoice) {
+      return <QuoteNotConvertible number={sourceQuote} quote={loaded} />;
+    }
+    // Updating state while rendering (React re-renders right away), not in an effect.
+    setFormQuote(loaded);
+    quote = loaded;
   }
 
   const vatEnabled = settings.data?.taxes.vatEnabled ?? true;
   const settingsTerms = settings.data?.numbering.paymentTermsDays ?? 30;
+  const options = customers.data?.items.map((c) => ({ id: c.id, name: c.name, city: c.city ?? '' })) ?? [];
+  // The quote's customer may not be among the first 100: add it so the picker shows it.
+  if (quote?.customerId && !options.some((c) => c.id === quote.customerId)) {
+    options.push({ id: quote.customerId, name: quote.customer, city: '' });
+  }
 
   return (
     <InvoiceForm
       key={sourceQuote ?? 'blank'}
-      initial={initial}
-      sourceQuote={sourceQuote}
-      selectedQuote={selectedQuote}
-      customers={customers.data?.items.map((c) => ({ id: c.id, name: c.name, city: c.city ?? '' })) ?? []}
+      sourceQuote={quote}
+      onQuoteGone={quoteGone}
+      customers={options}
       vatRate={vatEnabled ? VAT_RATE : 0}
       defaultTerms={(TERMS as readonly number[]).includes(settingsTerms) ? settingsTerms : 30}
     />
   );
 }
 
+/** Instead of the pre-filled form: the quote can't be loaded, isn't accepted, or is already converted. */
+function QuoteNotConvertible({
+  number,
+  quote,
+  error,
+  onRetry,
+}: {
+  number: number;
+  quote?: QuoteDetail;
+  error?: unknown;
+  onRetry?: () => void;
+}) {
+  const t = useTranslations('QuotesApi');
+  const errorMessage = useApiErrorMessage();
+  const notFound = !quote && error instanceof ApiError && error.status === 404;
+
+  let title: string;
+  if (quote?.invoice) title = t('convert.alreadyConverted', { number: quote.displayNumber, invoice: quote.invoice.displayNumber });
+  else if (quote) title = t('convert.notAccepted', { number: quote.displayNumber });
+  else if (notFound) title = t('notFoundTitle');
+  else title = errorMessage(error);
+
+  return (
+    <div className="rounded-card border-line bg-surface mx-auto max-w-lg space-y-3 border p-8 text-center shadow-sm">
+      <h1 className="text-ink text-lg font-extrabold">{title}</h1>
+      <p className="text-muted text-sm">{t('convert.hint')}</p>
+      <div className="flex flex-wrap justify-center gap-2 pt-2">
+        {!quote && !notFound && onRetry && (
+          <Button variant="outline" className={outlineBtn} onClick={onRetry}>
+            {t('retry')}
+          </Button>
+        )}
+        {quote?.invoice && (
+          <Link href={`/invoices/${quote.invoice.number}`} className={cn(buttonVariants(), 'rounded-btn bg-brand hover:bg-brand/90 h-10 gap-2 text-xs font-bold text-white')}>
+            {t('viewInvoice', { number: quote.invoice.displayNumber })}
+          </Link>
+        )}
+        {!notFound && (
+          <Link href={`/quotes/${number}`} className={cn(buttonVariants({ variant: 'outline' }), outlineBtn)}>
+            {t('convert.viewQuote')}
+          </Link>
+        )}
+        <Link href="/invoices/new" className={cn(buttonVariants({ variant: 'outline' }), outlineBtn)}>
+          {t('convert.blankInvoice')}
+        </Link>
+      </div>
+    </div>
+  );
+}
+
 function InvoiceForm({
-  initial,
   sourceQuote,
-  selectedQuote,
+  onQuoteGone,
   customers,
   vatRate,
   defaultTerms,
 }: {
-  initial?: InvoiceFormValues;
-  sourceQuote?: number;
-  selectedQuote?: Quote;
+  /** The accepted quote this invoice converts (pre-fills the form; sent as `fromQuote`). */
+  sourceQuote?: QuoteDetail;
+  /** The server refused the conversion (already converted, no longer accepted, or gone). */
+  onQuoteGone: () => Promise<void>;
   customers: CustomerOption[];
   /** From the settings: 14, or 0 when VAT is off. */
   vatRate: number;
@@ -191,28 +272,24 @@ function InvoiceForm({
   // Customers added from this page are added to the options too.
   const [customerOptions, setCustomerOptions] = useState<CustomerOption[]>(customers);
 
-  // Today on the user's device (Egypt for our users).
-  const todayIso = toIso(new Date());
-  const quoteValues = selectedQuote
-    ? quoteToInvoiceValues(
-        selectedQuote,
-        t('fromQuote.note', {
-          number: '#' + quoteLabel(selectedQuote.number),
-        }),
-      )
-    : undefined;
-  // Quotes are still sample data: link the quote's customer by name when it exists.
-  const formInitial = quoteValues
+  // Today in Cairo by this device's clock (the server's business date).
+  const todayIso = deviceCairoToday();
+  // From a quote: its customer, lines and note, dated today with the company's payment terms.
+  const formInitial: InvoiceFormValues | undefined = sourceQuote
     ? {
-        ...quoteValues,
-        customerId: customers.find((c) => c.name === selectedQuote?.customer)?.id ?? '',
+        customerId: sourceQuote.customerId ?? '',
         issueDate: todayIso,
-        // The company's payment terms, not the 30 days the quote helper assumes.
         terms: defaultTerms,
+        items: sourceQuote.lines.length
+          ? sourceQuote.lines.map((line) => ({
+              description: line.title,
+              quantity: String(line.quantity),
+              unitPrice: String(line.unitPrice),
+            }))
+          : [EMPTY_ITEM],
+        notes: sourceQuote.note.trim() || t('fromQuote.note', { number: sourceQuote.displayNumber }),
       }
-    : initial;
-  const resolvedSourceQuote =
-    selectedQuote?.number ?? (initial ? sourceQuote : undefined);
+    : undefined;
 
   const schema = useMemo(
     () =>
@@ -295,12 +372,27 @@ function InvoiceForm({
           })),
           notes: values.notes,
           send: mode === 'send',
+          // The server marks the quote converted (409 if it's no longer accepted or already converted).
+          fromQuote: sourceQuote?.number,
         });
         toast.success(t(mode === 'draft' ? 'toasts.draftSaved' : 'toasts.sent'));
         router.push('/invoices/' + invoice.number);
       } catch (error) {
         if (error instanceof ApiError && error.code === 'INVALID_CUSTOMER') {
           setError('customerId', { message: t('errors.customerRequired') });
+        } else if (error instanceof ApiError && error.code === 'QUOTE_CUSTOMER_MISMATCH') {
+          // From a quote: the invoice has to be for the quote's customer.
+          setError('customerId', { message: errorMessage(error) }, { shouldFocus: true });
+        } else if (
+          sourceQuote &&
+          error instanceof ApiError &&
+          (error.code === 'QUOTE_ALREADY_CONVERTED' ||
+            error.code === 'QUOTE_NOT_ACCEPTED' ||
+            error.status === 404)
+        ) {
+          // Someone converted (or changed) the quote meanwhile: say so and show its state.
+          toast.error(errorMessage(error));
+          await onQuoteGone();
         } else if (error instanceof ApiError && error.code === 'FUTURE_ISSUE_DATE') {
           // Sending with a date after today: say so on the date field.
           setError('issueDate', { message: errorMessage(error) }, { shouldFocus: true });
@@ -327,15 +419,11 @@ function InvoiceForm({
       />
 
       {/* شريط "معبّأة من عرض سعر" */}
-      {resolvedSourceQuote && (
+      {sourceQuote && (
         <div className="bg-brand-soft text-brand-deep border-brand-mint flex flex-wrap items-center justify-between gap-2 rounded-xl border px-4 py-3 text-sm font-bold">
-          <span>
-            {t('fromQuote.banner', {
-              number: `#${quoteLabel(resolvedSourceQuote)}`,
-            })}
-          </span>
+          <span>{t('fromQuote.banner', { number: sourceQuote.displayNumber })}</span>
           <Link
-            href={`/quotes/${resolvedSourceQuote}`}
+            href={`/quotes/${sourceQuote.number}`}
             className="text-xs underline"
           >
             {t('fromQuote.view')}

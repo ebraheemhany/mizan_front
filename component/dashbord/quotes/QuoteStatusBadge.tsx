@@ -1,13 +1,9 @@
 // components/quotes/QuoteStatusBadge.tsx
 import { useTranslations } from 'next-intl';
-import {
-  displayStatus,
-  type DisplayStatus,
-  type Quote,
-} from '@/lib/mock/quotes';
+import { displayStatus, type Quote, type QuoteDisplayStatus } from '@/lib/quotes/hooks';
 import { cn } from '@/lib/utils';
 
-const STYLES: Record<DisplayStatus, string> = {
+const STYLES: Record<QuoteDisplayStatus, string> = {
   draft: 'bg-neutral-soft text-muted',
   sent: 'bg-info-soft text-info',
   expiringSoon: 'bg-amber-100 text-amber-800',
@@ -16,7 +12,7 @@ const STYLES: Record<DisplayStatus, string> = {
   expired: 'bg-danger-soft text-danger',
 };
 
-export default function QuoteStatusBadge({ quote }: { quote: Quote }) {
+export default function QuoteStatusBadge({ quote }: { quote: Pick<Quote, 'status' | 'daysLeft'> }) {
   const t = useTranslations('Quotes.status');
   const status = displayStatus(quote);
 

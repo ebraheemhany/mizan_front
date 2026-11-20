@@ -5,6 +5,10 @@ import { useState } from 'react';
 import {
   ArrowLeft,
   Check,
+  Copy,
+  FileText,
+  Link2,
+  Loader2,
   Pencil,
   Receipt,
   Send,
@@ -13,26 +17,18 @@ import {
   type LucideIcon,
 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { toast } from 'sonner';
 import ConfirmDialog from '@/component/ConfirmDialog';
 import PageHeader from '@/component/PageHeader';
 import { Button, buttonVariants } from '@/components/ui/button';
 import { Link, useRouter } from '@/i18n/navigation';
+import { ApiError } from '@/lib/api/client';
 import { useDate } from '@/lib/data';
-import { addDaysIso } from '@/lib/iso-date';
-import { createQuoteDetail } from '@/lib/mock/quote-details';
-import {
-  effectiveStatus,
-  quoteLabel,
-  TODAY,
-  VALIDITY_DAYS,
-  type Quote,
-} from '@/lib/mock/quotes';
+import { toUiQuoteDetail, useQuote, type ApiQuoteDetail } from '@/lib/quotes/hooks';
 import { cn } from '@/lib/utils';
 import QuoteDocument from './QuoteDocument';
 import QuoteHistory from './QuoteHistory';
 import QuoteStatusBadge from './QuoteStatusBadge';
-import { useQuotes } from './QuotesProvider';
+import { useQuoteActions, useQuoteErrorMessage } from './useQuoteActions';
 
 const outlineBtn =
   'rounded-btn border-line-strong bg-surface text-ink hover:bg-canvas h-10 gap-2 text-xs font-bold';
@@ -40,149 +36,108 @@ const primaryBtn =
   'rounded-btn bg-brand hover:bg-brand/90 h-10 gap-2 text-xs font-bold text-white';
 
 type Action = {
-  key: 'send' | 'accept' | 'reject' | 'convert' | 'delete' | 'edit';
+  key: string;
+  label: string;
   icon: LucideIcon;
   run: () => void;
   primary?: boolean;
   danger?: boolean;
 };
 
-export default function QuoteDetailView({
-  number,
-}: {
-  number: number;
-}) {
+/** Loads the quote (by number) from the API, then shows it. */
+export default function QuoteDetailView({ number }: { number: number }) {
+  const t = useTranslations('QuotesApi');
+  const errorMessage = useQuoteErrorMessage();
+  // 0 = the URL wasn't a quote number: nothing to load.
+  const query = useQuote(number, { enabled: number > 0 });
+  const notFound = number <= 0 || (query.error instanceof ApiError && query.error.status === 404);
+
+  if (!notFound && query.isPending) {
+    return (
+      <div className="text-muted flex justify-center py-20">
+        <Loader2 className="size-5 animate-spin" />
+      </div>
+    );
+  }
+  if (notFound || query.isError) {
+    return (
+      <div className="rounded-card border-line bg-surface mx-auto max-w-md space-y-3 border p-8 text-center shadow-sm">
+        <h1 className="text-ink text-lg font-extrabold">{notFound ? t('notFoundTitle') : t('loadError')}</h1>
+        <p className="text-muted text-sm">{notFound ? t('notFoundBody') : errorMessage(query.error)}</p>
+        <div className="flex justify-center gap-2 pt-2">
+          {!notFound && (
+            <Button variant="outline" className={outlineBtn} onClick={() => query.refetch()}>
+              {t('retry')}
+            </Button>
+          )}
+          <Link href="/quotes" className={cn(buttonVariants({ variant: 'outline' }), outlineBtn)}>
+            {t('backToList')}
+          </Link>
+        </div>
+      </div>
+    );
+  }
+  return query.data ? <QuoteDetailContent data={query.data} /> : null;
+}
+
+function QuoteDetailContent({ data }: { data: ApiQuoteDetail }) {
   const t = useTranslations('QuoteDetail');
   const tq = useTranslations('Quotes');
+  const tApi = useTranslations('QuotesApi');
   const router = useRouter();
   const date = useDate();
-  const { quotes, setQuotes, hydrated } = useQuotes();
+  const actions = useQuoteActions();
   const [deleteOpen, setDeleteOpen] = useState(false);
-  const quoteRecord = quotes.find((item) => item.number === number);
-  const quote = quoteRecord ? createQuoteDetail(quoteRecord) : undefined;
 
-  const status = quote ? effectiveStatus(quote) : undefined;
-  const label = quote ? quoteLabel(quote.number) : quoteLabel(number);
+  const quote = toUiQuoteDetail(data);
+  const { allowed } = actions;
 
-  function change(patch: Partial<Quote>) {
-    if (!quoteRecord) return () => {};
-    const previous = quoteRecord;
-    setQuotes((list) =>
-      list.map((item) =>
-        item.id === previous.id ? { ...item, ...patch } : item,
-      ),
-    );
-    return () =>
-      setQuotes((list) =>
-        list.map((item) => (item.id === previous.id ? previous : item)),
-      );
-  }
-
-  function send() {
-    const undo = change({
-      status: 'sent',
-      issueDate: TODAY,
-      validUntil: addDaysIso(TODAY, VALIDITY_DAYS),
-      sentDate: TODAY,
-      acceptedDate: undefined,
-      rejectedDate: undefined,
-    });
-    toast.success(
-      tq('toasts.sent', { number: label, customer: quote?.customer ?? '' }),
-      {
-        action: { label: tq('toasts.undo'), onClick: undo },
-      },
-    );
-  }
-
-  function accept() {
-    const undo = change({
-      status: 'accepted',
-      acceptedDate: TODAY,
-      rejectedDate: undefined,
-    });
-    toast.success(tq('toasts.accepted', { number: label }), {
-      duration: 8000,
-      action: {
-        label: tq('toasts.convert'),
-        onClick: () =>
-          router.push(`/invoices/new?fromQuote=${number}`),
-      },
-      cancel: { label: tq('toasts.undo'), onClick: undo },
-    });
-  }
-
-  function reject() {
-    const undo = change({
-      status: 'rejected',
-      rejectedDate: TODAY,
-      acceptedDate: undefined,
-    });
-    toast.success(tq('toasts.rejected', { number: label }), {
-      action: { label: tq('toasts.undo'), onClick: undo },
-    });
-  }
-
-  const convert = () => router.push(`/invoices/new?fromQuote=${number}`);
-
-  function remove() {
-    if (!quoteRecord) return;
-    const index = quotes.findIndex((item) => item.id === quoteRecord.id);
-    setQuotes((list) => list.filter((item) => item.id !== quoteRecord.id));
+  async function remove() {
     setDeleteOpen(false);
-    toast.success(tq('toasts.deleted', { number: label }), {
-      action: {
-        label: tq('toasts.undo'),
-        onClick: () =>
-          setQuotes((list) => {
-            const restored = [...list];
-            restored.splice(Math.min(index, restored.length), 0, quoteRecord);
-            return restored;
-          }),
-      },
-    });
-    router.push('/quotes');
+    if (await actions.remove(quote)) router.push('/quotes');
   }
 
-  if (!hydrated) {
-    return <p className="text-muted text-sm">{t('loading')}</p>;
+  // What can be done now (by status and role); the first primary one also goes in the header.
+  const list: Action[] = [];
+  if (allowed.edit(quote)) {
+    list.push({ key: 'edit', label: tq('actions.edit'), icon: Pencil, run: () => actions.edit(quote) });
   }
-
-  if (!quote) {
-    return <p className="text-muted text-sm">{t('unavailable')}</p>;
+  if (allowed.send(quote)) {
+    list.push({ key: 'send', label: tq('actions.send'), icon: Send, run: () => void actions.send(quote), primary: true });
   }
-
-  // الإجراءات المتاحة بحسب الحالة، وأول واحد هو الرئيسي
-  const actions: Action[] = [];
-  if (status === 'draft') {
-    actions.push({
-      key: 'edit',
-      icon: Pencil,
-      run: () => router.push(`/quotes/new?edit=${number}`),
-    });
-    actions.push({ key: 'send', icon: Send, run: send, primary: true });
+  if (allowed.decide(quote)) {
+    list.push({ key: 'accept', label: tq('actions.accept'), icon: Check, run: () => void actions.accept(quote), primary: true });
+    list.push({ key: 'reject', label: tq('actions.reject'), icon: X, run: () => void actions.reject(quote) });
   }
-  if (status === 'sent') {
-    actions.push({ key: 'accept', icon: Check, run: accept, primary: true });
-    actions.push({ key: 'reject', icon: X, run: reject });
+  if (allowed.convert(quote)) {
+    list.push({ key: 'convert', label: tq('actions.convert'), icon: Receipt, run: () => actions.convert(quote), primary: true });
   }
-  if (status === 'accepted')
-    actions.push({
-      key: 'convert',
-      icon: Receipt,
-      run: convert,
+  if (quote.invoice) {
+    const invoiceNumber = quote.invoice.number;
+    list.push({
+      key: 'invoice',
+      label: tApi('viewInvoice', { number: quote.invoice.displayNumber }),
+      icon: FileText,
+      run: () => router.push(`/invoices/${invoiceNumber}`),
       primary: true,
     });
-  if (status === 'draft') {
-    actions.push({
-      key: 'delete',
-      icon: Trash2,
-      run: () => setDeleteOpen(true),
-      danger: true,
+  }
+  if (allowed.share(quote) && quote.publicToken) {
+    list.push({ key: 'link', label: tq('actions.copyCustomerLink'), icon: Link2, run: () => void actions.copyLink(quote) });
+  }
+  if (allowed.duplicate()) {
+    list.push({
+      key: 'duplicate',
+      label: tq('actions.duplicate'),
+      icon: Copy,
+      run: () => void actions.duplicate(quote, { open: true }),
     });
   }
+  if (allowed.delete(quote)) {
+    list.push({ key: 'delete', label: tq('actions.delete'), icon: Trash2, run: () => setDeleteOpen(true), danger: true });
+  }
 
-  const primary = actions.find((a) => a.primary);
+  const primary = list.find((a) => a.primary);
 
   return (
     <div className="space-y-5">
@@ -191,34 +146,35 @@ export default function QuoteDetailView({
           <>
             {t('title')}{' '}
             <span dir="ltr" className="inline-block">
-              #{label}
+              {quote.displayNumber}
             </span>
           </>
         }
         description={
           <span className="flex flex-wrap items-center gap-2">
-            <span>
-              {t('subtitle', {
-                customer: quote.customer,
-                date: date(quote.issueDate),
-              })}
-            </span>
+            <span>{t('subtitle', { customer: quote.customer, date: date(quote.issueDate) })}</span>
             <QuoteStatusBadge quote={quote} />
+            {quote.invoice && (
+              <Link
+                href={`/invoices/${quote.invoice.number}`}
+                className="text-brand-deep inline-flex items-center gap-1 font-bold hover:underline"
+              >
+                <FileText className="size-3.5" aria-hidden="true" />
+                {tApi('convertedTo', { number: quote.invoice.displayNumber })}
+              </Link>
+            )}
           </span>
         }
         actions={
           <>
-            <Link
-              href="/quotes"
-              className={cn(buttonVariants({ variant: 'outline' }), outlineBtn)}
-            >
+            <Link href="/quotes" className={cn(buttonVariants({ variant: 'outline' }), outlineBtn)}>
               <ArrowLeft className="size-4 rtl:rotate-180" />
               {t('back')}
             </Link>
             {primary && (
-              <Button className={primaryBtn} onClick={primary.run}>
-                <primary.icon className="size-4" />
-                {tq(`actions.${primary.key}`)}
+              <Button className={primaryBtn} disabled={actions.pending} onClick={primary.run}>
+                {actions.pending ? <Loader2 className="size-4 animate-spin" /> : <primary.icon className="size-4" />}
+                {primary.label}
               </Button>
             )}
           </>
@@ -231,29 +187,26 @@ export default function QuoteDetailView({
         </div>
 
         <aside className="space-y-5">
-          {actions.length > 0 && (
+          {list.length > 0 && (
             <section className="rounded-card border-line bg-surface border p-5 shadow-sm">
-              <h2 className="text-ink text-base font-extrabold">
-                {t('actionsTitle')}
-              </h2>
+              <h2 className="text-ink text-base font-extrabold">{t('actionsTitle')}</h2>
 
               <div className="mt-4 space-y-2.5">
-                {actions.map((a) => (
+                {list.map((a) => (
                   <Button
                     key={a.key}
                     variant={a.primary ? 'default' : 'outline'}
+                    disabled={actions.pending}
                     onClick={a.run}
                     className={cn(
                       'rounded-btn h-11 w-full gap-2 text-sm font-bold',
                       a.primary && 'bg-brand hover:bg-brand/90 text-white',
-                      !a.primary &&
-                        'border-line-strong bg-surface text-ink hover:bg-canvas',
-                      a.danger &&
-                        'text-danger hover:bg-danger-soft hover:text-danger',
+                      !a.primary && 'border-line-strong bg-surface text-ink hover:bg-canvas',
+                      a.danger && 'text-danger hover:bg-danger-soft hover:text-danger',
                     )}
                   >
                     <a.icon className="size-4" />
-                    {tq(`actions.${a.key}`)}
+                    {a.label}
                   </Button>
                 ))}
               </div>
@@ -266,11 +219,11 @@ export default function QuoteDetailView({
 
       <ConfirmDialog
         open={deleteOpen}
-        title={tq('deleteDialog.title', { number: `#${label}` })}
-        description={tq('deleteDialog.description')}
+        title={tq('deleteDialog.title', { number: quote.displayNumber })}
+        description={quote.status === 'draft' ? tq('deleteDialog.description') : tApi('deleteSentDescription')}
         cancelLabel={tq('deleteDialog.keep')}
         confirmLabel={tq('deleteDialog.confirm')}
-        onConfirm={remove}
+        onConfirm={() => void remove()}
         onClose={() => setDeleteOpen(false)}
       />
     </div>

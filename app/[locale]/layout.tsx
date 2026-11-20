@@ -4,7 +4,6 @@ import { getMessages, setRequestLocale } from 'next-intl/server';
 import { notFound } from 'next/navigation';
 import { Cairo, Inter } from 'next/font/google';
 import { routing, rtlLocales } from '@/i18n/routing';
-import { QuotesProvider } from '@/component/dashbord/quotes/QuotesProvider';
 import { QueryProvider } from '@/lib/query/provider';
 import './globals.css';
 import { Toaster } from '@/components/ui/sonner';
@@ -43,7 +42,7 @@ export default async function LocaleLayout({
       <body>
         <NextIntlClientProvider locale={locale} messages={messages}>
           <QueryProvider>
-            <QuotesProvider>{children}</QuotesProvider>
+            {children}
           </QueryProvider>
         </NextIntlClientProvider>
         <Toaster

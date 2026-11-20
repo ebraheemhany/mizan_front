@@ -1,13 +1,15 @@
 // component/dashbord/notifications/utils.ts
 import type { Expense } from '@/lib/mock/expenses';
 import type { OpenInvoiceRow } from '@/lib/payments/hooks';
+import type { Quote } from '@/lib/quotes/hooks';
 import type { Task } from '@/lib/tasks/hooks';
 
 export type NotificationKind =
   | 'receivableOverdue'
   | 'taskOverdue'
   | 'taskToday'
-  | 'expenseDue';
+  | 'expenseDue'
+  | 'quoteAccepted';
 
 export type AppNotification = {
   id: string;
@@ -15,6 +17,8 @@ export type AppNotification = {
   title: string; // اسم المهمة أو المصروف أو العميل
   date?: string; // YYYY-MM-DD
   amount?: number;
+  /** A document's number as shown (e.g. an accepted quote's Q-0212). */
+  ref?: string;
   href: string;
 };
 
@@ -40,13 +44,17 @@ function overdueReceivables(openInvoices: OpenInvoiceRow[]): AppNotification[] {
     }));
 }
 
-// TODO: accepted quotes come with the quotes step.
-/** `today` is the server's business date (YYYY-MM-DD), the one tasks are due against. */
+/**
+ * `today` is the server's business date (YYYY-MM-DD), the one tasks are due against.
+ * `acceptedQuotes`: accepted quotes (only fetched for roles that may issue invoices); the
+ * ones not converted yet ask to be turned into an invoice.
+ */
 export function buildNotifications(
   openInvoices: OpenInvoiceRow[],
   tasks: Task[],
   today: string,
   expenses: Expense[],
+  acceptedQuotes: Quote[] = [],
 ): AppNotification[] {
   const receivables = overdueReceivables(openInvoices);
 
@@ -81,5 +89,16 @@ export function buildNotifications(
       href: '/expenses',
     }));
 
-  return [...receivables, ...overdueTasks, ...todayTasks, ...dueExpenses];
+  const toConvert = acceptedQuotes
+    .filter((q) => q.status === 'accepted' && !q.invoice)
+    .map((q) => ({
+      id: `quote-${q.id}`,
+      kind: 'quoteAccepted' as const,
+      title: q.customer,
+      amount: q.total,
+      ref: q.displayNumber,
+      href: `/invoices/new?fromQuote=${q.number}`,
+    }));
+
+  return [...receivables, ...toConvert, ...overdueTasks, ...todayTasks, ...dueExpenses];
 }

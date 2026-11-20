@@ -5,8 +5,10 @@ import {
   Check,
   Copy,
   Eye,
-  Pencil,
+  FileText,
+  Link2,
   MoreHorizontal,
+  Pencil,
   Receipt,
   Send,
   Trash2,
@@ -22,20 +24,22 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { useDate } from '@/lib/data';
-import {
-  displayStatus,
-  effectiveStatus,
-  quoteLabel,
-  type Quote,
-} from '@/lib/mock/quotes';
-import { useMoney } from '@/lib/money';
-import { cn } from '@/lib/utils';
 import { Link, useRouter } from '@/i18n/navigation';
+import { useDate } from '@/lib/data';
+import { useMoney } from '@/lib/money';
+import { displayStatus, type Quote } from '@/lib/quotes/hooks';
+import { cn } from '@/lib/utils';
 import QuoteStatusBadge from './QuoteStatusBadge';
+import type { QuoteActions } from './useQuoteActions';
+
+const itemClass =
+  'rounded-btn focus:bg-brand-soft focus:text-brand-deep data-highlighted:bg-brand-soft data-highlighted:text-brand-deep min-h-10 cursor-pointer px-3 py-2 font-semibold';
+const dangerItemClass =
+  'text-danger focus:bg-danger-soft focus:text-danger data-highlighted:bg-danger-soft data-highlighted:text-danger rounded-btn min-h-10 cursor-pointer px-3 py-2 font-semibold';
 
 export default function QuotesTable({
   rows,
+  allowed,
   onSend,
   onAccept,
   onReject,
@@ -46,6 +50,8 @@ export default function QuotesTable({
   onDelete,
 }: {
   rows: Quote[];
+  /** Which actions the current user may use on each quote. */
+  allowed: QuoteActions['allowed'];
   onSend: (q: Quote) => void;
   onAccept: (q: Quote) => void;
   onReject: (q: Quote) => void;
@@ -56,6 +62,7 @@ export default function QuotesTable({
   onDelete: (q: Quote) => void;
 }) {
   const t = useTranslations('Quotes');
+  const tApi = useTranslations('QuotesApi');
   const money = useMoney();
   const date = useDate();
   const router = useRouter();
@@ -79,8 +86,9 @@ export default function QuotesTable({
 
         <tbody>
           {rows.map((q) => {
-            const status = effectiveStatus(q);
             const expiring = displayStatus(q) === 'expiringSoon';
+            const decide = allowed.decide(q);
+            const share = allowed.share(q);
 
             return (
               <tr
@@ -98,17 +106,13 @@ export default function QuotesTable({
                     dir="ltr"
                     className="text-brand inline-block font-extrabold tabular-nums hover:underline"
                   >
-                    #{quoteLabel(q.number)}
+                    {q.displayNumber}
                   </Link>
                 </td>
 
-                <td className="text-ink-2 px-4 py-3 font-semibold">
-                  {q.customer}
-                </td>
+                <td className="text-ink-2 px-4 py-3 font-semibold">{q.customer}</td>
 
-                <td className="text-muted px-4 py-3 whitespace-nowrap">
-                  {date(q.issueDate)}
-                </td>
+                <td className="text-muted px-4 py-3 whitespace-nowrap">{date(q.issueDate)}</td>
 
                 <td
                   className={cn(
@@ -119,12 +123,23 @@ export default function QuotesTable({
                   {date(q.validUntil)}
                 </td>
 
-                <td className="text-ink px-4 py-3 font-bold whitespace-nowrap tabular-nums">
-                  {money(q.total)}
-                </td>
+                <td className="text-ink px-4 py-3 font-bold whitespace-nowrap tabular-nums">{money(q.total)}</td>
 
                 <td className="px-4 py-3">
-                  <QuoteStatusBadge quote={q} />
+                  <div className="flex flex-wrap items-center gap-2">
+                    <QuoteStatusBadge quote={q} />
+                    {q.invoice && (
+                      <Link
+                        href={`/invoices/${q.invoice.number}`}
+                        dir="ltr"
+                        title={tApi('convertedTo', { number: q.invoice.displayNumber })}
+                        className="text-brand-deep inline-flex items-center gap-1 text-[11px] font-bold whitespace-nowrap hover:underline"
+                      >
+                        <FileText className="size-3" aria-hidden="true" />
+                        {q.invoice.displayNumber}
+                      </Link>
+                    )}
+                  </div>
                 </td>
 
                 <td className="px-4 py-3">
@@ -143,113 +158,84 @@ export default function QuotesTable({
                       align="start"
                       className="border-line bg-surface text-ink shadow-float rounded-card min-w-56 p-1.5"
                     >
-                      <DropdownMenuItem
-                        onClick={() => router.push(`/quotes/${q.number}`)}
-                        className="min-h-10 rounded-btn px-3 py-2 font-semibold text-ink focus:bg-brand-soft focus:text-brand-deep data-highlighted:bg-brand-soft data-highlighted:text-brand-deep"
-                      >
+                      <DropdownMenuItem onClick={() => router.push(`/quotes/${q.number}`)} className={itemClass}>
                         <Eye className="text-muted size-4" aria-hidden="true" />
                         {t('actions.view')}
                       </DropdownMenuItem>
 
-                      {status === 'draft' && (
-                        <>
-                          <DropdownMenuItem
-                            onClick={() => onEdit(q)}
-                            className="rounded-btn focus:bg-brand-soft focus:text-brand-deep data-highlighted:bg-brand-soft data-highlighted:text-brand-deep min-h-10 cursor-pointer px-3 py-2 font-semibold"
-                          >
-                            <Pencil
-                              className="text-muted size-4"
-                              aria-hidden="true"
-                            />
-                            {t('actions.edit')}
-                          </DropdownMenuItem>
-                          <DropdownMenuItem
-                            onClick={() => onSend(q)}
-                            className="rounded-btn focus:bg-brand-soft focus:text-brand-deep data-highlighted:bg-brand-soft data-highlighted:text-brand-deep min-h-10 cursor-pointer px-3 py-2 font-semibold"
-                          >
-                            <Send
-                              className="text-muted size-4"
-                              aria-hidden="true"
-                            />
-                            {t('actions.send')}
-                          </DropdownMenuItem>
-                        </>
+                      {allowed.edit(q) && (
+                        <DropdownMenuItem onClick={() => onEdit(q)} className={itemClass}>
+                          <Pencil className="text-muted size-4" aria-hidden="true" />
+                          {t('actions.edit')}
+                        </DropdownMenuItem>
+                      )}
+                      {allowed.send(q) && (
+                        <DropdownMenuItem onClick={() => onSend(q)} className={itemClass}>
+                          <Send className="text-muted size-4" aria-hidden="true" />
+                          {t('actions.send')}
+                        </DropdownMenuItem>
                       )}
 
-                      {status === 'sent' && (
+                      {decide && (
                         <>
-                          <div
-                            role="presentation"
-                            className="text-muted px-3 py-2 text-[11px] font-bold"
-                          >
+                          <DropdownMenuSeparator className="my-1.5" />
+                          <div role="presentation" className="text-muted px-3 py-2 text-[11px] font-bold">
                             {t('actions.statusActions')}
                           </div>
                           <DropdownMenuItem
                             onClick={() => onAccept(q)}
-                            className="text-brand-deep rounded-btn focus:bg-brand-soft focus:text-brand-deep data-highlighted:bg-brand-soft data-highlighted:text-brand-deep min-h-11 cursor-pointer px-3 py-2 font-semibold"
+                            className={cn(itemClass, 'text-brand-deep min-h-11')}
                           >
                             <span className="bg-brand-soft flex size-7 items-center justify-center rounded-lg">
-                              <Check
-                                className="text-brand-deep size-4"
-                                aria-hidden="true"
-                              />
+                              <Check className="text-brand-deep size-4" aria-hidden="true" />
                             </span>
                             {t('actions.accept')}
                           </DropdownMenuItem>
-                          <DropdownMenuItem
-                            onClick={() => onReject(q)}
-                            className="text-danger focus:bg-danger-soft focus:text-danger data-highlighted:bg-danger-soft data-highlighted:text-danger rounded-btn min-h-11 cursor-pointer px-3 py-2 font-semibold"
-                          >
+                          <DropdownMenuItem onClick={() => onReject(q)} className={cn(dangerItemClass, 'min-h-11')}>
                             <span className="bg-danger-soft flex size-7 items-center justify-center rounded-lg">
                               <X className="size-4" aria-hidden="true" />
                             </span>
                             {t('actions.reject')}
                           </DropdownMenuItem>
-                          <DropdownMenuItem
-                            onClick={() => onShare(q)}
-                            className="rounded-btn focus:bg-brand-soft focus:text-brand-deep data-highlighted:bg-brand-soft data-highlighted:text-brand-deep min-h-10 cursor-pointer px-3 py-2 font-semibold"
-                          >
-                            <Copy
-                              className="text-muted size-4"
-                              aria-hidden="true"
-                            />
-                            {t('actions.copyCustomerLink')}
-                          </DropdownMenuItem>
                           <DropdownMenuSeparator className="my-1.5" />
                         </>
                       )}
 
-                      {status === 'accepted' && (
-                        <DropdownMenuItem
-                          onClick={() => onConvert(q)}
-                          className="rounded-btn focus:bg-brand-soft focus:text-brand-deep data-highlighted:bg-brand-soft data-highlighted:text-brand-deep min-h-10 cursor-pointer px-3 py-2 font-semibold"
-                        >
-                          <Receipt
-                            className="text-muted size-4"
-                            aria-hidden="true"
-                          />
+                      {share && (
+                        <DropdownMenuItem onClick={() => onShare(q)} className={itemClass}>
+                          <Link2 className="text-muted size-4" aria-hidden="true" />
+                          {t('actions.copyCustomerLink')}
+                        </DropdownMenuItem>
+                      )}
+
+                      {allowed.convert(q) && (
+                        <DropdownMenuItem onClick={() => onConvert(q)} className={itemClass}>
+                          <Receipt className="text-muted size-4" aria-hidden="true" />
                           {t('actions.convert')}
                         </DropdownMenuItem>
                       )}
 
-                      <DropdownMenuItem
-                        onClick={() => onDuplicate(q)}
-                        className="rounded-btn focus:bg-brand-soft focus:text-brand-deep data-highlighted:bg-brand-soft data-highlighted:text-brand-deep min-h-10 cursor-pointer px-3 py-2 font-semibold"
-                      >
-                        <Copy
-                          className="text-muted size-4"
-                          aria-hidden="true"
-                        />
-                        {t('actions.duplicate')}
-                      </DropdownMenuItem>
+                      {q.invoice && (
+                        <DropdownMenuItem
+                          onClick={() => router.push(`/invoices/${q.invoice?.number}`)}
+                          className={itemClass}
+                        >
+                          <FileText className="text-muted size-4" aria-hidden="true" />
+                          {tApi('viewInvoice', { number: q.invoice.displayNumber })}
+                        </DropdownMenuItem>
+                      )}
 
-                      {status === 'draft' && (
+                      {allowed.duplicate() && (
+                        <DropdownMenuItem onClick={() => onDuplicate(q)} className={itemClass}>
+                          <Copy className="text-muted size-4" aria-hidden="true" />
+                          {t('actions.duplicate')}
+                        </DropdownMenuItem>
+                      )}
+
+                      {allowed.delete(q) && (
                         <>
                           <DropdownMenuSeparator />
-                          <DropdownMenuItem
-                            onClick={() => onDelete(q)}
-                            className="text-danger focus:bg-danger-soft focus:text-danger data-highlighted:bg-danger-soft data-highlighted:text-danger rounded-btn min-h-10 cursor-pointer px-3 py-2 font-semibold"
-                          >
+                          <DropdownMenuItem onClick={() => onDelete(q)} className={dangerItemClass}>
                             <Trash2 className="size-4" aria-hidden="true" />
                             {t('actions.delete')}
                           </DropdownMenuItem>

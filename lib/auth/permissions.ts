@@ -22,6 +22,11 @@ export const PERMISSIONS = [
   { key: 'reports', roles: ['owner', 'accountant'] },
   /** Add, edit, complete and delete tasks (everyone can see them). */
   { key: 'tasks', roles: ['owner', 'accountant', 'sales'] },
+  /**
+   * Create, edit, send, accept/reject, duplicate and delete draft quotes (everyone can
+   * see them). Converting one needs 'issueInvoices'; deleting a sent one, 'deleteData'.
+   */
+  { key: 'quotes', roles: ['owner', 'accountant', 'sales'] },
   { key: 'settings', roles: ['owner'] },
   { key: 'deleteData', roles: ['owner'] },
 ] as const satisfies readonly { key: string; roles: readonly Role[] }[];

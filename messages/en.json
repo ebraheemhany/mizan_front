@@ -1102,7 +1102,6 @@
   "title": "Quotes",
   "summary": "{count, plural, one {# quote} other {# quotes}} · Acceptance rate {rate}",
   "new": "New quote",
-  "demoNotice": "Demo only: no email is sent. Copy the customer link from a quote's actions to share it manually.",
   "stats": {
     "waiting": "Sent, awaiting reply",
     "waitingHint": "{count, plural, =0 {No quotes} one {# quote} other {# quotes}}",
@@ -1168,7 +1167,7 @@
     "confirm": "Yes, delete quote"
   },
   "toasts": {
-    "sent": "Quote {number} saved as sent. Share its link with {customer} manually.",
+    "sent": "Quote {number} marked as sent. Copy its link and share it with {customer}.",
     "accepted": "Quote {number} marked as accepted",
     "rejected": "Quote {number} marked as rejected",
     "duplicated": "New draft {number} created",
@@ -1188,16 +1187,14 @@
   "accepted": "This quote has been accepted. Contact the company for next steps.",
   "rejected": "This quote has been rejected.",
   "expired": "This quote has expired and can no longer be answered.",
-  "invalid": "This quote is unavailable. In this demo, open the link in the same browser where it was created.",
+  "invalid": "This quote link doesn't work. It may be mistyped, or the quote was withdrawn.",
   "loading": "Loading quote...",
   "responded": "A response has already been recorded for this quote.",
-  "company": "Mezan",
-  "demoNotice": "Demo only: this link's data is stored in this browser, so it will not work on another device or browser."
+  "company": "Mezan"
 },
 "QuoteForm": {
   "title": "New quote",
   "subtitle": "Prepare a quote, then save it as a draft or send it to the customer.",
-  "demoNotice": "Demo only: no email is sent. After saving the quote as sent, copy the customer link and share it manually.",
   "editTitle": "Edit quote draft",
   "editSubtitle": "Update the draft details before sending it to the customer.",
   "loading": "Loading draft...",
@@ -1239,7 +1236,7 @@
   "toasts": {
     "draftSaved": "Quote saved as a draft",
     "draftUpdated": "Draft updated",
-    "sent": "Quote saved as sent. Share the customer link manually."
+    "sent": "Quote saved as sent. Copy the customer link from the quote page to share it."
   }
 },
 "QuoteDetail": {
@@ -1250,14 +1247,16 @@
   "loading": "Loading quote...",
   "unavailable": "This quote does not exist or is no longer available.",
   "validity": "This quote is valid until {date}.",
-  "defaultNote": "Prices are in EGP. Service begins after quote approval.",
   "history": {
     "title": "History",
     "created": "Quote created",
     "sent": "Quote sent to {customer}",
     "accepted": "Customer accepted the quote",
     "rejected": "Customer rejected the quote",
-    "expired": "Quote expired"
+    "expired": "Quote expired",
+    "acceptedByUser": "Marked as accepted by your team",
+    "rejectedByUser": "Marked as rejected by your team",
+    "converted": "Converted to invoice <link>{number}</link>"
   }
 },
 "Reports": {
@@ -1654,7 +1653,7 @@
 
 "Search": {
   "title": "Search",
-  "description": "Search for a page, customer, task or expense",
+  "description": "Search for a page, customer, quote, task or expense",
   "placeholder": "Type to search…",
   "empty": "No results.",
   "searching": "Searching…",
@@ -1662,6 +1661,7 @@
     "pages": "Pages",
     "actions": "Quick actions",
     "customers": "Customers",
+    "quotes": "Quotes",
     "tasks": "Tasks",
     "expenses": "Expenses"
   },
@@ -1702,6 +1702,10 @@
       "title": "Expense due: {title}",
       "hint": "{amount} · due {date}",
       "hintNoDate": "{amount} · due"
+    },
+    "quoteAccepted": {
+      "title": "{title} accepted a quote",
+      "hint": "{ref} · {amount} · convert it to an invoice"
     }
   }
 },
@@ -2053,6 +2057,7 @@
       "expenses": "Expenses and entries",
       "reports": "Financial reports",
       "tasks": "Add and edit tasks",
+      "quotes": "Create and send quotes",
       "settings": "Settings and users",
       "deleteData": "Delete data"
     }
@@ -2445,6 +2450,8 @@
     "INVALID_CUSTOMER": "Choose one of the company's customers",
     "CUSTOMER_HAS_INVOICES": "A customer with invoices can't be deleted",
     "INVOICE_NUMBER_USED": "This invoice number is already used",
+    "QUOTE_VALIDITY_PASSED": "The quote's validity date has passed. Change it to today or later before sending.",
+    "QUOTE_NUMBER_USED": "This quote number is already used",
     "INVALID_CURRENT_PASSWORD": "Your current password is incorrect",
     "CODE_TAKEN": "Another item already uses this code",
     "INVALID_ASSIGNEE": "The responsible person must be a member of the team",
@@ -2452,7 +2459,15 @@
     "INVALID_INVITATION": "This invitation link doesn't work: it may have expired, been used, or been revoked",
     "CANNOT_MODIFY_OWNER": "The company owner can't be changed or removed",
     "FORBIDDEN": "You're not allowed to do this",
-    "NOT_FOUND": "Not found. It may have been deleted"
+    "NOT_FOUND": "Not found. It may have been deleted",
+    "INVALID_PRODUCT": "Choose one of the company's products",
+    "QUOTE_NOT_DRAFT": "This quote has already been sent, so it can't be changed",
+    "QUOTE_NOT_SENT": "Only a sent quote can be marked as accepted or rejected",
+    "QUOTE_NOT_OPEN": "This quote can't be answered anymore: it was already answered or has expired",
+    "QUOTE_CONVERTED": "A quote that was converted to an invoice can't be deleted",
+    "QUOTE_NOT_ACCEPTED": "Only an accepted quote can be converted to an invoice",
+    "QUOTE_ALREADY_CONVERTED": "This quote was already converted to an invoice",
+    "QUOTE_CUSTOMER_MISMATCH": "The invoice must be for the quote's customer. Choose the quote's customer, or make an invoice without the quote."
   },
   "Session": {
     "registered": "Account created. Log in to get started",
@@ -2608,5 +2623,26 @@
     "searchCustomers": "Search by name, phone or email",
     "searching": "Searching…",
     "noMatches": "No matching customers"
+  },
+  "QuotesApi": {
+    "retry": "Try again",
+    "loadError": "We couldn't load the quote.",
+    "notFoundTitle": "This quote doesn't exist",
+    "notFoundBody": "It may have been deleted, belong to another company, or the number is wrong.",
+    "backToList": "Back to quotes",
+    "emptyAll": "No quotes yet. Create your first quote and send it to a customer.",
+    "viewInvoice": "View invoice {number}",
+    "convertedTo": "Converted to invoice {number}",
+    "linkUnavailable": "The customer link is created when the quote is sent",
+    "deleteSentDescription": "This quote was already sent: its customer link will stop working. It will be permanently deleted, and this can't be undone.",
+    "futureIssueDate": "A quote can't be sent with a date after today. Use today or an earlier date, or save it as a draft.",
+    "sentBy": "From {name}",
+    "convert": {
+      "notAccepted": "Quote {number} can't be converted yet: it hasn't been accepted.",
+      "alreadyConverted": "Quote {number} was already converted to invoice {invoice}.",
+      "hint": "Only an accepted quote can be converted, and only once. You can still create an invoice without it.",
+      "viewQuote": "View the quote",
+      "blankInvoice": "New invoice without the quote"
+    }
   }
 }

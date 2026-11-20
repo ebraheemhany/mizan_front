@@ -7,6 +7,7 @@ import {
   Bell,
   BellRing,
   CalendarClock,
+  FileCheck2,
   ListChecks,
   Receipt,
   Wallet,
@@ -28,7 +29,10 @@ import {
   type NotificationKind,
 } from './utils';
 import { useExpenses } from '@/lib/expenses/hooks';
+import { can } from '@/lib/auth/permissions';
+import { useSession } from '@/lib/auth/session';
 import { useOpenInvoices } from '@/lib/payments/hooks';
+import { toUiQuote, useQuotesList } from '@/lib/quotes/hooks';
 import { useTasks } from '@/lib/tasks/hooks';
 
 const ICON: Record<NotificationKind, { Icon: LucideIcon; tone: string }> = {
@@ -36,6 +40,7 @@ const ICON: Record<NotificationKind, { Icon: LucideIcon; tone: string }> = {
   taskOverdue: { Icon: ListChecks, tone: 'bg-danger-soft text-danger' },
   taskToday: { Icon: CalendarClock, tone: 'bg-info-soft text-info' },
   expenseDue: { Icon: Wallet, tone: 'bg-amber-50 text-amber-800' },
+  quoteAccepted: { Icon: FileCheck2, tone: 'bg-brand-soft text-brand-deep' },
 };
 
 const iconBtn =
@@ -52,9 +57,23 @@ export default function NotificationsMenu() {
   const { expenses } = useExpenses();
   // Overdue balances per customer come from the open invoices (any role may read them).
   const openInvoices = useOpenInvoices().data;
+  // Accepted quotes waiting to become invoices: one small request, only for those who may convert.
+  const mayConvert = can(useSession().role, 'issueInvoices');
+  const acceptedQuotes = useQuotesList(
+    // Only the ones not converted yet, so older ones still to invoice aren't crowded out.
+    { status: 'accepted', period: 'all', converted: false, page: 1, pageSize: 20 },
+    { enabled: mayConvert, staleTime: 60_000 },
+  ).data;
   const all = useMemo(
-    () => buildNotifications(openInvoices ?? [], tasks, today, expenses),
-    [openInvoices, tasks, today, expenses],
+    () =>
+      buildNotifications(
+        openInvoices ?? [],
+        tasks,
+        today,
+        expenses,
+        mayConvert ? (acceptedQuotes?.items.map(toUiQuote) ?? []) : [],
+      ),
+    [openInvoices, tasks, today, expenses, mayConvert, acceptedQuotes],
   );
   const [read, setRead] = useState<Set<string>>(new Set());
 
@@ -78,6 +97,7 @@ export default function NotificationsMenu() {
     return t(`items.${n.kind}.hint`, {
       date: n.date ? date(n.date) : '',
       amount: n.amount !== undefined ? money(n.amount) : '',
+      ref: n.ref ?? '',
     });
   }
 

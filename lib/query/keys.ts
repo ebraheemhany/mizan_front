@@ -58,8 +58,17 @@ export const queryKeys = {
     all: ['tasks'] as const,
     list: ['tasks', 'list'] as const,
   },
+  quotes: {
+    all: ['quotes'] as const,
+    list: (params: object) => ['quotes', 'list', params] as const,
+    stats: ['quotes', 'stats'] as const,
+    /** By number (/quotes/212) or id; both are cached after a change. */
+    detail: (ref: string | number) => ['quotes', 'detail', String(ref)] as const,
+  },
   /** Public: an invoice opened from its shareable link (no login). */
   publicInvoice: (token: string) => ['public-invoice', token] as const,
+  /** Public: a quote opened from its shareable link (no login). */
+  publicQuote: (token: string) => ['public-quote', token] as const,
   /** Company settings (currency, numbering, details...). */
   settings: ['settings'] as const,
   products: {

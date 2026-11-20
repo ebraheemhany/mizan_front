@@ -25,6 +25,7 @@ import {
 } from './items';
 import { useCustomers } from '@/lib/customers/hooks';
 import { useExpenses } from '@/lib/expenses/hooks';
+import { toUiQuote, useQuotesList } from '@/lib/quotes/hooks';
 import { useTasks } from '@/lib/tasks/hooks';
 import { useDebouncedValue } from '@/lib/use-debounced-value';
 
@@ -32,6 +33,7 @@ const GROUP_ORDER: SearchGroup[] = [
   'pages',
   'actions',
   'customers',
+  'quotes',
   'tasks',
   'expenses',
 ];
@@ -68,7 +70,14 @@ export default function CommandSearch({
     { enabled: open },
   );
   const customers = customersQuery.data?.items;
-  const searching = open && (typed !== debouncedQuery || customersQuery.isFetching);
+  // Quotes by number or customer, the same way.
+  const quotesQuery = useQuotesList(
+    { q: debouncedQuery.slice(0, 100) || undefined, status: 'all', period: 'all', page: 1, pageSize: 10 },
+    { enabled: open },
+  );
+  const quotes = quotesQuery.data?.items;
+  const searching =
+    open && (typed !== debouncedQuery || customersQuery.isFetching || quotesQuery.isFetching);
 
   const items = useMemo<SearchItem[]>(
     () => [
@@ -84,9 +93,9 @@ export default function CommandSearch({
         label: t(`actions.${key}`),
         href: ACTION_HREF[key],
       })),
-      ...dataItems(customers ?? [], tasks, expenses),
+      ...dataItems(customers ?? [], tasks, expenses, quotes?.map(toUiQuote)),
     ],
-    [t, customers, tasks, expenses],
+    [t, customers, tasks, expenses, quotes],
   );
 
   function setOpen(next: boolean) {

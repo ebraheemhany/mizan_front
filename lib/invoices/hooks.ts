@@ -107,6 +107,8 @@ export type NewInvoiceInput = {
   notes: string;
   /** true = issue now; false = save as a draft. */
   send: boolean;
+  /** The accepted quote (its number) this invoice converts; the server marks it converted. */
+  fromQuote?: number;
 };
 
 // ---------------------------------------------------------------------------
@@ -247,6 +249,8 @@ function useAfterInvoiceChange() {
     void queryClient.invalidateQueries({ queryKey: queryKeys.expenses.stats });
     // Every report is built from invoices (revenue, aging, VAT, statements).
     void queryClient.invalidateQueries({ queryKey: queryKeys.reports.all });
+    // An invoice made from a quote marks that quote as converted.
+    void queryClient.invalidateQueries({ queryKey: queryKeys.quotes.all });
   };
 }
 

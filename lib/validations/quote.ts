@@ -30,6 +30,8 @@ export const createQuoteSchema = (m: QuoteFormMessages) =>
               const price = parseNumber(value);
               return value !== '' && Number.isFinite(price) && price >= 0;
             }, m.priceInvalid),
+            // Not shown: kept so editing a draft keeps its lines' link to a product.
+            productId: z.string().nullable().optional(),
           }),
         )
         .min(1),

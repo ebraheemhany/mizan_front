@@ -1,12 +1,14 @@
 // component/dashbord/search/items.ts
 import type { ApiCustomer } from '@/lib/customers/hooks';
 import type { Expense } from '@/lib/mock/expenses';
+import type { Quote } from '@/lib/quotes/hooks';
 import type { Task } from '@/lib/tasks/hooks';
 
 export type SearchGroup =
   | 'pages'
   | 'actions'
   | 'customers'
+  | 'quotes'
   | 'tasks'
   | 'expenses';
 
@@ -47,12 +49,14 @@ export const ACTION_HREF: Record<(typeof ACTION_KEYS)[number], string> = {
   newQuote: '/quotes/new',
 };
 
-// Customers are searched on the backend (name, contact, phone, email).
-// TODO: invoices, quotes and deals could be added the same way.
+// Customers and quotes are searched on the backend (customers: name, contact, phone,
+// email; quotes: number or customer).
+// TODO: invoices and deals could be added the same way.
 export function dataItems(
   customers: ApiCustomer[],
   tasks: Task[],
   expenses: Expense[],
+  quotes: Quote[] = [],
 ): SearchItem[] {
   return [
     ...customers.map((c) => ({
@@ -61,6 +65,13 @@ export function dataItems(
       label: c.name,
       hint: [c.contactName, c.phone, c.email].filter(Boolean).join(' · ') || undefined,
       href: `/customers/${c.id}`,
+    })),
+    ...quotes.map((q) => ({
+      id: `quote-${q.id}`,
+      group: 'quotes' as const,
+      label: q.displayNumber,
+      hint: q.customer,
+      href: `/quotes/${q.number}`,
     })),
     ...tasks.map((task) => ({
       id: `task-${task.id}`,
