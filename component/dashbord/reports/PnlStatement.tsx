@@ -22,9 +22,10 @@ export default function PnlStatement({ summary }: { summary: ReportSummary }) {
 
   const rows: Row[] = [
     ...of('income').map((l) => ({ key: l.key, amount: l.amount })),
-    ...of('cost').map((l) => ({ key: l.key, amount: -l.amount })),
+    // "|| 0": a category with nothing spent shows 0, not "-0".
+    ...of('cost').map((l) => ({ key: l.key, amount: -l.amount || 0 })),
     { key: 'grossProfit', amount: summary.grossProfit, subtotal: true },
-    ...of('expense').map((l) => ({ key: l.key, amount: -l.amount })),
+    ...of('expense').map((l) => ({ key: l.key, amount: -l.amount || 0 })),
   ];
 
   return (

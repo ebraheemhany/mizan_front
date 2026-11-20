@@ -31,7 +31,7 @@ export type ReportsUrlState = {
   customer: string | null;
 };
 
-/** The page's ?tab=&period=&customer=, with anything unknown dropped to the defaults. */
+/** The page's ?tab=&period=&customer=, with anything unknown dropped to the defaults (the URL is the page's state). */
 export function parseReportsSearch(search: Record<string, string | string[] | undefined>): ReportsUrlState {
   const one = (key: string) => {
     const value = search[key];
@@ -52,7 +52,8 @@ export function reportsSearch({ tab, period, customer }: ReportsUrlState) {
   const search = new URLSearchParams();
   if (tab !== 'pnl') search.set('tab', tab);
   if (period) search.set('period', period);
-  if (tab === 'statement' && customer) search.set('customer', customer);
+  // Kept on other tabs too, so going back to the statement shows the same customer.
+  if (customer) search.set('customer', customer);
   return search.toString();
 }
 

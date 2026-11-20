@@ -1,15 +1,20 @@
 // app/[locale]/(pages)/(dashboard)/layout.tsx
+import { setRequestLocale } from 'next-intl/server';
 import AppSidebar from '@/component/dashbord/AppSidebar';
 import { AppDataProvider } from '@/component/dashbord/AppDataProvider';
 import MobileHeader from '@/component/dashbord/MobileHeader';
 import TopBar from '@/component/dashbord/TopBar';
 import { SessionProvider } from '@/lib/auth/session';
 
-export default function DashboardLayout({
+export default async function DashboardLayout({
   children,
+  params,
 }: {
   children: React.ReactNode;
+  params: Promise<{ locale: string }>;
 }) {
+  // Static rendering: the locale comes from the URL, not from reading the request.
+  setRequestLocale((await params).locale);
   return (
     // Loads the logged-in user first; sends visitors without a session to /login.
     <SessionProvider>

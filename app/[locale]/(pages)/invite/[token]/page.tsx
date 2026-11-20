@@ -1,14 +1,23 @@
 // app/[locale]/(pages)/invite/[token]/page.tsx
 // Public (see PUBLIC_SECTIONS in lib/auth/constants.ts): the invited person has no account yet.
+import { Suspense } from 'react';
+import { setRequestLocale } from 'next-intl/server';
 import InviteAcceptView from '@/component/InviteAcceptView';
 import Logo from '@/component/Logo';
-import { setRequestLocale } from 'next-intl/server';
+import RouteLoading from '@/component/RouteLoading';
 
-export default async function InvitePage({
-  params,
-}: {
-  params: Promise<{ locale: string; token: string }>;
-}) {
+type Params = Promise<{ locale: string; token: string }>;
+
+// The token in the URL is request data: read it inside Suspense (Cache Components).
+export default function InvitePage({ params }: { params: Params }) {
+  return (
+    <Suspense fallback={<RouteLoading fullScreen />}>
+      <Invite params={params} />
+    </Suspense>
+  );
+}
+
+async function Invite({ params }: { params: Params }) {
   const { locale, token } = await params;
   setRequestLocale(locale);
 

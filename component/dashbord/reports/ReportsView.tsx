@@ -2,6 +2,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { useFormatter, useTranslations } from 'next-intl';
 import { Check, ChevronDown, Download, FileSpreadsheet } from 'lucide-react';
 import { toast } from 'sonner';
@@ -16,7 +17,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { useRouter } from '@/i18n/navigation';
 import { ApiError } from '@/lib/api/client';
 import { useApiErrorMessage } from '@/lib/api/use-api-error';
 import { can } from '@/lib/auth/permissions';
@@ -50,6 +50,7 @@ import {
   deviceCairoMonth,
   LEDGER_TABS,
   monthToDate,
+  parseReportsSearch,
   PERIOD_KEYWORDS,
   recentMonths,
   REPORT_TABS,
@@ -64,31 +65,49 @@ const MENU_MONTHS = 12;
 
 type CsvRow = (string | number | null)[];
 
+/**
+ * Puts the report's state in the URL without a navigation. Next keeps useSearchParams
+ * in step with history.replaceState, so the page re-renders from the new URL.
+ */
+function replaceSearch(search: string) {
+  window.history.replaceState(null, '', search ? `${window.location.pathname}?${search}` : window.location.pathname);
+}
+
 /** Reports are for the roles with the "reports" permission (owner + accountant). */
-export default function ReportsView({ initial }: { initial: ReportsUrlState }) {
+export default function ReportsView() {
   const user = useSession();
   const tErrors = useTranslations('ApiErrors');
   if (!can(user.role, 'reports')) {
     return <p className="text-muted text-sm">{tErrors('FORBIDDEN')}</p>;
   }
-  return <ReportsContent initial={initial} />;
+  return <ReportsContent />;
 }
 
-function ReportsContent({ initial }: { initial: ReportsUrlState }) {
+function ReportsContent() {
   const t = useTranslations('Reports');
   const tApi = useTranslations('ReportsApi');
   const tStatus = useTranslations('Payments.status');
   const format = useFormatter();
   const money = useMoney();
   const errorMessage = useApiErrorMessage();
-  const router = useRouter();
 
-  // Start from the URL (?tab=&period=&customer=), then keep the URL in step below.
-  const [tab, setTab] = useState<ReportTab>(initial.tab);
-  const [period, setPeriod] = useState<ReportPeriod | null>(initial.period);
-  const [picked, setPicked] = useState<{ id: string; name: string | null } | null>(
-    initial.customer ? { id: initial.customer, name: null } : null,
-  );
+  // The URL (?tab=&period=&customer=) is the only source of the page's state: a link
+  // such as a customer's "Statement" button always opens what it says, even when Next
+  // brings back a reports page that was kept alive in the background.
+  const searchParams = useSearchParams();
+  const url = parseReportsSearch(Object.fromEntries(searchParams.entries()));
+  const { tab, period } = url;
+  const setUrl = (patch: Partial<ReportsUrlState>) => replaceSearch(reportsSearch({ ...url, ...patch }));
+  const setTab = (next: ReportTab) => setUrl({ tab: next });
+  const setPeriod = (next: ReportPeriod | null) => setUrl({ period: next });
+
+  // The URL only carries the customer's id; remember the names picked here for the header.
+  const [pickedNames, setPickedNames] = useState<Record<string, string>>({});
+  const picked = url.customer ? { id: url.customer, name: pickedNames[url.customer] ?? null } : null;
+  const pickCustomer = (customer: { id: string; name: string }) => {
+    setPickedNames((names) => ({ ...names, [customer.id]: customer.name }));
+    setUrl({ customer: customer.id });
+  };
   const [deviceMonth] = useState(deviceCairoMonth);
 
   const summaryQuery = useReportSummary(period);
@@ -114,16 +133,12 @@ function ReportsContent({ initial }: { initial: ReportsUrlState }) {
   );
 
   // A month after the current one (a hand-edited URL) is refused by the API: show this month.
-  if (period !== null && summaryQuery.error instanceof ApiError && summaryQuery.error.code === 'VALIDATION_ERROR') {
-    setPeriod(null);
-  }
-
-  const pickedId = picked?.id ?? null;
+  const periodRefused =
+    period !== null && summaryQuery.error instanceof ApiError && summaryQuery.error.code === 'VALIDATION_ERROR';
+  const { customer: urlCustomer } = url;
   useEffect(() => {
-    const search = reportsSearch({ tab, period, customer: pickedId });
-    if (search === window.location.search.slice(1)) return;
-    router.replace(search ? `/reports?${search}` : '/reports', { scroll: false });
-  }, [tab, period, pickedId, router]);
+    if (periodRefused) replaceSearch(reportsSearch({ tab, period: null, customer: urlCustomer }));
+  }, [periodRefused, tab, urlCustomer]);
 
   // The business month comes from the server (Cairo); the device's is a stand-in until then.
   const currentMonth =
@@ -253,7 +268,7 @@ function ReportsContent({ initial }: { initial: ReportsUrlState }) {
       <StatementTab
         customer={statementCustomer}
         query={statementQuery}
-        onCustomerChange={setPicked}
+        onCustomerChange={pickCustomer}
       />
     );
 
@@ -274,7 +289,7 @@ function ReportsContent({ initial }: { initial: ReportsUrlState }) {
         row(t('stats.netProfit'), '', s.netProfit),
         row(tApi('collected'), '', s.collected),
         ...s.lines.map((line) =>
-          row(t('pnl.title'), t(`pnl.lines.${line.key}`), line.kind === 'income' ? line.amount : -line.amount),
+          row(t('pnl.title'), t(`pnl.lines.${line.key}`), line.kind === 'income' ? line.amount : -line.amount || 0),
         ),
         row(t('pnl.title'), t('pnl.lines.grossProfit'), s.grossProfit),
         row(t('pnl.title'), t('pnl.lines.netProfit'), s.netProfit),
@@ -477,7 +492,7 @@ function ReportsContent({ initial }: { initial: ReportsUrlState }) {
 
         <ReportsTabs value={tab} tabs={tabs} onChange={setTab} />
 
-        {summaryQuery.isError && !s && (
+        {tab === 'pnl' && summaryQuery.isError && !s && (
           <div className="rounded-card border-line bg-surface flex flex-wrap items-center justify-between gap-3 border px-4 py-3 shadow-sm">
             <p className="text-danger text-sm font-semibold">{errorMessage(summaryQuery.error)}</p>
             <Button variant="outline" className={outlineBtn} onClick={() => summaryQuery.refetch()}>
@@ -486,7 +501,9 @@ function ReportsContent({ initial }: { initial: ReportsUrlState }) {
           </div>
         )}
 
-        {statCards}
+        {/* The company's own P&L cards belong to the P&L only: a printed customer
+            statement must not show the company's revenue and profit. */}
+        {tab === 'pnl' && statCards}
         {reportContent}
       </div>
 
@@ -496,7 +513,7 @@ function ReportsContent({ initial }: { initial: ReportsUrlState }) {
         basis={t('basis')}
         tab={tabs.find((item) => item.value === tab)?.label ?? ''}
       >
-        {statCards}
+        {tab === 'pnl' && statCards}
         {reportContent}
       </ReportsPrintSheet>
     </>
