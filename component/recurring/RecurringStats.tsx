@@ -3,9 +3,7 @@
 
 import { useFormatter, useTranslations } from 'next-intl';
 import StatCard from '@/component/StatCard';
-import { daysUntil } from '@/lib/relative-time';
-import { MOCK_NOW } from '@/lib/mock/invoices';
-import { MONTHLY_FACTOR, type RecurringInvoice } from '@/lib/mock/recurring';
+import type { RecurringList } from '@/lib/recurring/hooks';
 import { useMoney, useMoneyParts } from '@/lib/money';
 
 function Amount({ amount }: { amount: number }) {
@@ -20,30 +18,11 @@ function Amount({ amount }: { amount: number }) {
   );
 }
 
-export default function RecurringStats({
-  items,
-}: {
-  items: RecurringInvoice[];
-}) {
+/** From the server, over all of the company's templates (not just the filtered ones). */
+export default function RecurringStats({ stats }: { stats: RecurringList['stats'] | undefined }) {
   const t = useTranslations('Recurring.stats');
   const format = useFormatter();
   const money = useMoney();
-
-  const active = items.filter((i) => i.status === 'active');
-  const pausedCount = items.filter((i) => i.status === 'paused').length;
-
-  const mrr = Math.round(
-    active.reduce((sum, i) => sum + i.amount * MONTHLY_FACTOR[i.frequency], 0),
-  );
-
-  // القوالب النشطة اللي فاتورتها القادمة خلال 7 أيام
-  const upcoming = active.filter((i) => {
-    if (!i.nextDate) return false;
-    const days = daysUntil(i.nextDate, MOCK_NOW);
-    return days >= 0 && days <= 7;
-  });
-  const upcomingValue = upcoming.reduce((sum, i) => sum + i.amount, 0);
-
   const n = (v: number) => format.number(v, { numberingSystem: 'latn' });
 
   return (
@@ -51,18 +30,18 @@ export default function RecurringStats({
       <StatCard
         tone="brand"
         label={t('mrr')}
-        value={<Amount amount={mrr} />}
-        hint={t('mrrHint', { count: active.length })}
+        value={stats ? <Amount amount={stats.mrr} /> : '—'}
+        hint={stats ? t('mrrHint', { count: stats.active }) : ''}
       />
       <StatCard
         label={t('active')}
-        value={n(active.length)}
-        hint={t('activeHint', { count: pausedCount })}
+        value={stats ? n(stats.active) : '—'}
+        hint={stats ? t('activeHint', { count: stats.paused }) : ''}
       />
       <StatCard
         label={t('upcoming')}
-        value={n(upcoming.length)}
-        hint={t('upcomingHint', { amount: money(upcomingValue) })}
+        value={stats ? n(stats.upcoming.count) : '—'}
+        hint={stats ? t('upcomingHint', { amount: money(stats.upcoming.total) }) : ''}
       />
     </div>
   );

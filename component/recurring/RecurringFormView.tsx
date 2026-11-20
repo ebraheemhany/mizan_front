@@ -5,7 +5,7 @@ import { useMemo, useState } from 'react';
 import { Controller, FormProvider, useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslations } from 'next-intl';
-import { ArrowLeft } from 'lucide-react';
+import { AlertTriangle, ArrowLeft, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import DateField from '@/component/DateField';
 import { ChipGroup, FieldError, FormSection } from '@/component/form-parts';
@@ -16,11 +16,22 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Link, useRouter } from '@/i18n/navigation';
+import { ApiError } from '@/lib/api/client';
+import { useApiErrorMessage } from '@/lib/api/use-api-error';
+import { can } from '@/lib/auth/permissions';
+import { useSession } from '@/lib/auth/session';
+import { useCreateCustomer, useCustomers } from '@/lib/customers/hooks';
 import { useDate } from '@/lib/data';
-import { nextOccurrences } from '@/lib/iso-date';
-import { CUSTOMERS } from '@/lib/mock/customers';
-import { MOCK_NOW } from '@/lib/mock/invoices';
+import { deviceCairoToday, nextOccurrences } from '@/lib/iso-date';
 import { useMoney } from '@/lib/money';
+import {
+  toUiRecurringDetail,
+  useRecurring,
+  useSaveRecurring,
+  type RecurringDetail,
+  type RecurringInput,
+} from '@/lib/recurring/hooks';
+import { useSettings } from '@/lib/settings/hooks';
 import { cn } from '@/lib/utils';
 import {
   calcTotals,
@@ -36,17 +47,13 @@ import {
 } from '@/lib/validations/recurring';
 
 import LineItemsSection from '../dashbord/invoices/LineItemsSection';
-import CustomerCombobox from '../dashbord/invoices/CustomerCombobox';
+import CustomerCombobox, { type CustomerOption } from '../dashbord/invoices/CustomerCombobox';
 
 const outlineBtn =
   'rounded-btn border-line-strong bg-surface text-ink hover:bg-canvas h-10 gap-2 text-xs font-bold';
 const fieldClass =
   'rounded-btn border-line-strong bg-surface hover:border-brand/50 focus-visible:border-brand focus-visible:ring-2 focus-visible:ring-brand/15 h-11';
-const INITIAL_CUSTOMER_OPTIONS = CUSTOMERS.map(({ id, name, city }) => ({
-  id,
-  name,
-  city,
-}));
+const emptyItem = { description: '', quantity: '1', unitPrice: '', productId: null };
 
 function SummaryRow({
   label,
@@ -79,26 +86,136 @@ function SummaryRow({
   );
 }
 
-export default function RecurringFormView({
-  mode = 'create',
-  initial,
+function Loading() {
+  return (
+    <div className="text-muted flex justify-center py-20">
+      <Loader2 className="size-5 animate-spin" />
+    </div>
+  );
+}
+
+/** A new recurring invoice, or (with `templateId`) one to edit. */
+export default function RecurringFormView({ templateId }: { templateId?: string }) {
+  const t = useTranslations('RecurringForm');
+  const tApi = useTranslations('RecurringApi');
+  const tApiErrors = useTranslations('ApiErrors');
+  const errorMessage = useApiErrorMessage();
+  const user = useSession();
+  const settings = useSettings();
+  // Customers to choose from (first 100 by name).
+  const customers = useCustomers({ status: 'all', balance: 'all', sort: 'name', page: 1, pageSize: 100 });
+  const templateQuery = useRecurring(templateId ?? '', { enabled: templateId !== undefined });
+
+  if (!can(user.role, 'issueInvoices')) {
+    return <p className="text-muted text-sm">{tApiErrors('FORBIDDEN')}</p>;
+  }
+  if ((templateId !== undefined && templateQuery.isPending) || settings.isPending || customers.isPending) {
+    return <Loading />;
+  }
+  if (templateId !== undefined && !templateQuery.data) {
+    const notFound = templateQuery.error instanceof ApiError && templateQuery.error.status === 404;
+    return (
+      <div className="flex flex-col items-center gap-3 py-14 text-center">
+        <p className={cn('text-sm font-semibold', notFound ? 'text-muted' : 'text-danger')}>
+          {notFound ? tApi('notFound') : errorMessage(templateQuery.error)}
+        </p>
+        {!notFound && (
+          <Button variant="outline" className={outlineBtn} onClick={() => templateQuery.refetch()}>
+            {tApi('retry')}
+          </Button>
+        )}
+        <Link href="/invoices/recurring" className={cn(buttonVariants({ variant: 'outline' }), outlineBtn)}>
+          {t('back')}
+        </Link>
+      </div>
+    );
+  }
+
+  const template = templateQuery.data ? toUiRecurringDetail(templateQuery.data) : undefined;
+  if (template?.status === 'ended') {
+    return (
+      <div className="space-y-4">
+        <PageHeader title={template.name} description={tApi('endedReadOnly')} />
+        <GeneratedInvoices template={template} />
+        <Link href="/invoices/recurring" className={cn(buttonVariants({ variant: 'outline' }), outlineBtn)}>
+          <ArrowLeft className="size-4 rtl:rotate-180" />
+          {t('back')}
+        </Link>
+      </div>
+    );
+  }
+
+  const vatEnabled = settings.data?.taxes.vatEnabled ?? true;
+  const options = customers.data?.items.map((c) => ({ id: c.id, name: c.name, city: c.city ?? '' })) ?? [];
+  // The template's customer may not be among the first 100: add it so the picker shows it.
+  if (template?.customerId && !options.some((c) => c.id === template.customerId)) {
+    options.push({ id: template.customerId, name: template.customer, city: '' });
+  }
+
+  return (
+    <RecurringForm
+      key={template?.id ?? 'new'}
+      template={template}
+      customers={options}
+      vatRate={vatEnabled ? VAT_RATE : 0}
+    />
+  );
+}
+
+/** The latest invoices a template made, with links. */
+function GeneratedInvoices({ template }: { template: RecurringDetail }) {
+  const tApi = useTranslations('RecurringApi');
+  const money = useMoney();
+  const formatDate = useDate();
+  return (
+    <section className="rounded-card border-line bg-surface border p-5 shadow-sm">
+      <h2 className="text-ink text-sm font-extrabold">{tApi('invoicesTitle')}</h2>
+      {template.invoices.length === 0 ? (
+        <p className="text-muted mt-2 text-xs">{tApi('invoicesEmpty')}</p>
+      ) : (
+        <ul className="divide-line mt-1 divide-y">
+          {template.invoices.map((invoice) => (
+            <li key={invoice.id} className="flex items-center justify-between gap-3 py-2.5 text-xs">
+              <Link href={`/invoices/${invoice.number}`} className="text-brand-deep font-bold hover:underline" dir="ltr">
+                {invoice.displayNumber}
+              </Link>
+              <span className="text-ink-2 font-semibold">{formatDate(invoice.issueDate)}</span>
+              <span className="text-ink font-bold tabular-nums">{money(invoice.total)}</span>
+            </li>
+          ))}
+        </ul>
+      )}
+    </section>
+  );
+}
+
+function RecurringForm({
+  template,
+  customers,
+  vatRate,
 }: {
-  mode?: 'create' | 'edit';
-  initial?: RecurringFormValues;
+  template?: RecurringDetail;
+  customers: CustomerOption[];
+  /** From the settings: 14, or 0 when VAT is off (preview only; the server does the math). */
+  vatRate: number;
 }) {
   const t = useTranslations('RecurringForm');
   const ti = useTranslations('InvoiceForm');
   const tr = useTranslations('Recurring');
+  const tApi = useTranslations('RecurringApi');
   const router = useRouter();
   const money = useMoney();
   const formatDate = useDate();
-  const isEdit = mode === 'edit';
-  const [customerOptions, setCustomerOptions] = useState(
-    INITIAL_CUSTOMER_OPTIONS,
-  );
+  const user = useSession();
+  const errorMessage = useApiErrorMessage();
+  const saveRecurring = useSaveRecurring();
+  const createCustomer = useCreateCustomer();
+  const isEdit = template !== undefined;
+  // Customers added from this page are added to the options too.
+  const [customerOptions, setCustomerOptions] = useState<CustomerOption[]>(customers);
 
-  // TODO: التاريخ الحقيقي لما نربط الـ API
-  const todayIso = MOCK_NOW.toISOString().slice(0, 10);
+  // Today in Cairo by this device's clock (the server checks with its own date).
+  const todayIso = deviceCairoToday();
 
   const schema = useMemo(
     () =>
@@ -120,26 +237,48 @@ export default function RecurringFormView({
 
   const form = useForm<RecurringFormValues>({
     resolver: zodResolver(schema),
-    defaultValues: initial ?? {
-      name: '',
-      customerId: '',
-      frequency: 'monthly',
-      startDate: todayIso,
-      endMode: 'never',
-      endDate: '',
-      occurrences: '12',
-      terms: 30,
-      autoSend: true,
-      items: [{ description: '', quantity: '1', unitPrice: '' }],
-      notes: '',
-    },
+    defaultValues: template
+      ? {
+          name: template.name,
+          customerId: template.customerId ?? '',
+          frequency: template.frequency,
+          startDate: template.startDate,
+          endMode: template.endMode,
+          endDate: template.endDate ?? '',
+          occurrences: String(template.occurrences ?? 12),
+          terms: template.terms,
+          autoSend: template.autoSend,
+          items: template.lines.length
+            ? template.lines.map((line) => ({
+                description: line.description,
+                quantity: line.quantity,
+                unitPrice: line.unitPrice,
+                productId: line.productId,
+              }))
+            : [emptyItem],
+          notes: template.notes ?? '',
+        }
+      : {
+          name: '',
+          customerId: '',
+          frequency: 'monthly',
+          startDate: todayIso,
+          endMode: 'never',
+          endDate: '',
+          occurrences: '12',
+          terms: 30,
+          autoSend: true,
+          items: [emptyItem],
+          notes: '',
+        },
   });
 
   const {
     control,
     register,
     handleSubmit,
-    formState: { errors },
+    setError,
+    formState: { errors, isSubmitting },
   } = form;
 
   const items = useWatch({ control, name: 'items' }) ?? [];
@@ -151,37 +290,100 @@ export default function RecurringFormView({
   const occurrences = useWatch({ control, name: 'occurrences' });
   const autoSend = useWatch({ control, name: 'autoSend' });
 
-  const totals = calcTotals(items);
+  const totals = calcTotals(items, vatRate);
   const customerName = customerOptions.find(
     (customer) => customer.id === customerId,
   )?.name;
 
-  function addCustomer(customer: { name: string; city: string }) {
-    const id = `new-${crypto.randomUUID()}`;
-    setCustomerOptions((options) => [...options, { id, ...customer }]);
-    return id;
+  /** "Add customer" in the picker creates a real customer (same as the customers page). */
+  async function addCustomer(customer: { name: string; city: string }) {
+    if (!can(user.role, 'editCustomers')) {
+      toast.error(errorMessage(new ApiError(403, 'FORBIDDEN', '')));
+      return null;
+    }
+    try {
+      const { customer: created } = await createCustomer.mutateAsync({
+        name: customer.name,
+        city: customer.city,
+        contactName: '',
+        phone: '',
+        email: '',
+        taxNumber: '',
+        notes: '',
+        assignedToId: user.id,
+      });
+      setCustomerOptions((options) => [...options, { id: created.id, name: created.name, city: created.city ?? '' }]);
+      return created.id;
+    } catch (error) {
+      toast.error(errorMessage(error));
+      return null;
+    }
   }
 
-  // أول 4 مواعيد جاية بعد تطبيق شرط الانتهاء
+  // Editing without changing the start date or frequency keeps the schedule where it is.
+  const keepsSchedule = isEdit && startDate === template.startDate && frequency === template.frequency;
+
+  // The next 4 dates, after the end condition.
   const upcoming = useMemo(() => {
     if (!startDate) return [];
+    const from = keepsSchedule ? (template?.nextDate ?? null) : startDate;
+    if (!from) return [];
 
-    let dates = nextOccurrences(startDate, frequency, 12);
-
-    if (endMode === 'date' && endDate)
-      dates = dates.filter((d) => d <= endDate);
+    let dates = nextOccurrences(startDate, frequency, 240).filter((d) => d >= from);
+    if (endMode === 'date' && endDate) dates = dates.filter((d) => d <= endDate);
     if (endMode === 'count') {
-      const n = parseNumber(occurrences);
-      if (Number.isInteger(n) && n > 0) dates = dates.slice(0, n);
+      const n = parseNumber(occurrences) - (keepsSchedule ? (template?.generatedCount ?? 0) : 0);
+      dates = Number.isInteger(n) && n > 0 ? dates.slice(0, n) : [];
     }
-
     return dates.slice(0, 4);
-  }, [startDate, frequency, endMode, endDate, occurrences]);
+  }, [startDate, frequency, endMode, endDate, occurrences, keepsSchedule, template]);
 
-  const save = handleSubmit(() => {
-    // TODO: حفظ القالب أو تحديثه فعلياً لما نربط الـ API
-    toast.success(t(isEdit ? 'toasts.updated' : 'toasts.saved'));
-    if (isEdit) router.push('/invoices/recurring');
+  function showError(error: unknown) {
+    if (error instanceof ApiError && error.code === 'START_DATE_PASSED') {
+      setError('startDate', { message: errorMessage(error) }, { shouldFocus: true });
+    } else if (error instanceof ApiError && error.code === 'INVALID_CUSTOMER') {
+      setError('customerId', { message: ti('errors.customerRequired') }, { shouldFocus: true });
+    } else if (error instanceof ApiError && error.code === 'VALIDATION_ERROR' && error.details?.fieldErrors) {
+      const fields = error.details.fieldErrors;
+      if (fields.endDate) setError('endDate', { message: t('errors.endDateAfter') });
+      if (fields.occurrences) setError('occurrences', { message: t('errors.occurrencesInvalid') });
+      if (fields.name) setError('name', { message: t('errors.nameMax') });
+      if (!fields.endDate && !fields.occurrences && !fields.name) toast.error(errorMessage(error));
+    } else {
+      toast.error(errorMessage(error));
+    }
+  }
+
+  const save = handleSubmit(async (values) => {
+    const input: RecurringInput = {
+      name: values.name.trim(),
+      customerId: values.customerId,
+      frequency: values.frequency,
+      startDate: values.startDate,
+      endMode: values.endMode,
+      endDate: values.endMode === 'date' ? values.endDate : null,
+      occurrences: values.endMode === 'count' ? parseNumber(values.occurrences) : null,
+      terms: values.terms,
+      autoSend: values.autoSend,
+      // Numbers as typed (commas and spaces removed); the backend does the math.
+      items: values.items.map((item) => ({
+        description: item.description.trim(),
+        quantity: String(parseNumber(item.quantity)),
+        unitPrice: String(parseNumber(item.unitPrice)),
+        productId: item.productId ?? null,
+      })),
+      notes: values.notes,
+    };
+    try {
+      const saved = await saveRecurring.mutateAsync({ id: template?.id, input });
+      const made = saved.generatedCount > (template?.generatedCount ?? 0) ? saved.lastInvoice : null;
+      toast.success(
+        made ? tApi('savedAndMade', { number: made.displayNumber }) : t(isEdit ? 'toasts.updated' : 'toasts.saved'),
+      );
+      router.push('/invoices/recurring');
+    } catch (error) {
+      showError(error);
+    }
   });
 
   return (
@@ -316,6 +518,7 @@ export default function RecurringFormView({
                           onChange={field.onChange}
                           placeholder={ti('details.pickDate')}
                           invalid={!!errors.startDate}
+                          minDate={isEdit ? undefined : todayIso}
                         />
                       )}
                     />
@@ -490,7 +693,7 @@ export default function RecurringFormView({
                   value={money(totals.subtotal)}
                 />
                 <SummaryRow
-                  label={ti('summary.vat', { rate: VAT_RATE })}
+                  label={ti('summary.vat', { rate: vatRate })}
                   value={money(totals.vat)}
                 />
 
@@ -532,6 +735,7 @@ export default function RecurringFormView({
               <div className="mt-5 space-y-2.5">
                 <Button
                   type="submit"
+                  disabled={isSubmitting}
                   className="rounded-btn bg-brand hover:bg-brand/90 h-11 w-full text-sm font-bold text-white"
                 >
                   {t(isEdit ? 'actions.saveChanges' : 'actions.save')}
@@ -552,6 +756,17 @@ export default function RecurringFormView({
                 )}
               </div>
             </section>
+            {template?.lastError && (
+              <p className="text-danger mt-4 flex items-start gap-1.5 text-xs font-semibold">
+                <AlertTriangle className="mt-0.5 size-3.5 shrink-0" />
+                {tApi('lastErrorLong')}
+              </p>
+            )}
+            {template && (
+              <div className="mt-4">
+                <GeneratedInvoices template={template} />
+              </div>
+            )}
           </aside>
         </form>
       </FormProvider>

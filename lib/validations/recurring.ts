@@ -43,6 +43,8 @@ export const createRecurringSchema = (m: RecurringMessages) =>
               const n = parseNumber(v);
               return v !== '' && Number.isFinite(n) && n >= 0;
             }, m.priceInvalid),
+            // A line picked from the catalog keeps its link when the template is edited.
+            productId: z.string().nullable().optional(),
           }),
         )
         .min(1),

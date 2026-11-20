@@ -3,116 +3,111 @@
 
 import { useMemo, useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { ArrowLeft, Plus, Search } from 'lucide-react';
+import { ArrowLeft, Loader2, Plus, Search } from 'lucide-react';
 import { toast } from 'sonner';
 
+import ConfirmDialog from '@/component/ConfirmDialog';
 import PageHeader from '@/component/PageHeader';
 import { Button, buttonVariants } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Link } from '@/i18n/navigation';
+import { useApiErrorMessage } from '@/lib/api/use-api-error';
+import { can } from '@/lib/auth/permissions';
+import { useSession } from '@/lib/auth/session';
 import {
-  RECURRING,
-  type RecurringInvoice,
+  useDeleteRecurring,
+  useRecurringAction,
+  useRecurringList,
+  type Recurring,
   type RecurringStatus,
-} from '@/lib/mock/recurring';
+} from '@/lib/recurring/hooks';
+import { useDebouncedValue } from '@/lib/use-debounced-value';
 import { cn } from '@/lib/utils';
+import FilterTabs from '../dashbord/FilterTabs';
 import RecurringStats from './RecurringStats';
 import RecurringTable from './RecurringTable';
-import FilterTabs from '../dashbord/FilterTabs';
-import ConfirmDialog from '@/component/ConfirmDialog';
+
 type StatusFilter = 'all' | RecurringStatus;
 
 const TAB_KEYS: StatusFilter[] = ['all', 'active', 'paused', 'ended'];
 
-const outlineBtn =
-  'rounded-btn border-line-strong bg-surface text-ink hover:bg-canvas h-10 gap-2 text-xs font-bold';
-const primaryBtn =
-  'rounded-btn bg-brand hover:bg-brand/90 h-10 gap-2 text-xs font-bold text-white';
+const outlineBtn = 'rounded-btn border-line-strong bg-surface text-ink hover:bg-canvas h-10 gap-2 text-xs font-bold';
+const primaryBtn = 'rounded-btn bg-brand hover:bg-brand/90 h-10 gap-2 text-xs font-bold text-white';
 
 export default function RecurringView() {
   const t = useTranslations('Recurring');
+  const tApi = useTranslations('RecurringApi');
+  const errorMessage = useApiErrorMessage();
+  const user = useSession();
+  const canEdit = can(user.role, 'issueInvoices');
 
-  // TODO: لما نربط الـ API القوالب دي بتيجي من الباك إند
-  const [items, setItems] = useState(RECURRING);
   const [status, setStatus] = useState<StatusFilter>('all');
   const [query, setQuery] = useState('');
-  const [deleteTarget, setDeleteTarget] = useState<RecurringInvoice | null>(
-    null,
-  );
-  const rows = useMemo(() => {
-    const q = query.trim().toLowerCase();
+  const q = useDebouncedValue(query.trim(), 300);
+  const listQuery = useRecurringList({ status, q });
+  const action = useRecurringAction();
+  const deleteRecurring = useDeleteRecurring();
+  const [deleteTarget, setDeleteTarget] = useState<Recurring | null>(null);
 
-    return items.filter((i) => {
-      if (status !== 'all' && i.status !== status) return false;
-      if (
-        q &&
-        !i.name.toLowerCase().includes(q) &&
-        !i.customer.toLowerCase().includes(q)
-      )
-        return false;
-      return true;
-    });
-  }, [items, status, query]);
-
+  const data = listQuery.data;
   const tabs = useMemo(
-    () =>
-      TAB_KEYS.map((key) => ({
-        value: key,
-        label: t(`tabs.${key}`),
-        count:
-          key === 'all'
-            ? items.length
-            : items.filter((i) => i.status === key).length,
-      })),
-    [t, items],
+    () => TAB_KEYS.map((key) => ({ value: key, label: t(`tabs.${key}`), count: data?.counts[key] ?? 0 })),
+    [t, data],
   );
 
-  function toggle(id: string) {
-    const target = items.find((i) => i.id === id);
-    if (!target || target.status === 'ended') return;
-
-    const next: RecurringStatus =
-      target.status === 'active' ? 'paused' : 'active';
-    setItems((prev) =>
-      prev.map((i) => (i.id === id ? { ...i, status: next } : i)),
-    );
-    toast.success(t(next === 'paused' ? 'toasts.paused' : 'toasts.resumed'));
+  async function toggle(row: Recurring) {
+    if (row.status === 'ended') return;
+    const next = row.status === 'active' ? 'pause' : 'resume';
+    try {
+      const template = await action.mutateAsync({ id: row.id, action: next });
+      // Resuming on a scheduled day makes that day's invoice right away.
+      const made = template.generatedCount > row.generatedCount ? template.lastInvoice : null;
+      toast.success(
+        made
+          ? tApi('resumedAndMade', { number: made.displayNumber })
+          : template.status === 'ended'
+            ? tApi('resumedEnded')
+            : t(next === 'pause' ? 'toasts.paused' : 'toasts.resumed'),
+      );
+    } catch (error) {
+      toast.error(errorMessage(error));
+    }
   }
 
-  function remove() {
+  async function remove() {
     if (!deleteTarget) return;
-
-    setItems((prev) => prev.filter((i) => i.id !== deleteTarget.id));
+    const target = deleteTarget;
     setDeleteTarget(null);
-    toast.success(t('toasts.deleted'));
+    try {
+      await deleteRecurring.mutateAsync(target.id);
+      toast.success(t('toasts.deleted'));
+    } catch (error) {
+      toast.error(errorMessage(error));
+    }
   }
 
   return (
     <div className="space-y-5">
       <PageHeader
         title={t('title')}
-        description={t('summary', { count: items.length })}
+        description={data ? t('summary', { count: data.counts.all }) : undefined}
         actions={
           <>
-            <Link
-              href="/invoices"
-              className={cn(buttonVariants({ variant: 'outline' }), outlineBtn)}
-            >
+            <Link href="/invoices" className={cn(buttonVariants({ variant: 'outline' }), outlineBtn)}>
               <ArrowLeft className="size-4 rtl:rotate-180" />
               {t('back')}
             </Link>
-            <Link
-              href="/invoices/recurring/new"
-              className={cn(buttonVariants(), primaryBtn)}
-            >
-              <Plus className="size-4" />
-              {t('new')}
-            </Link>
+            {canEdit && (
+              <Link href="/invoices/recurring/new" className={cn(buttonVariants(), primaryBtn)}>
+                <Plus className="size-4" />
+                {t('new')}
+              </Link>
+            )}
           </>
         }
       />
 
-      <RecurringStats items={items} />
+      <RecurringStats stats={data?.stats} />
 
       <FilterTabs value={status} tabs={tabs} onChange={setStatus} />
 
@@ -125,23 +120,40 @@ export default function RecurringView() {
               onChange={(e) => setQuery(e.target.value)}
               placeholder={t('search')}
               aria-label={t('search')}
+              maxLength={100}
               className="rounded-btn border-line-strong bg-surface focus-visible:border-brand focus-visible:ring-brand/20 h-10 pe-9 text-sm"
             />
           </div>
         </div>
 
-        {rows.length === 0 ? (
+        {listQuery.isPending ? (
+          <div className="border-line text-muted flex justify-center border-t px-4 py-14">
+            <Loader2 className="size-5 animate-spin" />
+          </div>
+        ) : listQuery.isError && !data ? (
+          <div className="border-line flex flex-col items-center gap-3 border-t px-4 py-14 text-center">
+            <p className="text-danger text-sm font-semibold">{errorMessage(listQuery.error)}</p>
+            <Button variant="outline" className={outlineBtn} onClick={() => listQuery.refetch()}>
+              {tApi('retry')}
+            </Button>
+          </div>
+        ) : !data || data.items.length === 0 ? (
           <div className="border-line text-muted border-t px-4 py-14 text-center text-sm">
-            {t('empty')}
+            {status === 'all' && !q && data?.counts.all === 0 ? tApi('emptyAll') : t('empty')}
           </div>
         ) : (
-          <RecurringTable
-            rows={rows}
-            onToggle={toggle}
-            onDelete={setDeleteTarget}
-          />
+          <div className={listQuery.isPlaceholderData ? 'opacity-60 transition-opacity' : undefined}>
+            <RecurringTable
+              rows={data.items}
+              today={data.today}
+              canEdit={canEdit}
+              onToggle={toggle}
+              onDelete={setDeleteTarget}
+            />
+          </div>
         )}
       </div>
+
       <ConfirmDialog
         open={deleteTarget !== null}
         title={t('deleteDialog.title', { name: deleteTarget?.name ?? '' })}

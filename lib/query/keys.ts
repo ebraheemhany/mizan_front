@@ -58,6 +58,12 @@ export const queryKeys = {
     all: ['tasks'] as const,
     list: ['tasks', 'list'] as const,
   },
+  /** Recurring invoice templates. */
+  recurring: {
+    all: ['recurring'] as const,
+    list: (params: object) => ['recurring', 'list', params] as const,
+    detail: (id: string) => ['recurring', 'detail', id] as const,
+  },
   quotes: {
     all: ['quotes'] as const,
     list: (params: object) => ['quotes', 'list', params] as const,

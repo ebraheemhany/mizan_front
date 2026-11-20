@@ -2467,7 +2467,11 @@
     "QUOTE_CONVERTED": "A quote that was converted to an invoice can't be deleted",
     "QUOTE_NOT_ACCEPTED": "Only an accepted quote can be converted to an invoice",
     "QUOTE_ALREADY_CONVERTED": "This quote was already converted to an invoice",
-    "QUOTE_CUSTOMER_MISMATCH": "The invoice must be for the quote's customer. Choose the quote's customer, or make an invoice without the quote."
+    "QUOTE_CUSTOMER_MISMATCH": "The invoice must be for the quote's customer. Choose the quote's customer, or make an invoice without the quote.",
+    "START_DATE_PASSED": "The first invoice's date must be today or later.",
+    "RECURRING_ENDED": "This template has ended and can't be changed.",
+    "RECURRING_NOT_ACTIVE": "This template isn't active, so it can't be paused.",
+    "RECURRING_NOT_PAUSED": "This template isn't paused, so it can't be resumed."
   },
   "Session": {
     "registered": "Account created. Log in to get started",
@@ -2552,6 +2556,7 @@
   },
   "InvoicesApi": {
     "loadError": "We couldn't load the invoice.",
+    "fromRecurring": "From the recurring invoice “{name}”",
     "retry": "Try again",
     "notFoundTitle": "This invoice doesn't exist",
     "notFoundBody": "It may belong to another company, or the number is wrong.",
@@ -2644,5 +2649,19 @@
       "viewQuote": "View the quote",
       "blankInvoice": "New invoice without the quote"
     }
+  },
+  "RecurringApi": {
+    "retry": "Try again",
+    "emptyAll": "No recurring invoices yet. Create a template and it will make the invoices on schedule by itself.",
+    "notFound": "This template was not found. It may have been deleted.",
+    "endedReadOnly": "This template has ended and won't make more invoices. The invoices it made are below.",
+    "invoicesTitle": "Invoices made from it",
+    "invoicesEmpty": "No invoices yet. The first one is made on the start date.",
+    "lastInvoice": "Last invoice {number}",
+    "lastError": "The last invoice couldn't be made: {reason}",
+    "lastErrorLong": "The last attempt to make an invoice from this template failed. It is retried every hour; check the invoice numbering in the settings if it keeps failing.",
+    "savedAndMade": "Template saved and the first invoice made: {number}",
+    "resumedAndMade": "Template resumed, and today's invoice made: {number}",
+    "resumedEnded": "The template had no dates left, so it has ended"
   }
 }

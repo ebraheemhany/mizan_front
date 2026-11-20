@@ -170,6 +170,15 @@ function InvoiceDetailContent({ data }: { data: NonNullable<ReturnType<typeof us
           <span className="flex flex-wrap items-center gap-2">
             <span>{t('subtitle', { customer: invoice.customer, date: date(invoice.issueDate) })}</span>
             <StatusBadge status={invoice.status} daysOverdue={invoice.daysOverdue} />
+            {/* Made by a recurring template: link back to it. */}
+            {data.recurring && (
+              <Link
+                href={`/invoices/recurring/${data.recurring.id}/edit`}
+                className="text-brand-deep text-xs font-bold hover:underline"
+              >
+                {tApi('fromRecurring', { name: data.recurring.name })}
+              </Link>
+            )}
           </span>
         }
         actions={

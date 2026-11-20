@@ -59,6 +59,8 @@ export type ApiInvoiceDetail = ApiInvoice & {
   }[];
   /** Only for logged-in users (not on the public link). */
   publicToken?: string | null;
+  /** The recurring template that made it, if any (logged-in users only). */
+  recurring?: { id: string; name: string } | null;
   history?: { id: string; type: HistoryEvent['type']; at: string; values: Record<string, string | number> }[];
 };
 
@@ -251,6 +253,8 @@ function useAfterInvoiceChange() {
     void queryClient.invalidateQueries({ queryKey: queryKeys.reports.all });
     // An invoice made from a quote marks that quote as converted.
     void queryClient.invalidateQueries({ queryKey: queryKeys.quotes.all });
+    // A recurring template shows its last invoice.
+    void queryClient.invalidateQueries({ queryKey: queryKeys.recurring.all });
   };
 }
 
