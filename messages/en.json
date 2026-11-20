@@ -2471,7 +2471,9 @@
     "START_DATE_PASSED": "The first invoice's date must be today or later.",
     "RECURRING_ENDED": "This template has ended and can't be changed.",
     "RECURRING_NOT_ACTIVE": "This template isn't active, so it can't be paused.",
-    "RECURRING_NOT_PAUSED": "This template isn't paused, so it can't be resumed."
+    "RECURRING_NOT_PAUSED": "This template isn't paused, so it can't be resumed.",
+    "RECURRING_CHANGED": "The template made an invoice while you were editing it. Open it again and redo your changes.",
+    "RECURRING_RUN_FAILED": "Something went wrong while making the invoice. It will be retried automatically."
   },
   "Session": {
     "registered": "Account created. Log in to get started",
@@ -2662,6 +2664,10 @@
     "lastErrorLong": "The last attempt to make an invoice from this template failed. It is retried every hour; check the invoice numbering in the settings if it keeps failing.",
     "savedAndMade": "Template saved and the first invoice made: {number}",
     "resumedAndMade": "Template resumed, and today's invoice made: {number}",
-    "resumedEnded": "The template had no dates left, so it has ended"
+    "resumedEnded": "The template had no dates left, so it has ended",
+    "savedEnded": "Template saved. It has no dates left, so it has ended",
+    "viewOnly": "View only. Changing recurring invoices needs permission to issue invoices.",
+    "endsOn": "On {date}",
+    "endsAfter": "After {count, plural, one {# invoice} other {# invoices}}"
   }
 }

@@ -106,10 +106,15 @@ export default function RecurringFormView({ templateId }: { templateId?: string 
   const customers = useCustomers({ status: 'all', balance: 'all', sort: 'name', page: 1, pageSize: 100 });
   const templateQuery = useRecurring(templateId ?? '', { enabled: templateId !== undefined });
 
-  if (!can(user.role, 'issueInvoices')) {
+  // Everyone can look at a template; only those who issue invoices can create or change one.
+  const canEdit = can(user.role, 'issueInvoices');
+  if (!canEdit && templateId === undefined) {
     return <p className="text-muted text-sm">{tApiErrors('FORBIDDEN')}</p>;
   }
-  if ((templateId !== undefined && templateQuery.isPending) || settings.isPending || customers.isPending) {
+  if (
+    (templateId !== undefined && templateQuery.isPending) ||
+    (canEdit && (settings.isPending || customers.isPending))
+  ) {
     return <Loading />;
   }
   if (templateId !== undefined && !templateQuery.data) {
@@ -132,16 +137,12 @@ export default function RecurringFormView({ templateId }: { templateId?: string 
   }
 
   const template = templateQuery.data ? toUiRecurringDetail(templateQuery.data) : undefined;
-  if (template?.status === 'ended') {
+  if (template && (template.status === 'ended' || !canEdit)) {
     return (
-      <div className="space-y-4">
-        <PageHeader title={template.name} description={tApi('endedReadOnly')} />
-        <GeneratedInvoices template={template} />
-        <Link href="/invoices/recurring" className={cn(buttonVariants({ variant: 'outline' }), outlineBtn)}>
-          <ArrowLeft className="size-4 rtl:rotate-180" />
-          {t('back')}
-        </Link>
-      </div>
+      <RecurringReadOnly
+        template={template}
+        note={template.status === 'ended' ? tApi('endedReadOnly') : tApi('viewOnly')}
+      />
     );
   }
 
@@ -159,6 +160,101 @@ export default function RecurringFormView({ templateId }: { templateId?: string 
       customers={options}
       vatRate={vatEnabled ? VAT_RATE : 0}
     />
+  );
+}
+
+/** A template that can't be changed here (it ended, or the user can't edit): its details only. */
+function RecurringReadOnly({ template, note }: { template: RecurringDetail; note: string }) {
+  const t = useTranslations('RecurringForm');
+  const ti = useTranslations('InvoiceForm');
+  const tItems = useTranslations('InvoiceForm.items');
+  const tr = useTranslations('Recurring');
+  const tApi = useTranslations('RecurringApi');
+  const money = useMoney();
+  const formatDate = useDate();
+
+  const end =
+    template.endMode === 'date' && template.endDate
+      ? tApi('endsOn', { date: formatDate(template.endDate) })
+      : template.endMode === 'count' && template.occurrences
+        ? tApi('endsAfter', { count: template.occurrences })
+        : t('schedule.endOptions.never');
+  const details: [string, string][] = [
+    [ti('details.customer'), template.customer],
+    [t('schedule.frequency'), tr(`frequency.${template.frequency}`)],
+    [tr('columns.status'), tr(`status.${template.status}`)],
+    ...(template.status !== 'ended' && template.nextDate
+      ? [[tr('columns.next'), formatDate(template.nextDate)] as [string, string]]
+      : []),
+    [t('schedule.startDate'), formatDate(template.startDate)],
+    [t('schedule.end'), end],
+    [tr('columns.generated'), tr('generated', { count: template.generatedCount })],
+    [t('delivery.mode'), t(template.autoSend ? 'delivery.modes.send' : 'delivery.modes.draft')],
+    ...((TERMS as readonly number[]).includes(template.terms)
+      ? [[t('delivery.terms'), ti(`details.termsOptions.d${template.terms}`)] as [string, string]]
+      : []),
+  ];
+
+  return (
+    <div className="space-y-5">
+      <PageHeader
+        title={template.name}
+        description={note}
+        actions={
+          <Link href="/invoices/recurring" className={cn(buttonVariants({ variant: 'outline' }), outlineBtn)}>
+            <ArrowLeft className="size-4 rtl:rotate-180" />
+            {t('back')}
+          </Link>
+        }
+      />
+      <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_20rem]">
+        <div className="min-w-0 space-y-5">
+          <section className="rounded-card border-line bg-surface border p-5 shadow-sm">
+            <h2 className="text-ink text-sm font-extrabold">{t('details.title')}</h2>
+            <dl className="mt-3 grid gap-x-6 gap-y-3 text-sm sm:grid-cols-2">
+              {details.map(([label, value]) => (
+                <div key={label} className="flex items-center justify-between gap-4">
+                  <dt className="text-body">{label}</dt>
+                  <dd className="text-ink font-bold">{value}</dd>
+                </div>
+              ))}
+            </dl>
+          </section>
+
+          <section className="rounded-card border-line bg-surface border p-5 shadow-sm">
+            <h2 className="text-ink text-sm font-extrabold">{tItems('title')}</h2>
+            <ul className="divide-line mt-1 divide-y">
+              {template.lines.map((line, index) => (
+                <li key={index} className="flex items-center justify-between gap-3 py-2.5 text-xs">
+                  <span className="text-ink min-w-0 flex-1 truncate font-semibold">{line.description}</span>
+                  <span className="text-muted tabular-nums">
+                    {line.quantity} × {money(Number(line.unitPrice))}
+                  </span>
+                  <span className="text-ink w-24 text-end font-bold tabular-nums">
+                    {money(Number(line.quantity) * Number(line.unitPrice))}
+                  </span>
+                </li>
+              ))}
+            </ul>
+            <dl className="border-line mt-2 space-y-2 border-t pt-3 text-sm">
+              <SummaryRow label={ti('summary.subtotal')} value={money(template.subtotal)} />
+              <SummaryRow label={ti('summary.vat', { rate: template.vatRate })} value={money(template.vat)} />
+              <SummaryRow label={t('summary.perInvoice')} value={money(template.total)} strong />
+            </dl>
+            {template.notes && <p className="text-muted mt-3 text-xs whitespace-pre-line">{template.notes}</p>}
+          </section>
+        </div>
+        <aside className="space-y-4">
+          {template.lastError && template.status !== 'ended' && (
+            <p className="text-danger flex items-start gap-1.5 text-xs font-semibold">
+              <AlertTriangle className="mt-0.5 size-3.5 shrink-0" />
+              {tApi('lastErrorLong')}
+            </p>
+          )}
+          <GeneratedInvoices template={template} />
+        </aside>
+      </div>
+    </div>
   );
 }
 
@@ -326,17 +422,20 @@ function RecurringForm({
   // The next 4 dates, after the end condition.
   const upcoming = useMemo(() => {
     if (!startDate) return [];
-    const from = keepsSchedule ? (template?.nextDate ?? null) : startDate;
+    let from = keepsSchedule ? (template?.nextDate ?? null) : startDate;
     if (!from) return [];
+    // A paused template skips the dates it missed when it is resumed.
+    if (template?.status === 'paused' && from < todayIso) from = todayIso;
 
     let dates = nextOccurrences(startDate, frequency, 240).filter((d) => d >= from);
     if (endMode === 'date' && endDate) dates = dates.filter((d) => d <= endDate);
     if (endMode === 'count') {
-      const n = parseNumber(occurrences) - (keepsSchedule ? (template?.generatedCount ?? 0) : 0);
+      // The invoices already made count toward the limit, even on a new schedule.
+      const n = parseNumber(occurrences) - (template?.generatedCount ?? 0);
       dates = Number.isInteger(n) && n > 0 ? dates.slice(0, n) : [];
     }
     return dates.slice(0, 4);
-  }, [startDate, frequency, endMode, endDate, occurrences, keepsSchedule, template]);
+  }, [startDate, frequency, endMode, endDate, occurrences, keepsSchedule, template, todayIso]);
 
   function showError(error: unknown) {
     if (error instanceof ApiError && error.code === 'START_DATE_PASSED') {
@@ -378,7 +477,11 @@ function RecurringForm({
       const saved = await saveRecurring.mutateAsync({ id: template?.id, input });
       const made = saved.generatedCount > (template?.generatedCount ?? 0) ? saved.lastInvoice : null;
       toast.success(
-        made ? tApi('savedAndMade', { number: made.displayNumber }) : t(isEdit ? 'toasts.updated' : 'toasts.saved'),
+        made
+          ? tApi('savedAndMade', { number: made.displayNumber })
+          : saved.status === 'ended'
+            ? tApi('savedEnded')
+            : t(isEdit ? 'toasts.updated' : 'toasts.saved'),
       );
       router.push('/invoices/recurring');
     } catch (error) {
