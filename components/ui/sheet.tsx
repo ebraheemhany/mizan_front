@@ -65,7 +65,9 @@ function SheetContent({
             render={
               <Button
                 variant="ghost"
-                className="absolute top-3 right-7"
+                // "end": the side away from the title in both LTR and RTL (right-7 sat on
+                // top of an Arabic title).
+                className="absolute end-7 top-3"
                 size="icon-sm"
               />
             }
