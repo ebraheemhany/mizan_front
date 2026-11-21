@@ -25,6 +25,8 @@ export type Expense = {
   paidFrom?: ExpenseSource // بيتحدد لما المصروف يتدفع
   dueDate?: string // للمستحق بس
   vendor?: string
+  /** The attached receipt (an image or a PDF), if any. */
+  receipt?: { contentType: string; size: number; name: string | null } | null
 }
 
 export const mockExpenses: Expense[] = [

@@ -1537,6 +1537,7 @@
   "all": "All time"
 },
 "table": {
+  "receipt": "Receipt",
   "date": "Date",
   "title": "Description",
   "category": "Category",
@@ -1993,11 +1994,15 @@
     "subscription": "Subscription"
   },
   "company": {
+    "changeLogo": "Change logo",
+    "removeLogo": "Remove logo",
+    "logoSaved": "Logo saved; it now shows on invoices and quotes",
+    "logoRemoved": "Logo removed",
     "title": "Company details",
     "description": "Shown on invoices and quotes",
     "uploadLogo": "Upload logo",
-    "logoHint": "Max 2MB · SVG or PNG",
-    "logoInvalid": "The logo must be a PNG or SVG under 2MB.",
+    "logoHint": "PNG, JPG or WebP · up to 1 MB · saved right away and shown on invoices and quotes",
+    "logoInvalid": "The logo must be a PNG, JPG or WebP image under 1 MB.",
     "fields": {
       "name": "Company name",
       "taxNumber": "Tax number",
@@ -2297,6 +2302,7 @@
     "deal": "Deal: {ref}"
   },
   "itemTypes": {
+    "company": "Company",
     "customer": "Customers",
     "product": "Items",
     "entry": "Entries",
@@ -2304,6 +2310,10 @@
     "expense": "Expense"
   },
   "events": {
+    "logoChanged": "Changed the company logo",
+    "logoRemoved": "Removed the company logo",
+    "receiptAttached": "Attached a receipt{name, select, none {} other { “{name}”}}",
+    "receiptRemoved": "Removed the receipt",
     "companyCreated": "Company account created on Mizan",
     "signedIn": "Signed in",
     "signInFailed": "Sign-in attempt with a wrong password",
@@ -2664,6 +2674,10 @@
   }
 },
   "ApiErrors": {
+    "FILE_EMPTY": "No file was sent; pick a file and try again",
+    "FILE_TOO_LARGE": "The file is larger than allowed",
+    "FILE_TYPE": "This kind of file isn't accepted here",
+    "EXPENSE_CHANGED": "The expense changed meanwhile; reload and try again",
     "INVALID_CREDENTIALS": "Incorrect email or password",
     "EMAIL_TAKEN": "An account with this email already exists",
     "TOO_MANY_REQUESTS": "Too many attempts. Try again in {minutes} min",
@@ -2844,6 +2858,17 @@
     "noComparison": "Nothing last month to compare with"
   },
   "ExpensesApi": {
+    "receipts": {
+      "view": "View",
+      "attach": "Attach receipt",
+      "replace": "Replace receipt",
+      "remove": "Remove receipt",
+      "receiptType": "A receipt must be an image (PNG, JPG or WebP) or a PDF",
+      "receiptSize": "A receipt must be under 5 MB",
+      "attached": "Receipt saved for “{title}”",
+      "removed": "Receipt removed from “{title}”",
+      "notAttached": "The expense was saved, but the receipt wasn't uploaded ({reason}). You can attach it from the table."
+    },
     "paidFrom": "Paid from",
     "retry": "Try again",
     "removed": "Expense “{title}” removed",

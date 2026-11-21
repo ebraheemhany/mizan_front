@@ -18,6 +18,8 @@ export type Party = {
   location: string;
   email?: string;
   phone?: string;
+  /** The issuer's logo, if the company uploaded one. */
+  logoUrl?: string;
 };
 
 /** Every method the backend accepts (the payments page records all of them). */

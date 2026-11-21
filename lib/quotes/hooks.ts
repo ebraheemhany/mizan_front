@@ -4,7 +4,7 @@
 'use client';
 
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { api } from '@/lib/api/client';
+import { api, publicLogoUrl } from '@/lib/api/client';
 import { queryKeys } from '@/lib/query/keys';
 
 // ---------------------------------------------------------------------------
@@ -46,6 +46,8 @@ type ApiParty = {
   location: string | null;
   email?: string | null;
   phone?: string | null;
+  /** The issuer only: its logo's id, or null. */
+  logoId?: string | null;
 };
 
 export type QuoteEventType = 'created' | 'sent' | 'accepted' | 'rejected' | 'converted';
@@ -147,7 +149,15 @@ export type Quote = {
   invoice: QuoteInvoiceRef | null;
 };
 
-export type QuoteParty = { name: string; taxNumber: string; location: string; email?: string; phone?: string };
+export type QuoteParty = {
+  name: string;
+  taxNumber: string;
+  location: string;
+  email?: string;
+  phone?: string;
+  /** The issuer's logo, if the company uploaded one. */
+  logoUrl?: string;
+};
 
 export type QuoteLine = {
   id: string;
@@ -211,6 +221,7 @@ export function toUiQuoteDetail(d: ApiQuoteDetail | ApiPublicQuote): QuoteDetail
     location: p.location ?? '',
     email: p.email ?? undefined,
     phone: p.phone ?? undefined,
+    logoUrl: p.logoId ? publicLogoUrl(p.logoId) : undefined,
   });
   const own = 'history' in d ? d : null;
   return {

@@ -1,16 +1,84 @@
 // component/dashbord/expenses/ExpensesTable.tsx
 'use client';
 
+import { useRef } from 'react';
 import { useFormatter, useTranslations } from 'next-intl';
+import { FileText, ImageIcon, Paperclip, X } from 'lucide-react';
 
 import { cn } from '@/lib/utils';
 import { useMoney } from '@/lib/money';
 import type { Expense } from '@/lib/mock/expenses';
 
+/** What can be done with receipts here (none for roles that can't change expenses). */
+export type ReceiptActions = {
+  onView: (expense: Expense) => void;
+  onAttach: (expense: Expense, file: File) => void;
+  onRemove: (expense: Expense) => void;
+};
+
+function ReceiptCell({ expense, actions }: { expense: Expense; actions?: ReceiptActions }) {
+  const t = useTranslations('ExpensesApi.receipts');
+  const fileRef = useRef<HTMLInputElement>(null);
+  const receipt = expense.receipt;
+  const Icon = receipt?.contentType === 'application/pdf' ? FileText : ImageIcon;
+
+  return (
+    <span className="inline-flex items-center gap-1">
+      {receipt && actions ? (
+        <button
+          type="button"
+          onClick={() => actions.onView(expense)}
+          title={receipt.name ?? t('view')}
+          className="text-brand-deep hover:bg-brand-soft inline-flex items-center gap-1 rounded-md px-1.5 py-1 text-[11px] font-bold"
+        >
+          <Icon className="size-3.5" aria-hidden="true" />
+          {t('view')}
+        </button>
+      ) : null}
+      {actions && (
+        <>
+          <input
+            ref={fileRef}
+            type="file"
+            accept="image/png,image/jpeg,image/webp,application/pdf"
+            className="hidden"
+            onChange={(ev) => {
+              const file = ev.target.files?.[0];
+              if (file) actions.onAttach(expense, file);
+              ev.target.value = '';
+            }}
+          />
+          <button
+            type="button"
+            onClick={() => fileRef.current?.click()}
+            aria-label={receipt ? t('replace') : t('attach')}
+            title={receipt ? t('replace') : t('attach')}
+            className="text-muted hover:bg-neutral-soft hover:text-ink rounded-md p-1"
+          >
+            <Paperclip className="size-3.5" />
+          </button>
+          {receipt && (
+            <button
+              type="button"
+              onClick={() => actions.onRemove(expense)}
+              aria-label={t('remove')}
+              title={t('remove')}
+              className="text-muted hover:bg-danger-soft hover:text-danger rounded-md p-1"
+            >
+              <X className="size-3.5" />
+            </button>
+          )}
+        </>
+      )}
+      {!actions && !receipt && <span className="text-muted">—</span>}
+    </span>
+  );
+}
+
 const th = 'text-ink-2 px-4 py-3 text-start text-xs font-bold';
 const td = 'px-4 py-3.5 text-xs';
 
-export default function ExpensesTable({ rows }: { rows: Expense[] }) {
+export default function ExpensesTable({ rows, receipts }: { rows: Expense[]; receipts?: ReceiptActions }) {
   const t = useTranslations('Expenses');
   const format = useFormatter();
   const money = useMoney();
@@ -35,6 +103,7 @@ export default function ExpensesTable({ rows }: { rows: Expense[] }) {
             <th className={th}>{t('table.paidFrom')}</th>
             <th className={th}>{t('table.amount')}</th>
             <th className={th}>{t('table.status')}</th>
+            <th className={th}>{t('table.receipt')}</th>
           </tr>
         </thead>
         <tbody>
@@ -76,6 +145,9 @@ export default function ExpensesTable({ rows }: { rows: Expense[] }) {
                       ? t('status.due', { date: date(e.dueDate, false) })
                       : t('status.unpaid')}
                 </span>
+              </td>
+              <td className={td}>
+                <ReceiptCell expense={e} actions={receipts} />
               </td>
             </tr>
           ))}

@@ -4,7 +4,7 @@
 'use client';
 
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { api } from '@/lib/api/client';
+import { api, publicLogoUrl } from '@/lib/api/client';
 import type { HistoryEvent, InvoiceDetail, InvoicePaymentMethod } from '@/lib/mock/invoice-details';
 import type { Invoice, InvoiceStatus } from '@/lib/mock/invoices';
 import { queryKeys } from '@/lib/query/keys';
@@ -33,6 +33,8 @@ type ApiParty = {
   location: string | null;
   email?: string | null;
   phone?: string | null;
+  /** The issuer only: its logo's id, or null. */
+  logoId?: string | null;
 };
 
 export type ApiInvoiceDetail = ApiInvoice & {
@@ -138,6 +140,7 @@ export function toUiDetail(d: ApiInvoiceDetail): InvoiceDetail {
     location: p.location ?? '',
     email: p.email ?? undefined,
     phone: p.phone ?? undefined,
+    logoUrl: p.logoId ? publicLogoUrl(p.logoId) : undefined,
   });
   return {
     ...toUiInvoice(d),

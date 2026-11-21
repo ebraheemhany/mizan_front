@@ -1538,6 +1538,7 @@
   "all": "كل الفترات"
 },
 "table": {
+  "receipt": "الإيصال",
   "date": "التاريخ",
   "title": "البيان",
   "category": "التصنيف",
@@ -1996,11 +1997,15 @@
     "subscription": "الاشتراك"
   },
   "company": {
+    "changeLogo": "تغيير الشعار",
+    "removeLogo": "إزالة الشعار",
+    "logoSaved": "اتحفظ الشعار، وهيظهر على الفواتير وعروض الأسعار",
+    "logoRemoved": "اتشال الشعار",
     "title": "بيانات الشركة",
     "description": "تظهر على الفواتير وعروض الأسعار",
     "uploadLogo": "رفع الشعار",
-    "logoHint": "الحد الأقصى 2MB · SVG أو PNG",
-    "logoInvalid": "الشعار لازم يكون PNG أو SVG وأقل من 2MB.",
+    "logoHint": "PNG أو JPG أو WebP · بحد أقصى 1 ميجا · بيتحفظ على طول ويظهر على الفواتير وعروض الأسعار",
+    "logoInvalid": "الشعار لازم يكون صورة PNG أو JPG أو WebP، وأقل من 1 ميجا.",
     "fields": {
       "name": "اسم الشركة",
       "taxNumber": "الرقم الضريبي",
@@ -2300,6 +2305,7 @@
     "deal": "صفقة: {ref}"
   },
   "itemTypes": {
+    "company": "الشركة",
     "customer": "العملاء",
     "product": "الأصناف",
     "entry": "القيود",
@@ -2307,6 +2313,10 @@
     "expense": "مصروف"
   },
   "events": {
+    "logoChanged": "تغيير شعار الشركة",
+    "logoRemoved": "إزالة شعار الشركة",
+    "receiptAttached": "إرفاق إيصال{name, select, none {} other { «{name}»}}",
+    "receiptRemoved": "إزالة الإيصال",
     "companyCreated": "إنشاء حساب الشركة على ميزان",
     "signedIn": "تسجيل دخول",
     "signInFailed": "محاولة دخول بكلمة سر غلط",
@@ -2667,6 +2677,10 @@
   }
 },
   "ApiErrors": {
+    "FILE_EMPTY": "مفيش ملف اتبعت، اختار ملف وجرّب تاني",
+    "FILE_TOO_LARGE": "الملف أكبر من الحجم المسموح",
+    "FILE_TYPE": "نوع الملف ده مش مقبول هنا",
+    "EXPENSE_CHANGED": "المصروف اتغيّر في نفس الوقت، حدّث الصفحة وجرّب تاني",
     "INVALID_CREDENTIALS": "الإيميل أو كلمة المرور غلط",
     "EMAIL_TAKEN": "فيه حساب بالإيميل ده بالفعل",
     "TOO_MANY_REQUESTS": "محاولات كتير. جرّب تاني بعد {minutes} دقيقة",
@@ -2847,6 +2861,17 @@
     "noComparison": "مفيش أرقام الشهر اللي فات للمقارنة"
   },
   "ExpensesApi": {
+    "receipts": {
+      "view": "عرض",
+      "attach": "إرفاق إيصال",
+      "replace": "تغيير الإيصال",
+      "remove": "إزالة الإيصال",
+      "receiptType": "الإيصال لازم يكون صورة (PNG أو JPG أو WebP) أو ملف PDF",
+      "receiptSize": "الإيصال لازم يكون أقل من 5 ميجا",
+      "attached": "اتحفظ إيصال «{title}»",
+      "removed": "اتشال إيصال «{title}»",
+      "notAttached": "المصروف اتحفظ، بس الإيصال ما اترفعش ({reason}). تقدر ترفعه من الجدول."
+    },
     "paidFrom": "اتدفع من",
     "retry": "حاول تاني",
     "removed": "اتشال مصروف «{title}»",

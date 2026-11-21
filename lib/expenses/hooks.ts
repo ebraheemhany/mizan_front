@@ -4,7 +4,7 @@
 'use client';
 
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { api } from '@/lib/api/client';
+import { api, apiBlob, apiUpload } from '@/lib/api/client';
 import { can } from '@/lib/auth/permissions';
 import { useSession } from '@/lib/auth/session';
 import type { Expense, ExpenseCategory, ExpenseSource } from '@/lib/mock/expenses';
@@ -22,6 +22,7 @@ export type ApiExpense = {
   dueDate: string | null;
   vendor: string | null;
   createdAt: string;
+  receipt?: { contentType: string; size: number; name: string | null } | null;
 };
 
 export type ExpenseListParams = {
@@ -66,7 +67,56 @@ export function toUiExpense(e: ApiExpense): Expense {
     paidFrom: e.paidFrom ?? undefined,
     dueDate: e.dueDate ?? undefined,
     vendor: e.vendor ?? undefined,
+    receipt: e.receipt ?? null,
   };
+}
+
+// ---------------------------------------------------------------------------
+// Receipts (an image or a PDF per expense)
+// ---------------------------------------------------------------------------
+
+/** What a receipt may be (the server checks the file itself too). */
+export const RECEIPT_TYPES = ['image/png', 'image/jpeg', 'image/webp', 'application/pdf'];
+export const RECEIPT_MAX_BYTES = 5 * 1024 * 1024;
+
+/** A file that can't be a receipt: the error key, or null when it's fine. */
+export const receiptProblem = (file: File) =>
+  !RECEIPT_TYPES.includes(file.type) ? 'receiptType' : file.size > RECEIPT_MAX_BYTES ? 'receiptSize' : null;
+
+export function useAttachReceipt() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, file }: { id: string; file: File }) =>
+      apiUpload(`/api/expenses/${id}/receipt`, file, file.name),
+    onSettled: () => queryClient.invalidateQueries({ queryKey: queryKeys.expenses.all }),
+  });
+}
+
+export function useRemoveReceipt() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => api(`/api/expenses/${id}/receipt`, { method: 'DELETE' }),
+    onSettled: () => queryClient.invalidateQueries({ queryKey: queryKeys.expenses.all }),
+  });
+}
+
+/**
+ * Opens an expense's receipt in a new tab. The tab is opened right away (inside
+ * the click, so popup blockers allow it) and shown the file once it arrives.
+ */
+export async function openReceipt(id: string) {
+  const tab = window.open('', '_blank');
+  try {
+    const blob = await apiBlob(`/api/expenses/${id}/receipt`);
+    const url = URL.createObjectURL(blob);
+    if (tab) tab.location.href = url;
+    else window.location.href = url;
+    // Long enough for the tab to load it.
+    setTimeout(() => URL.revokeObjectURL(url), 60_000);
+  } catch (error) {
+    tab?.close();
+    throw error;
+  }
 }
 
 function toQueryString(params: Partial<ExpenseListParams>) {

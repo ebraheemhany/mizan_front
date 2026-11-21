@@ -6,6 +6,8 @@ import { useTranslations } from 'next-intl';
 import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { ImagePlus } from 'lucide-react';
+import { toast } from 'sonner';
+import { receiptProblem } from '@/lib/expenses/hooks';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -42,15 +44,16 @@ const SOURCES: ExpenseSource[] = ['cash', 'bank', 'card'];
 export default function QuickAddCard({
   onAdd,
 }: {
-  /** Saves the expense; resolves to true when it was saved (the form then clears). */
-  onAdd: (values: QuickExpenseValues) => Promise<boolean>;
+  /** Saves the expense (and attaches the receipt, if one was picked); true when it was saved. */
+  onAdd: (values: QuickExpenseValues, receipt: File | null) => Promise<boolean>;
 }) {
   const t = useTranslations('Expenses.quickAdd');
   const tSources = useTranslations('Expenses.sources');
   const tApi = useTranslations('ExpensesApi');
   const fileRef = useRef<HTMLInputElement>(null);
-  // TODO: رفع صورة الإيصال لما نربط الـ API، دلوقتي بنعرض الاسم بس
-  const [receiptName, setReceiptName] = useState<string | null>(null);
+  // The receipt picked for the next expense (sent right after it is saved).
+  const [receipt, setReceipt] = useState<File | null>(null);
+  const receiptName = receipt?.name ?? null;
 
   const {
     control,
@@ -78,9 +81,9 @@ export default function QuickAddCard({
     ) : null;
 
   async function submit(values: QuickExpenseValues) {
-    if (!(await onAdd(values))) return;
+    if (!(await onAdd(values, receipt))) return;
     reset({ ...values, title: '', amount: '' });
-    setReceiptName(null);
+    setReceipt(null);
     if (fileRef.current) fileRef.current.value = '';
   }
 
@@ -219,9 +222,18 @@ export default function QuickAddCard({
         <input
           ref={fileRef}
           type="file"
-          accept="image/*,application/pdf"
+          accept="image/png,image/jpeg,image/webp,application/pdf"
           className="hidden"
-          onChange={(e) => setReceiptName(e.target.files?.[0]?.name ?? null)}
+          onChange={(e) => {
+            const file = e.target.files?.[0] ?? null;
+            const problem = file ? receiptProblem(file) : null;
+            if (file && problem) {
+              toast.error(tApi(`receipts.${problem}`));
+              e.target.value = '';
+              return;
+            }
+            setReceipt(file);
+          }}
         />
         <button
           type="button"

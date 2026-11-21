@@ -16,9 +16,13 @@ import { useSession } from '@/lib/auth/session';
 import { downloadCsv, type CsvColumn } from '@/lib/csv';
 import {
   fetchExpensesForExport,
+  openReceipt,
+  receiptProblem,
   toUiExpense,
   useAddExpense,
+  useAttachReceipt,
   useDeleteExpense,
+  useRemoveReceipt,
   useExpenseList,
   useExpenseStats,
 } from '@/lib/expenses/hooks';
@@ -65,6 +69,34 @@ function ExpensesContent() {
   const statsQuery = useExpenseStats();
   const addExpense = useAddExpense();
   const deleteExpense = useDeleteExpense();
+  const attachReceipt = useAttachReceipt();
+  const removeReceipt = useRemoveReceipt();
+
+  const receiptActions = {
+    onView: (expense: Expense) => {
+      openReceipt(expense.id).catch((error: unknown) => toast.error(errorMessage(error)));
+    },
+    onAttach: (expense: Expense, file: File) => {
+      const problem = receiptProblem(file);
+      if (problem) {
+        toast.error(tApi(`receipts.${problem}`));
+        return;
+      }
+      attachReceipt.mutate(
+        { id: expense.id, file },
+        {
+          onSuccess: () => toast.success(tApi('receipts.attached', { title: expense.title })),
+          onError: (error) => toast.error(errorMessage(error)),
+        },
+      );
+    },
+    onRemove: (expense: Expense) => {
+      removeReceipt.mutate(expense.id, {
+        onSuccess: () => toast.success(tApi('receipts.removed', { title: expense.title })),
+        onError: (error) => toast.error(errorMessage(error)),
+      });
+    },
+  };
 
   const data = listQuery.data;
   const rows = useMemo(() => data?.items.map(toUiExpense) ?? [], [data]);
@@ -83,7 +115,7 @@ function ExpensesContent() {
     setPage(1);
   };
 
-  async function add(values: QuickExpenseValues) {
+  async function add(values: QuickExpenseValues, receipt: File | null) {
     try {
       const expense = await addExpense.mutateAsync({
         title: values.title.trim(),
@@ -92,6 +124,14 @@ function ExpensesContent() {
         date: values.date,
         paidFrom: values.paidFrom,
       });
+      // The receipt goes up once the expense exists; if that fails the expense stays (attach it from the table).
+      if (receipt) {
+        try {
+          await attachReceipt.mutateAsync({ id: expense.id, file: receipt });
+        } catch (error) {
+          toast.error(tApi('receipts.notAttached', { reason: errorMessage(error) }));
+        }
+      }
       // Show the new expense: this month's view if it belongs to it, otherwise everything.
       setFilters({ ...DEFAULT_FILTERS, period: values.date.startsWith(month) ? 'thisMonth' : 'all' });
       setPage(1);
@@ -233,7 +273,7 @@ function ExpensesContent() {
             <div className="border-line text-muted border-t px-4 py-14 text-center text-sm">{t('empty')}</div>
           ) : (
             <div className={listQuery.isPlaceholderData ? 'opacity-60 transition-opacity' : undefined}>
-              <ExpensesTable rows={rows} />
+              <ExpensesTable rows={rows} receipts={receiptActions} />
               <Pagination page={page} pageSize={PAGE_SIZE} total={data?.total ?? 0} onPageChange={setPage} />
             </div>
           )}

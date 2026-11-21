@@ -1,20 +1,23 @@
 // component/dashbord/settings/CompanyCard.tsx
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useRef } from 'react';
 import { useTranslations } from 'next-intl';
 import { useFormContext, useWatch } from 'react-hook-form';
+import { Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { publicLogoUrl } from '@/lib/api/client';
+import { useApiErrorMessage } from '@/lib/api/use-api-error';
+import { logoProblem, useRemoveLogo, useSetLogo, useSettings } from '@/lib/settings/hooks';
 import type { SettingsValues } from '@/lib/validations/settings';
 import { settingsInput, settingsLabel } from './fieldStyles';
 
-const MAX_LOGO_BYTES = 2 * 1024 * 1024;
-
 export default function CompanyCard() {
   const t = useTranslations('Settings.company');
+  const errorMessage = useApiErrorMessage();
   const fileRef = useRef<HTMLInputElement>(null);
 
   const {
@@ -26,27 +29,31 @@ export default function CompanyCard() {
   const name = useWatch({ control, name: 'company.name' });
   const initial = Array.from(name ?? '')[0] ?? '';
 
-  // TODO: رفع الشعار للسيرفر لما نربط الـ API، دلوقتي معاينة محلية بس
-  const [logo, setLogo] = useState<string | null>(null);
-
-  // نحرّر رابط المعاينة القديم لما يتغير أو الكارت يتشال
-  useEffect(
-    () => () => {
-      if (logo) URL.revokeObjectURL(logo);
-    },
-    [logo],
-  );
+  // The logo is saved as soon as it is picked (it isn't part of the form's Save).
+  const logoId = useSettings().data?.company.logoId ?? null;
+  const logo = logoId ? publicLogoUrl(logoId) : null;
+  const setLogo = useSetLogo();
+  const removeLogo = useRemoveLogo();
+  const busy = setLogo.isPending || removeLogo.isPending;
 
   function onPickLogo(file?: File) {
+    if (fileRef.current) fileRef.current.value = '';
     if (!file) return;
-
-    const validType = /^image\/(png|svg\+xml)$/.test(file.type);
-    if (!validType || file.size > MAX_LOGO_BYTES) {
+    if (logoProblem(file)) {
       toast.error(t('logoInvalid'));
-      if (fileRef.current) fileRef.current.value = '';
       return;
     }
-    setLogo(URL.createObjectURL(file));
+    setLogo.mutate(file, {
+      onSuccess: () => toast.success(t('logoSaved')),
+      onError: (error) => toast.error(errorMessage(error)),
+    });
+  }
+
+  function onRemoveLogo() {
+    removeLogo.mutate(undefined, {
+      onSuccess: () => toast.success(t('logoRemoved')),
+      onError: (error) => toast.error(errorMessage(error)),
+    });
   }
 
   const error = (key?: string) =>
@@ -83,18 +90,34 @@ export default function CompanyCard() {
           <input
             ref={fileRef}
             type="file"
-            accept="image/png,image/svg+xml"
+            accept="image/png,image/jpeg,image/webp"
             className="hidden"
             onChange={(ev) => onPickLogo(ev.target.files?.[0])}
           />
-          <Button
-            type="button"
-            variant="outline"
-            onClick={() => fileRef.current?.click()}
-            className="rounded-btn border-line-strong h-9 border text-xs font-bold"
-          >
-            {t('uploadLogo')}
-          </Button>
+          <div className="flex flex-wrap items-center gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              disabled={busy}
+              onClick={() => fileRef.current?.click()}
+              className="rounded-btn border-line-strong h-9 border text-xs font-bold"
+            >
+              {setLogo.isPending && <Loader2 className="size-3.5 animate-spin" />}
+              {logo ? t('changeLogo') : t('uploadLogo')}
+            </Button>
+            {logo && (
+              <Button
+                type="button"
+                variant="ghost"
+                disabled={busy}
+                onClick={onRemoveLogo}
+                className="rounded-btn text-danger hover:bg-danger-soft hover:text-danger h-9 text-xs font-bold"
+              >
+                {removeLogo.isPending && <Loader2 className="size-3.5 animate-spin" />}
+                {t('removeLogo')}
+              </Button>
+            )}
+          </div>
           <p className="text-muted mt-1.5 text-[11px]">{t('logoHint')}</p>
         </div>
       </div>

@@ -12,16 +12,23 @@ function PartyBlock({
   name,
   taxNumber,
   location,
+  logoUrl,
 }: {
   label: string;
   name: string;
   taxNumber: string;
   location: string;
+  logoUrl?: string;
 }) {
   const t = useTranslations('InvoiceDetail');
 
   return (
     <div>
+      {logoUrl && (
+        // A plain img: the logo comes from the API's origin and prints as is.
+        // eslint-disable-next-line @next/next/no-img-element
+        <img src={logoUrl} alt="" className="mb-3 h-12 max-w-40 object-contain" />
+      )}
       <p className="text-muted text-xs font-semibold">{label}</p>
       <p className="text-ink mt-1 text-base font-extrabold">{name}</p>
       <p className="text-muted mt-1 text-xs">

@@ -177,3 +177,47 @@ export async function api<T>(path: string, { method = 'GET', body, auth = true }
   if (!res.ok) throw await toApiError(res);
   return (res.status === 204 ? undefined : await res.json()) as T;
 }
+
+/** Sends a signed-in request, refreshing the session once if the access token ran out. */
+async function withSession(init: (token: string | null) => RequestInit, path: string) {
+  const call = () => send(`${API_URL}${path}`, init(accessToken));
+  let res = await call();
+  if (res.status === 401) {
+    if (await refreshSession()) res = await call();
+    else sessionExpiredListeners.forEach((listener) => listener());
+  }
+  if (!res.ok) throw await toApiError(res);
+  return res;
+}
+
+/**
+ * Uploads a file as the request body (PUT): the server checks its real type and
+ * size. Its name travels in X-File-Name (URI-encoded, so Arabic names survive).
+ */
+export async function apiUpload<T>(path: string, file: Blob, name?: string): Promise<T> {
+  const res = await withSession(
+    (token) => ({
+      method: 'PUT',
+      headers: {
+        'Content-Type': file.type || 'application/octet-stream',
+        ...(name ? { 'X-File-Name': encodeURIComponent(name) } : {}),
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
+      body: file,
+    }),
+    path,
+  );
+  return (await res.json()) as T;
+}
+
+/** A protected file (a receipt), to show or save. */
+export async function apiBlob(path: string): Promise<Blob> {
+  const res = await withSession(
+    (token): RequestInit => ({ headers: token ? { Authorization: `Bearer ${token}` } : undefined }),
+    path,
+  );
+  return res.blob();
+}
+
+/** Where a company logo is shown from (no login needed; it is on public invoices too). */
+export const publicLogoUrl = (id: string) => `${API_URL}/api/public/logos/${id}`;

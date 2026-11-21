@@ -11,8 +11,15 @@ function PartyBlock({ label, party }: { label: string; party: QuoteParty }) {
   const t = useTranslations('InvoiceDetail');
   const details = [party.taxNumber && t('taxNumber', { number: party.taxNumber }), party.location].filter(Boolean);
 
+  const { logoUrl } = party;
+
   return (
     <div>
+      {logoUrl && (
+        // A plain img: the logo comes from the API's origin and prints as is.
+        // eslint-disable-next-line @next/next/no-img-element
+        <img src={logoUrl} alt="" className="mb-3 h-12 max-w-40 object-contain" />
+      )}
       <p className="text-muted text-xs font-semibold">{label}</p>
       <p className="text-ink mt-1 text-base font-extrabold">{party.name}</p>
       {details.length > 0 && <p className="text-muted mt-1 text-xs">{details.join(' · ')}</p>}
