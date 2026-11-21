@@ -16,6 +16,8 @@ export const taskSchema = z.object({
   ]),
   // العميل اختياري؛ الاسم محفوظ علشان يتعرض في الحقل
   customer: z.object({ id: z.string(), name: z.string() }).nullable(),
+  // الصفقة اختيارية؛ اختيارها بيملا العميل لو فاضي
+  deal: z.object({ id: z.string(), title: z.string() }).nullable(),
 });
 
 export type TaskFormValues = z.infer<typeof taskSchema>;

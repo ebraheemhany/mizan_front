@@ -29,6 +29,7 @@ export type ApiTask = {
   /** YYYY-MM-DD, set when the task was marked done. */
   completedOn: string | null;
   customer: { id: string; name: string } | null;
+  deal: { id: string; title: string } | null;
   createdBy: { id: string; fullName: string } | null;
   createdAt: string;
 };
@@ -44,6 +45,7 @@ export type Task = {
   /** YYYY-MM-DD, or null while the task is open. */
   completedOn: string | null;
   customer: { id: string; name: string } | null;
+  deal: { id: string; title: string } | null;
   createdBy: { id: string; fullName: string } | null;
 };
 
@@ -53,6 +55,8 @@ export type NewTask = {
   priority: TaskPriority;
   kind: TaskKind;
   customerId: string | null;
+  /** A deal; with no customer given, the server uses the deal's customer. */
+  dealId?: string | null;
 };
 
 /**
@@ -75,6 +79,7 @@ export function toUiTask(t: ApiTask): Task {
     done: t.done,
     completedOn: t.completedOn ? t.completedOn.slice(0, 10) : null,
     customer: t.customer,
+    deal: t.deal ?? null,
     createdBy: t.createdBy,
   };
 }
@@ -142,6 +147,8 @@ function useTasksCache() {
   const refetchWhenIdle = () => {
     if (queryClient.isMutating({ mutationKey: TASK_MUTATION }) === 1) {
       void queryClient.invalidateQueries({ queryKey: queryKeys.tasks.all });
+      // Deals show how many open tasks they have.
+      void queryClient.invalidateQueries({ queryKey: queryKeys.deals.all });
     }
   };
 
@@ -176,12 +183,13 @@ export function useUpdateTask() {
       const before = data?.tasks.find((t) => t.id === id);
       if (!data || !before) return { before: undefined };
 
-      const { customerId, done, completedOn, ...fields } = patch;
+      const { customerId, dealId, done, completedOn, ...fields } = patch;
       const after: Task = {
         ...before,
         ...fields,
         // A newly linked customer's name is only known once the server answers.
         customer: customerId === null ? null : before.customer,
+        deal: dealId === null ? null : before.deal,
         done: done ?? before.done,
         completedOn:
           done === undefined ? before.completedOn : done ? (completedOn ?? before.completedOn ?? data.today) : null,

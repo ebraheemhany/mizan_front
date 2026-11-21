@@ -21,7 +21,7 @@ export default function DraggableDeal({
   onDelete: (deal: Deal) => void;
   onLose: (deal: Deal) => void;
 }) {
-  const { readOnly, onTouch, onInvoice } = useDealBoardActions();
+  const { readOnly, onTouch, onInvoice, onAddTask } = useDealBoardActions();
   // A won deal doesn't move by dragging (only by "undo"); viewers can't move any.
   const locked = deal.stage === 'won' || readOnly;
   const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
@@ -50,6 +50,7 @@ export default function DraggableDeal({
               onLose={onLose}
               onTouch={onTouch}
               onInvoice={onInvoice}
+              onAddTask={onAddTask}
             />
           )
         }

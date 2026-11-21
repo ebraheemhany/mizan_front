@@ -24,6 +24,7 @@ import {
   SheetHeader,
   SheetTitle,
 } from '@/components/ui/sheet';
+import { useDeals } from '@/lib/deals/hooks';
 import type { TaskKind, TaskPriority } from '@/lib/tasks/hooks';
 import { taskSchema, type TaskFormValues } from '@/lib/validations/tasks';
 import TaskCustomerPicker from './TaskCustomerPicker';
@@ -42,50 +43,56 @@ const inputClass =
   'rounded-btn border-line-strong bg-surface text-ink hover:border-brand/50 focus-visible:border-brand focus-visible:ring-brand/15 h-11 text-xs transition-colors focus-visible:ring-2';
 const label = 'text-ink-2 mb-1.5 block text-xs font-bold';
 
+/** A deal the new task is about (from the deals board): the task starts linked to it. */
+export type TaskDealPreset = { id: string; title: string; customerId: string; customer: string };
+
 export default function NewTaskSheet({
   open,
   defaultDate,
+  presetDeal,
   onOpenChange,
   onSubmit,
 }: {
   open: boolean;
   defaultDate: string;
+  presetDeal?: TaskDealPreset | null;
   onOpenChange: (open: boolean) => void;
   /** Saves the task; true when it was saved (the sheet closes), false to keep it open. */
   onSubmit: (values: TaskFormValues) => Promise<boolean>;
 }) {
   const t = useTranslations('Tasks.form');
   const locale = useLocale();
+  // Open deals to link the task to (every role can read them).
+  const dealsQuery = useDeals();
+  const openDeals = (dealsQuery.data?.deals ?? []).filter((d) => d.stage !== 'won' && !d.lost);
+
+  const blank = (): TaskFormValues => ({
+    title: '',
+    due: defaultDate,
+    priority: 'normal',
+    kind: presetDeal ? 'meeting' : 'admin',
+    customer: presetDeal ? { id: presetDeal.customerId, name: presetDeal.customer } : null,
+    deal: presetDeal ? { id: presetDeal.id, title: presetDeal.title } : null,
+  });
 
   const {
     register,
     handleSubmit,
     reset,
     control,
+    getValues,
+    setValue,
     formState: { errors, isSubmitting },
   } = useForm<TaskFormValues>({
     resolver: zodResolver(taskSchema),
-    defaultValues: {
-      title: '',
-      due: defaultDate,
-      priority: 'normal',
-      kind: 'admin',
-      customer: null,
-    },
+    defaultValues: blank(),
   });
 
   // كل مرة الدرج يتفتح نبدأ نموذج جديد بالتاريخ المطلوب
   useEffect(() => {
-    if (open) {
-      reset({
-        title: '',
-        due: defaultDate,
-        priority: 'normal',
-        kind: 'admin',
-        customer: null,
-      });
-    }
-  }, [open, defaultDate, reset]);
+    if (open) reset(blank());
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- a new form each time it opens
+  }, [open, defaultDate, presetDeal, reset]);
 
   // لو الحفظ فشل الدرج يفضل مفتوح بالبيانات (الرسالة بتظهر في toast)
   async function save(values: TaskFormValues) {
@@ -234,7 +241,61 @@ export default function NewTaskSheet({
             </div>
           </div>
 
-          {/* TODO: ربط المهمة بصفقة لما الصفقات تتربط بالـ API */}
+          <div>
+            <label htmlFor="task-deal" className={label}>
+              {t('fields.deal')}
+            </label>
+            <Controller
+              name="deal"
+              control={control}
+              render={({ field: dealField }) => (
+                <Select
+                  value={dealField.value?.id ?? 'none'}
+                  onValueChange={(value) => {
+                    const picked = openDeals.find((d) => d.id === value) ?? (presetDeal?.id === value ? presetDeal : null);
+                    if (!picked) {
+                      dealField.onChange(null);
+                      return;
+                    }
+                    dealField.onChange({ id: picked.id, title: picked.title });
+                    // The deal's customer, unless one was already chosen.
+                    if (!getValues('customer')) {
+                      setValue('customer', { id: picked.customerId, name: picked.customer });
+                    }
+                  }}
+                >
+                  <SelectTrigger
+                    id="task-deal"
+                    ref={dealField.ref}
+                    onBlur={dealField.onBlur}
+                    className={`${inputClass} w-full font-semibold shadow-sm`}
+                  >
+                    <SelectValue>{dealField.value ? dealField.value.title : t('dealNone')}</SelectValue>
+                  </SelectTrigger>
+                  <SelectContent className="border-line bg-surface text-ink max-h-72 rounded-xl p-1.5 shadow-lg">
+                    <SelectItem
+                      value="none"
+                      className="rounded-btn text-muted min-h-10 px-3 py-2 text-xs font-semibold"
+                    >
+                      {t('dealNone')}
+                    </SelectItem>
+                    {[...openDeals, ...(presetDeal && !openDeals.some((d) => d.id === presetDeal.id) ? [presetDeal] : [])].map(
+                      (deal) => (
+                        <SelectItem
+                          key={deal.id}
+                          value={deal.id}
+                          className="rounded-btn min-h-10 px-3 py-2 text-xs font-semibold transition-colors focus:bg-brand-soft focus:text-brand-deep data-highlighted:bg-brand-soft data-highlighted:text-brand-deep data-[selected]:bg-brand-soft data-[selected]:text-brand-deep"
+                        >
+                          {deal.title} · {deal.customer}
+                        </SelectItem>
+                      ),
+                    )}
+                  </SelectContent>
+                </Select>
+              )}
+            />
+          </div>
+
           <div>
             <label htmlFor="task-customer" className={label}>
               {t('fields.customer')}

@@ -1005,7 +1005,8 @@
     "awaitingNew": "بانتظار الرد",
     "awaiting": "بانتظار الرد منذ {days}",
     "stale": "بلا متابعة منذ {days}",
-    "days": "{count, plural, one {يوم} two {يومين} few {# أيام} many {# يوماً} other {# يوم}}"
+    "days": "{count, plural, one {يوم} two {يومين} few {# أيام} many {# يوماً} other {# يوم}}",
+    "openTasks": "{count, plural, one {مهمة مفتوحة واحدة} two {مهمتين مفتوحتين} few {# مهام مفتوحة} many {# مهمة مفتوحة} other {# مهمة مفتوحة}}"
   },
   "toasts": {
     "moved": "نُقلت «{title}» إلى مرحلة {stage}",
@@ -1016,7 +1017,8 @@
     "updated": "تم حفظ تعديلات «{title}»",
     "deleted": "تم حذف «{title}»",
     "followedUp": "اتسجلت متابعة «{title}»",
-    "awaiting": "اتسجلت المتابعة، و«{title}» مستنية رد العميل"
+    "awaiting": "اتسجلت المتابعة، و«{title}» مستنية رد العميل",
+    "taskAdded": "اتضافت مهمة «{title}» للصفقة"
   },
   "a11y": {
     "instructions": "اضغط المسافة لحمل الصفقة، ثم استخدم الأسهم لنقلها بين المراحل، واضغط المسافة مرة أخرى للإفلات أو Esc للإلغاء.",
@@ -1119,7 +1121,8 @@
     "delete": "حذف الصفقة",
     "invoice": "إنشاء فاتورة",
     "followedUp": "تابعت النهارده",
-    "awaiting": "تابعت، ومستني رده"
+    "awaiting": "تابعت، ومستني رده",
+    "addTask": "إضافة مهمة"
   },
   "deleteDialog": {
     "title": "حذف الصفقة «{title}»؟",
@@ -1605,71 +1608,72 @@
   },
   "toasts": {
     "completed": "اتكملت المهمة «{title}»",
-"reopened": "اتفتحت المهمة «{title}» تاني",
-"undo": "تراجع",
-"added": "اتضافت المهمة «{title}»"
+    "reopened": "اتفتحت المهمة «{title}» تاني",
+    "undo": "تراجع",
+    "added": "اتضافت المهمة «{title}»"
   },
- 
-"list": {
-  "title": "المهام",
-  "empty": "مفيش مهام هنا."
-},
-"priorities": {
-  "urgent": "عاجل",
-  "important": "مهم",
-  "normal": "عادي",
-  "done": "تم"
-},
-"due": {
-  "today": "اليوم",
-  "tomorrow": "غداً",
-  "doneOn": "أنجزت {date}"
-},
-"links": {
-  "customer": "عميل: {name}"
-},
-"calendar": {
-  "prev": "الشهر السابق",
-  "next": "الشهر التالي",
-  "today": "اليوم",
-  "more": "+{count} أخرى",
-  "addOn": "إضافة مهمة يوم {date}"
-},
-
-"form": {
-  "title": "مهمة جديدة",
-  "description": "اكتب تفاصيل المهمة وهتظهر في القائمة والتقويم.",
-  "fields": {
-    "title": "عنوان المهمة",
-    "due": "تاريخ الاستحقاق",
-    "priority": "الأولوية",
-    "kind": "النوع",
-    "customer": "العميل (اختياري)"
-  },
-  "placeholders": {
-    "title": "مثال: متابعة دفعة عميل"
+  "list": {
+    "title": "المهام",
+    "empty": "مفيش مهام هنا."
   },
   "priorities": {
     "urgent": "عاجل",
     "important": "مهم",
-    "normal": "عادي"
+    "normal": "عادي",
+    "done": "تم"
   },
-  "kinds": {
-    "meeting": "اجتماع",
-    "quote": "عرض سعر",
-    "collection": "تحصيل",
-    "visit": "زيارة",
-    "deadline": "موعد نهائي",
-    "admin": "إداري"
+  "due": {
+    "today": "اليوم",
+    "tomorrow": "غداً",
+    "doneOn": "أنجزت {date}"
   },
-  "save": "حفظ المهمة",
-  "cancel": "إلغاء",
-  "errors": {
-    "titleRequired": "اكتب عنوان المهمة",
-    "dueRequired": "اختار التاريخ",
-    "titleTooLong": "العنوان طويل، الحد 200 حرف"
+  "links": {
+    "customer": "عميل: {name}",
+    "deal": "صفقة: {title}"
+  },
+  "calendar": {
+    "prev": "الشهر السابق",
+    "next": "الشهر التالي",
+    "today": "اليوم",
+    "more": "+{count} أخرى",
+    "addOn": "إضافة مهمة يوم {date}"
+  },
+  "form": {
+    "title": "مهمة جديدة",
+    "description": "اكتب تفاصيل المهمة وهتظهر في القائمة والتقويم.",
+    "fields": {
+      "title": "عنوان المهمة",
+      "due": "تاريخ الاستحقاق",
+      "priority": "الأولوية",
+      "kind": "النوع",
+      "customer": "العميل (اختياري)",
+      "deal": "الصفقة"
+    },
+    "placeholders": {
+      "title": "مثال: متابعة دفعة عميل"
+    },
+    "priorities": {
+      "urgent": "عاجل",
+      "important": "مهم",
+      "normal": "عادي"
+    },
+    "kinds": {
+      "meeting": "اجتماع",
+      "quote": "عرض سعر",
+      "collection": "تحصيل",
+      "visit": "زيارة",
+      "deadline": "موعد نهائي",
+      "admin": "إداري"
+    },
+    "save": "حفظ المهمة",
+    "cancel": "إلغاء",
+    "errors": {
+      "titleRequired": "اكتب عنوان المهمة",
+      "dueRequired": "اختار التاريخ",
+      "titleTooLong": "العنوان طويل، الحد 200 حرف"
+    },
+    "dealNone": "بدون صفقة"
   }
-}
 },
 
 "TopBar": {
@@ -2716,6 +2720,7 @@
     "DEAL_NOT_LOST": "الصفقة دي مش خسرانة.",
     "DEAL_CHANGED": "حد عدّل الصفقة دي دلوقتي. حدّث الصفحة وحاول تاني.",
     "PAYMENT_BOUNCED": "الشيك المرتجع بيفضل متسجل ومينفعش يتشال.",
+    "INVALID_DEAL": "اختار صفقة من صفقات الشركة.",
     "PERIOD_CLOSED": "التاريخ ده في فترة مقفولة في الحسابات. غيّر التاريخ، أو خلّي المالك يعيد فتح الفترة من صفحة الحسابات.",
     "PERIOD_NOT_ENDED": "مينفعش تقفل شهر لسه مخلصش.",
     "PERIOD_ALREADY_CLOSED": "الشهر ده مقفول بالفعل.",

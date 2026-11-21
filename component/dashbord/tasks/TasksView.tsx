@@ -147,6 +147,7 @@ export default function TasksView() {
         priority: values.priority,
         kind: values.kind,
         customerId: values.customer?.id ?? null,
+        dealId: values.deal?.id ?? null,
       });
 
       // نرجّع الفلتر وننقل التقويم لشهر المهمة علشان تظهر

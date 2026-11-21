@@ -1,7 +1,7 @@
 // components/deals/DealCard.tsx
 'use client';
 
-import { Clock } from 'lucide-react';
+import { CalendarCheck, Clock } from 'lucide-react';
 import { useFormatter, useTranslations } from 'next-intl';
 import { getDealTag, probabilityOf, useDealsClock, type Deal } from '@/lib/deals/model';
 import { useMoney } from '@/lib/money';
@@ -52,7 +52,19 @@ export default function DealCard({
         </div>
       </div>
 
-      <p className="text-muted mt-0.5 truncate text-xs">{deal.customer}</p>
+      <p className="text-muted mt-0.5 flex items-center gap-2 text-xs">
+        <span className="min-w-0 truncate">{deal.customer}</span>
+        {deal.openTasks > 0 && !won && (
+          <span
+            title={t('openTasks', { count: deal.openTasks })}
+            className="text-ink-2 inline-flex shrink-0 items-center gap-1 text-[11px] font-bold"
+          >
+            <CalendarCheck className="size-3" aria-hidden="true" />
+            {format.number(deal.openTasks, { numberingSystem: 'latn' })}
+            <span className="sr-only">{t('openTasks', { count: deal.openTasks })}</span>
+          </span>
+        )}
+      </p>
 
       <div className="mt-3 flex items-center justify-between gap-2">
         <p

@@ -13,6 +13,8 @@ export type DealBoardActions = {
   onTouch?: (deal: Deal, awaitingReply: boolean) => void;
   /** A won deal: start its invoice. */
   onInvoice?: (deal: Deal) => void;
+  /** Add a task about this deal. */
+  onAddTask?: (deal: Deal) => void;
 };
 
 const Actions = createContext<DealBoardActions>({ readOnly: false });

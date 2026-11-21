@@ -1,7 +1,16 @@
 // components/deals/DealMenu.tsx
 'use client';
 
-import { FileText, Hourglass, MessageCircleMore, MoreHorizontal, Pencil, Trash2, TrendingDown } from 'lucide-react';
+import {
+  CalendarPlus,
+  FileText,
+  Hourglass,
+  MessageCircleMore,
+  MoreHorizontal,
+  Pencil,
+  Trash2,
+  TrendingDown,
+} from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { buttonVariants } from '@/components/ui/button';
 import {
@@ -30,6 +39,7 @@ export default function DealMenu({
   onLose,
   onTouch,
   onInvoice,
+  onAddTask,
 }: {
   deal: Deal;
   onMove: (id: string, stage: DealStage) => void;
@@ -40,6 +50,8 @@ export default function DealMenu({
   onTouch?: (deal: Deal, awaitingReply: boolean) => void;
   /** A won deal: start its invoice. */
   onInvoice?: (deal: Deal) => void;
+  /** Add a task about this deal (any deal still open). */
+  onAddTask?: (deal: Deal) => void;
 }) {
   const t = useTranslations('Deals');
   const locked = deal.stage === 'won';
@@ -70,6 +82,13 @@ export default function DealMenu({
             <DropdownMenuItem onClick={() => onInvoice(deal)} className={item}>
               <FileText className="text-muted size-4" aria-hidden="true" />
               {t('menu.invoice')}
+            </DropdownMenuItem>
+          )}
+
+          {!locked && onAddTask && (
+            <DropdownMenuItem onClick={() => onAddTask(deal)} className={item}>
+              <CalendarPlus className="text-muted size-4" aria-hidden="true" />
+              {t('menu.addTask')}
             </DropdownMenuItem>
           )}
 

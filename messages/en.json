@@ -1005,7 +1005,8 @@
     "awaitingNew": "Waiting for a reply",
     "awaiting": "Awaiting reply for {days}",
     "stale": "No follow-up for {days}",
-    "days": "{count, plural, one {# day} other {# days}}"
+    "days": "{count, plural, one {# day} other {# days}}",
+    "openTasks": "{count, plural, one {# open task} other {# open tasks}}"
   },
   "toasts": {
     "moved": "“{title}” moved to {stage}",
@@ -1016,7 +1017,8 @@
     "updated": "Changes to “{title}” saved",
     "deleted": "“{title}” deleted",
     "followedUp": "Follow-up logged for “{title}”",
-    "awaiting": "Follow-up logged; “{title}” is waiting for the customer"
+    "awaiting": "Follow-up logged; “{title}” is waiting for the customer",
+    "taskAdded": "Task “{title}” added to the deal"
   },
   "a11y": {
     "instructions": "Press space to pick up the deal, use the arrow keys to move it between stages, then press space again to drop it, or Esc to cancel.",
@@ -1121,7 +1123,8 @@
     "delete": "Delete deal",
     "invoice": "Create invoice",
     "followedUp": "Followed up today",
-    "awaiting": "Followed up, waiting for a reply"
+    "awaiting": "Followed up, waiting for a reply",
+    "addTask": "Add task"
   },
   "deleteDialog": {
     "title": "Delete deal “{title}”?",
@@ -1604,70 +1607,72 @@
   },
   "toasts": {
     "completed": "Task “{title}” completed",
-"reopened": "Task “{title}” reopened",
-"undo": "Undo",
-"added": "Task “{title}” added"
+    "reopened": "Task “{title}” reopened",
+    "undo": "Undo",
+    "added": "Task “{title}” added"
   },
-"list": {
-  "title": "Tasks",
-  "empty": "No tasks here."
-},
-"priorities": {
-  "urgent": "Urgent",
-  "important": "Important",
-  "normal": "Normal",
-  "done": "Done"
-},
-"due": {
-  "today": "Today",
-  "tomorrow": "Tomorrow",
-  "doneOn": "Done {date}"
-},
-"links": {
-  "customer": "Customer: {name}"
-},
-"calendar": {
-  "prev": "Previous month",
-  "next": "Next month",
-  "today": "Today",
-  "more": "+{count} more",
-  "addOn": "Add a task on {date}"
-},
-
-"form": {
-  "title": "New task",
-  "description": "Add the task details. It will show in the list and the calendar.",
-  "fields": {
-    "title": "Task title",
-    "due": "Due date",
-    "priority": "Priority",
-    "kind": "Type",
-    "customer": "Customer (optional)"
-  },
-  "placeholders": {
-    "title": "e.g. Follow up on customer payment"
+  "list": {
+    "title": "Tasks",
+    "empty": "No tasks here."
   },
   "priorities": {
     "urgent": "Urgent",
     "important": "Important",
-    "normal": "Normal"
+    "normal": "Normal",
+    "done": "Done"
   },
-  "kinds": {
-    "meeting": "Meeting",
-    "quote": "Quote",
-    "collection": "Collection",
-    "visit": "Visit",
-    "deadline": "Deadline",
-    "admin": "Admin"
+  "due": {
+    "today": "Today",
+    "tomorrow": "Tomorrow",
+    "doneOn": "Done {date}"
   },
-  "save": "Save task",
-  "cancel": "Cancel",
-  "errors": {
-    "titleRequired": "Enter a task title",
-    "dueRequired": "Pick a date",
-    "titleTooLong": "The title can be at most 200 characters"
+  "links": {
+    "customer": "Customer: {name}",
+    "deal": "Deal: {title}"
+  },
+  "calendar": {
+    "prev": "Previous month",
+    "next": "Next month",
+    "today": "Today",
+    "more": "+{count} more",
+    "addOn": "Add a task on {date}"
+  },
+  "form": {
+    "title": "New task",
+    "description": "Add the task details. It will show in the list and the calendar.",
+    "fields": {
+      "title": "Task title",
+      "due": "Due date",
+      "priority": "Priority",
+      "kind": "Type",
+      "customer": "Customer (optional)",
+      "deal": "Deal"
+    },
+    "placeholders": {
+      "title": "e.g. Follow up on customer payment"
+    },
+    "priorities": {
+      "urgent": "Urgent",
+      "important": "Important",
+      "normal": "Normal"
+    },
+    "kinds": {
+      "meeting": "Meeting",
+      "quote": "Quote",
+      "collection": "Collection",
+      "visit": "Visit",
+      "deadline": "Deadline",
+      "admin": "Admin"
+    },
+    "save": "Save task",
+    "cancel": "Cancel",
+    "errors": {
+      "titleRequired": "Enter a task title",
+      "dueRequired": "Pick a date",
+      "titleTooLong": "The title can be at most 200 characters"
+    },
+    "dealNone": "No deal"
   }
-}
 },
 
 "TopBar": {
@@ -2712,6 +2717,7 @@
     "DEAL_NOT_LOST": "This deal isn't lost.",
     "DEAL_CHANGED": "Someone just changed this deal. Reload and try again.",
     "PAYMENT_BOUNCED": "A bounced cheque stays on record and can't be removed.",
+    "INVALID_DEAL": "Choose one of the company's deals.",
     "PERIOD_CLOSED": "This date is in a closed period. Change the date, or have the owner reopen the period from the accounts page.",
     "PERIOD_NOT_ENDED": "A month can't be closed before it ends.",
     "PERIOD_ALREADY_CLOSED": "This month is already closed.",

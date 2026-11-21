@@ -25,7 +25,10 @@ import {
 } from '@/lib/deals/hooks';
 import { DealsClockProvider, needsAttention, type Deal, type DealStage, type LossReason } from '@/lib/deals/model';
 import { useMoney } from '@/lib/money';
+import { useAddTask } from '@/lib/tasks/hooks';
 import { cn } from '@/lib/utils';
+import type { TaskFormValues } from '@/lib/validations/tasks';
+import NewTaskSheet from '../tasks/NewTaskSheet';
 import AddDealSheet, { type DealSubmit } from './AddDealSheet';
 import { DealBoardActionsProvider } from './deal-actions';
 import DealsBoard from './DealsBoard';
@@ -80,6 +83,17 @@ export default function DealsView() {
   const reopenMutation = useReopenDeal();
   const touchMutation = useTouchDeal();
   const deleteMutation = useDeleteDeal();
+  const addTask = useAddTask();
+  // The deal a new task is being added for (the task sheet is open while set).
+  const [taskFor, setTaskFor] = useState<Deal | null>(null);
+  // Stable while the sheet is open (a new object would start the form over).
+  const taskPreset = useMemo(
+    () =>
+      taskFor
+        ? { id: taskFor.id, title: taskFor.title, customerId: taskFor.customerId, customer: taskFor.customer }
+        : null,
+    [taskFor],
+  );
 
   const [owner, setOwner] = useState('all');
   const [attentionOnly, setAttentionOnly] = useState(false);
@@ -207,6 +221,25 @@ export default function DealsView() {
     );
   }
 
+  /** A task about the deal; false keeps the sheet open (the error shows in a toast). */
+  async function submitTask(values: TaskFormValues) {
+    try {
+      const task = await addTask.mutateAsync({
+        title: values.title.trim(),
+        due: values.due,
+        priority: values.priority,
+        kind: values.kind,
+        customerId: values.customer?.id ?? null,
+        dealId: values.deal?.id ?? null,
+      });
+      toast.success(t('toasts.taskAdded', { title: task.title }));
+      return true;
+    } catch (error) {
+      failed(error);
+      return false;
+    }
+  }
+
   function deleteDeal() {
     if (!deleteTarget) return;
     const deal = deleteTarget;
@@ -238,7 +271,13 @@ export default function DealsView() {
   return (
     <DealsClockProvider value={clock}>
       <DealBoardActionsProvider
-        value={{ readOnly, onTouch: touchDeal, onInvoice: (deal) => router.push(invoiceHref(deal)) }}
+        value={{
+          readOnly,
+          onTouch: touchDeal,
+          onInvoice: (deal) => router.push(invoiceHref(deal)),
+          // Adding tasks needs the tasks permission (sales have it, viewers don't).
+          onAddTask: can(user.role, 'tasks') ? setTaskFor : undefined,
+        }}
       >
         <div className="space-y-5">
           <PageHeader
@@ -332,6 +371,16 @@ export default function DealsView() {
           )}
 
           <LoseDealDialog deal={loseTarget} onConfirm={loseDeal} onClose={() => setLoseTarget(null)} />
+
+          <NewTaskSheet
+            open={taskFor !== null}
+            defaultDate={clock.today}
+            presetDeal={taskPreset}
+            onOpenChange={(open) => {
+              if (!open) setTaskFor(null);
+            }}
+            onSubmit={submitTask}
+          />
         </div>
       </DealBoardActionsProvider>
     </DealsClockProvider>

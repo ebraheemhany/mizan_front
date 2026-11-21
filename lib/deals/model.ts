@@ -28,6 +28,8 @@ export type Deal = {
   followUpDate: string | null;
   notes: string | null;
   wonAt: string | null;
+  /** Tasks about it that are still open. */
+  openTasks: number;
   lost: { reason: LossReason; note: string | null; date: string } | null;
 };
 

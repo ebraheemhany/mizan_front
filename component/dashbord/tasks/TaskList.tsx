@@ -115,6 +115,17 @@ export default function TaskList({
                         </Link>
                       </>
                     )}
+                    {task.deal && !task.done && (
+                      <>
+                        {' · '}
+                        <Link
+                          href="/deals"
+                          className="focus-visible:ring-brand/30 rounded-sm underline-offset-2 outline-none hover:underline focus-visible:ring-2"
+                        >
+                          {t('links.deal', { title: task.deal.title })}
+                        </Link>
+                      </>
+                    )}
                   </p>
                 </div>
 
