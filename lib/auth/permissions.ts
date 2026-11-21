@@ -20,6 +20,10 @@ export const PERMISSIONS = [
   { key: 'recordPayments', roles: ['owner', 'accountant'] },
   { key: 'expenses', roles: ['owner', 'accountant'] },
   { key: 'reports', roles: ['owner', 'accountant'] },
+  /** The books: chart of accounts, journal, trial balance, manual entries, closing months. */
+  { key: 'ledger', roles: ['owner', 'accountant'] },
+  /** Opening a closed month again. */
+  { key: 'reopenPeriods', roles: ['owner'] },
   /** Add, edit, complete and delete tasks (everyone can see them). */
   { key: 'tasks', roles: ['owner', 'accountant', 'sales'] },
   /**

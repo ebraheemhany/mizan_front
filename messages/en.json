@@ -2059,7 +2059,9 @@
       "tasks": "Add and edit tasks",
       "quotes": "Create and send quotes",
       "settings": "Settings and users",
-      "deleteData": "Delete data"
+      "deleteData": "Delete data",
+      "ledger": "Accounts and journal",
+      "reopenPeriods": "Reopen a closed period"
     }
   },
   "invite": {
@@ -2249,7 +2251,7 @@
 },
 "Accounts": {
   "title": "Accounts & journal",
-  "description": "For accountants - entries are created automatically from invoices, payments and expenses",
+  "description": "For accountants: entries are made automatically from invoices, payments and expenses, and you can add manual ones",
   "export": "Export",
   "exported": "Chart of accounts exported",
   "manualEntry": "Manual entry",
@@ -2265,7 +2267,10 @@
     "code": "Code",
     "name": "Account name",
     "type": "Type",
-    "balance": "Balance"
+    "balance": "Balance",
+    "add": "Add account",
+    "edit": "Edit account",
+    "remove": "Delete account"
   },
   "types": {
     "asset": "Assets",
@@ -2275,15 +2280,27 @@
     "expense": "Expenses"
   },
   "names": {
-    "cash": "Cash",
-    "bank": "National Bank",
+    "cashbox": "Cash box",
+    "bank": "Bank",
+    "wallet": "E-wallets",
+    "cheques": "Cheques under collection",
     "customers": "Customers",
-    "suppliers": "Suppliers",
-    "vat": "VAT",
+    "fixedAssets": "Fixed assets",
+    "suppliers": "Suppliers and accruals",
+    "vat": "VAT payable",
+    "loans": "Loans",
     "capital": "Capital",
+    "retained": "Retained earnings",
+    "drawings": "Owner's drawings",
     "sales": "Sales revenue",
-    "payroll": "Salaries & wages",
-     "utilities": "Utilities expense"
+    "otherIncome": "Other income",
+    "purchases": "Purchases (cost of sales)",
+    "salaries": "Salaries and wages",
+    "rent": "Rent",
+    "marketing": "Marketing and ads",
+    "utilities": "Utilities",
+    "software": "Software and subscriptions",
+    "otherExpenses": "Other expenses"
   },
   "entries": {
     "title": "Latest entries",
@@ -2292,139 +2309,186 @@
     "description": "Description",
     "debit": "Debit",
     "credit": "Credit",
-    "invoicePayment": "Payment of invoice #{ref}",
-    "invoiceIssue": "Issue of invoice #{ref}",
-    "electricity": "Electricity bill",
-    "payroll": "{month} payroll"
+    "amount": "Amount",
+    "empty": "No entries yet",
+    "invoice": "Invoice {ref} issued — {party}",
+    "payment": "Payment {ref} from {party} on {invoice}",
+    "chequeCleared": "Cheque {ref} cleared — {party}",
+    "expense": "{memo}",
+    "expenseVendor": "{memo} — {party}",
+    "expensePayment": "Due expense paid: {memo}",
+    "manual": "{memo}"
   },
   "trial": {
     "title": "Trial balance — {month}",
     "account": "Account",
     "debit": "Debit",
     "credit": "Credit",
-    "total": "Total",
-     "manual": "{text}",
-    "rows": {
-      "cashBank": "Cash and bank",
-      "customers": "Customers",
-      "expenses": "Expenses",
-      "suppliersTax": "Suppliers and tax",
-      "capital": "Capital",
-      "revenue": "Revenue"
-    }
+    "total": "Total"
   },
   "close": {
     "title": "Period close",
     "fiscalYear": "Fiscal year {year}",
-    "status": { "closed": "Closed", "open": "Open", "running": "Running" },
-    "unposted": "{count, plural, one {{text} unposted entry} other {{text} unposted entries}}",
+    "status": {
+      "closed": "Closed",
+      "open": "Open",
+      "running": "Running"
+    },
+    "drafts": "{count, plural, one {# draft entry} other {# draft entries}}",
+    "noDrafts": "No draft entries",
     "hints": {
-      "closed": "Closed {date} · its entries can't be edited",
-      "open": "Current period · {unposted}",
+      "closed": "Closed {date} · its entries can't be changed",
+      "closedBefore": "Closed · its entries can't be changed",
+      "ended": "Ended, still open · {drafts}",
+      "current": "Current month · {drafts}",
       "year": "Ends {date}"
     },
+    "moreOpen": "{count, plural, one {and # more open month before them} other {and # more open months before them}}",
     "closeButton": "Close {month}",
+    "reopen": "Reopen",
+    "reopened": "{month} reopened",
     "confirmTitle": "Close {month}?",
-    "confirmDescription": "After closing, entries in this period can't be added or edited.",
-    "confirmWithDraft": "This period has {unposted}. After closing, entries in it can't be added or edited.",
+    "confirmDescription": "After closing, no entry, invoice, payment or expense dated in this period can be added, changed or deleted.",
     "cancel": "Cancel",
     "confirm": "Close period",
     "closed": "{month} closed",
-    "hasDrafts": "Post the draft entries before closing"
+    "hasDrafts": "This period has draft entries. Post or delete them first from the checklist."
   },
-
-"journal": {
-  "searchPlaceholder": "Search by entry number or description",
-  "sourceLabel": "Source",
-  "statusLabel": "Status",
-  "allSources": "All sources",
-  "allStatuses": "All statuses",
-  "source": "Source",
-  "account": "Account",
-  "toggleLines": "Show entry lines",
-  "empty": "No matching entries",
-  "sources": {
-    "invoice": "Invoice",
-    "payment": "Payment",
-    "expense": "Expense",
-    "payroll": "Payroll",
-    "manual": "Manual"
+  "journal": {
+    "searchPlaceholder": "Search by entry or invoice number, or description",
+    "sourceLabel": "Source",
+    "statusLabel": "Status",
+    "allSources": "All sources",
+    "allStatuses": "All statuses",
+    "source": "Source",
+    "account": "Account",
+    "toggleLines": "Show entry lines",
+    "empty": "No matching entries",
+    "sources": {
+      "invoice": "Invoice",
+      "payment": "Payment",
+      "expense": "Expense",
+      "manual": "Manual"
+    },
+    "status": {
+      "posted": "Posted",
+      "draft": "Draft"
+    },
+    "post": "Post",
+    "edit": "Edit",
+    "delete": "Delete",
+    "postedToast": "Entry {number} posted",
+    "deletedToast": "Entry {number} deleted",
+    "deleteTitle": "Delete entry {number}?",
+    "deleteDescription": "The entry leaves the books and its balances go back. This can't be undone."
   },
-  "status": { "posted": "Posted", "draft": "Draft" }
-},
-
-"manual": {
-  "title": "Manual entry",
-  "description": "Record an entry for a transaction that doesn't come from an invoice or expense. Total debit must equal total credit.",
-  "number": "Entry number",
-  "date": "Date",
-  "descriptionLabel": "Description",
-  "descriptionPlaceholder": "e.g. Depreciation of company equipment",
-  "lines": "Entry lines",
-  "account": "Account",
-  "selectAccount": "Select account",
-  "debit": "Debit",
-  "credit": "Credit",
-  "addLine": "Add line",
-  "removeLine": "Remove line",
-  "totalDebit": "Total debit",
-  "totalCredit": "Total credit",
-  "difference": "Difference",
-  "balanced": "Balanced",
-  "cancel": "Cancel",
-  "save": "Save entry",
-  "success": "Entry {number} recorded",
-  "errors": {
-    "dateRequired": "Date is required",
-    "periodClosed": "This period is closed and can't accept new entries",
-    "descriptionRequired": "Description is required",
-    "descriptionMax": "Description is 120 characters at most",
-    "accountRequired": "Select an account",
-    "amountInvalid": "Enter a valid number (up to 2 decimals)",
-    "lineOneSide": "Each line must be either debit or credit, with an amount above zero",
-    "linesMin": "An entry needs at least two lines",
-    "unbalanced": "Total debit doesn't equal total credit"
-  }
-},
-"trialTab": {
-  "periodLabel": "Period",
-  "allPeriods": "All periods",
-  "totalDebit": "Total debit",
-  "totalCredit": "Total credit",
-  "status": "Balance status",
-  "balanced": "Balanced",
-  "difference": "Difference {amount}",
-  "empty": "No activity in this period",
-  "note": "Balances show the selected period's movement from posted entries.",
-  "draftNote": "Draft entries ({text}) are not included in the trial balance.",
-  "exported": "Trial balance exported"
-},
-
-"closeTab": {
-  "title": "Pre-close checklist for {month}",
-  "allClosed": "All periods are closed",
-  "postDrafts": "Post drafts",
-  "posted": "{text} entries posted",
-  "ready": "This period is ready to close",
-  "notReady": "Complete the red items to close the period",
-  "checks": {
-    "drafts": {
-      "title": "All entries are posted",
-      "ok": "No draft entries",
-      "fail": "{unposted} — post them before closing"
+  "manual": {
+    "title": "Manual entry",
+    "editTitle": "Edit entry {number}",
+    "description": "Record an entry for a transaction that isn't from an invoice or expense. Total debit must equal total credit.",
+    "number": "Entry number",
+    "autoNumber": "Assigned when saved",
+    "date": "Date",
+    "descriptionLabel": "Description",
+    "descriptionPlaceholder": "e.g. Capital deposited in the bank",
+    "lines": "Entry lines",
+    "linesHint": "Each line is a debit or a credit",
+    "account": "Account",
+    "selectAccount": "Select account",
+    "searchAccount": "Search by code or name",
+    "noAccount": "No account with that name",
+    "debit": "Debit",
+    "credit": "Credit",
+    "addLine": "Add line",
+    "removeLine": "Remove line",
+    "totalDebit": "Total debit",
+    "totalCredit": "Total credit",
+    "difference": "Difference",
+    "balanced": "Balanced",
+    "cancel": "Cancel",
+    "saveDraft": "Save as draft",
+    "save": "Save and post",
+    "saveChanges": "Save changes",
+    "success": "Entry {number} recorded",
+    "savedDraft": "Entry {number} saved as a draft",
+    "updated": "Entry {number} saved",
+    "errors": {
+      "dateRequired": "Date is required",
+      "periodClosed": "This date is in a closed period. Pick a date after the last close.",
+      "descriptionRequired": "Description is required",
+      "descriptionMax": "Description can be at most 200 characters",
+      "accountRequired": "Select an account",
+      "amountInvalid": "Enter a valid number (up to 2 decimals)",
+      "lineOneSide": "Each line must be either a debit or a credit, greater than zero",
+      "linesMin": "An entry needs at least two lines",
+      "unbalanced": "Total debit does not equal total credit"
     },
-    "balanced": {
-      "title": "Trial balance is balanced",
-      "ok": "Total debit equals total credit",
-      "fail": "Difference of {amount}"
+    "autoAccountHint": "Invoices, payments and expenses keep this account up to date. A manual entry here won't show on customer statements or due expenses."
+  },
+  "trialTab": {
+    "periodLabel": "Period",
+    "allPeriods": "All periods",
+    "totalDebit": "Total debit",
+    "totalCredit": "Total credit",
+    "status": "Balance status",
+    "balanced": "Balanced",
+    "difference": "Difference {amount}",
+    "empty": "No activity in this period",
+    "note": "Figures are the selected month's movement from posted entries.",
+    "noteAll": "Balances from the first entry to today, from posted entries.",
+    "draftNote": "{count, plural, one {# draft entry is not included in the trial balance.} other {# draft entries are not included in the trial balance.}}",
+    "exported": "Trial balance exported"
+  },
+  "closeTab": {
+    "title": "Pre-close checklist for {month}",
+    "allClosed": "Every month that has ended is closed",
+    "nothingToClose": "No month has ended yet to close. The current month can be closed once it ends.",
+    "postDrafts": "Post drafts",
+    "posted": "{count, plural, =0 {No drafts} one {# entry posted} other {# entries posted}}",
+    "ready": "This period is ready to close",
+    "notReady": "Complete the red items to close the period",
+    "earlier": "{count, plural, one {The month before it is still open and closes with it.} other {# months before it are still open and close with it.}}",
+    "whatClosing": "After closing, no invoice, payment, expense or entry dated in this month is accepted. Only the owner can reopen it.",
+    "checks": {
+      "drafts": {
+        "title": "All entries are posted",
+        "ok": "No draft entries",
+        "fail": "{count, plural, one {# draft entry} other {# draft entries}} — post or delete them before closing"
+      },
+      "balanced": {
+        "title": "Trial balance is balanced",
+        "ok": "Total debit equals total credit",
+        "fail": "Difference of {amount}"
+      }
     },
-    "previous": {
-      "title": "Previous periods are closed",
-      "ok": "No earlier periods are open",
-      "fail": "{text} earlier period(s) still open"
+    "pendingCheques": {
+      "title": "Cheques that haven't cleared",
+      "detail": "{count, plural, one {# cheque dated} other {# cheques dated}} in this period still waiting to clear. If one bounces after closing, the owner will have to reopen the month to remove it."
+    }
+  },
+  "accountDialog": {
+    "title": "Add account",
+    "editTitle": "Edit account",
+    "description": "A new account in the chart, for manual entries.",
+    "code": "Code",
+    "name": "Account name",
+    "namePlaceholder": "e.g. Company cars",
+    "type": "Type",
+    "typeHint": "The type decides where the account goes in the balance sheet and income statement; it can't change later.",
+    "cancel": "Cancel",
+    "add": "Add account",
+    "save": "Save",
+    "added": "Account added",
+    "updated": "Account saved",
+    "removed": "Account deleted",
+    "removeTitle": "Delete account “{name}”?",
+    "removeDescription": "The account isn't used in any entry and will be removed from the chart.",
+    "errors": {
+      "code": "The code is 2 to 10 digits",
+      "nameRequired": "Account name is required",
+      "nameMax": "The name can be at most 80 characters"
     }
   }
-}
 },
   "ApiErrors": {
     "INVALID_CREDENTIALS": "Incorrect email or password",
@@ -2473,7 +2537,20 @@
     "RECURRING_NOT_ACTIVE": "This template isn't active, so it can't be paused.",
     "RECURRING_NOT_PAUSED": "This template isn't paused, so it can't be resumed.",
     "RECURRING_CHANGED": "The template made an invoice while you were editing it. Open it again and redo your changes.",
-    "RECURRING_RUN_FAILED": "Something went wrong while making the invoice. It will be retried automatically."
+    "RECURRING_RUN_FAILED": "Something went wrong while making the invoice. It will be retried automatically.",
+    "RECURRING_SKIPPED_CLOSED": "An invoice dated in a month closed in the books was skipped; the template went on to the next one.",
+    "PERIOD_CLOSED": "This date is in a closed period. Change the date, or have the owner reopen the period from the accounts page.",
+    "PERIOD_NOT_ENDED": "A month can't be closed before it ends.",
+    "PERIOD_ALREADY_CLOSED": "This month is already closed.",
+    "PERIOD_HAS_DRAFTS": "This period has draft entries. Post or delete them first.",
+    "PERIOD_NOT_CLOSED": "No month is closed.",
+    "PERIOD_CHANGED": "The closed period changed meanwhile. Reload and try again.",
+    "ENTRY_NOT_BALANCED": "Total debit must equal total credit.",
+    "ENTRY_NOT_DRAFT": "This entry is already posted.",
+    "INVALID_ACCOUNT": "Choose accounts from the company's chart.",
+    "ACCOUNT_CODE_USED": "Another account already has this code.",
+    "SYSTEM_ACCOUNT": "Built-in accounts can't be changed or deleted.",
+    "ACCOUNT_IN_USE": "This account is used in entries, so it can't be deleted."
   },
   "Session": {
     "registered": "Account created. Log in to get started",
@@ -2619,7 +2696,63 @@
     "onInvoice": "on {ref}",
     "exemptSales": "Sales without VAT",
     "invoicesCount": "Invoices in the period",
-    "ledgerHint": "This report will be built from the general ledger once it is ready."
+    "ledgerHint": "This report will be built from the general ledger once it is ready.",
+    "balanceSheet": {
+      "balanced": "Balanced: assets = liabilities + equity",
+      "unbalanced": "There is a difference of {amount} between assets and liabilities plus equity",
+      "asOf": "As of {date}",
+      "assets": "Assets",
+      "assetsSection": "What the company owns",
+      "totalAssets": "Total assets",
+      "liabilitiesAndEquity": "Liabilities and equity",
+      "liabilities": "Liabilities (what the company owes)",
+      "totalLiabilities": "Total liabilities",
+      "equity": "Equity",
+      "totalEquity": "Total equity",
+      "priorYearsProfit": "Previous years' profit",
+      "yearProfit": "Net profit this fiscal year",
+      "totalLiabilitiesAndEquity": "Total liabilities and equity",
+      "none": "None",
+      "note": "From the books: automatic entries from invoices, payments and expenses, plus posted manual entries. If you had balances before starting on Mizan (money in the bank, capital), record them with a manual entry on the accounts page."
+    },
+    "cashFlow": {
+      "opening": "Opening balance",
+      "openingHint": "Cash box, bank and e-wallets",
+      "net": "Net cash flow",
+      "netHint": "In minus out during the period",
+      "closing": "Closing balance",
+      "closingHint": "Cash box, bank and e-wallets",
+      "sections": {
+        "operating": "Operating activities",
+        "investing": "Investing activities",
+        "financing": "Financing activities"
+      },
+      "sectionTotal": "Net {section}",
+      "total": "Total",
+      "none": "No movement",
+      "accountsTitle": "Cash balances",
+      "account": "Account",
+      "lines": {
+        "customers": "Received from customers",
+        "purchases": "Purchases",
+        "salaries": "Salaries and wages",
+        "rent": "Rent",
+        "marketing": "Marketing and ads",
+        "utilities": "Utilities",
+        "software": "Software and subscriptions",
+        "otherExpenses": "Other expenses",
+        "suppliers": "Paid to suppliers",
+        "vat": "VAT",
+        "otherIncome": "Other income",
+        "fixedAssets": "Fixed assets",
+        "otherAssets": "Other assets",
+        "capital": "Capital",
+        "drawings": "Owner's drawings",
+        "loans": "Loans",
+        "otherFinancing": "Other financing"
+      },
+      "note": "A cheque counts when it clears, not when it's recorded. Moving money between the cash box, bank and e-wallets isn't a flow."
+    }
   },
   "TasksApi": {
     "loading": "Loading tasks…",

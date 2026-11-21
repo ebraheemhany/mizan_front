@@ -1,22 +1,26 @@
 // lib/validations/journal-entry.ts
 import { z } from 'zod';
 
-// الدوال المساعدة والـ schemas الفرعية الأول
-const toCents = (v: string) => Math.round((Number(v) || 0) * 100);
+/** "50,000.5" -> cents (commas allowed while typing; the server strips them too). */
+export const toCents = (v: string) => Math.round((Number(v.replace(/,/g, '')) || 0) * 100);
 
-const amountField = z.string().regex(/^\d*(\.\d{0,2})?$/, 'amountInvalid');
+const amountField = z
+  .string()
+  .refine((v) => {
+    const plain = v.replace(/,/g, '').trim();
+    return plain === '' || /^\d{1,12}(\.\d{1,2})?$/.test(plain);
+  }, 'amountInvalid');
 
 const lineSchema = z.object({
-  account: z.string().min(1, 'accountRequired'),
+  accountId: z.string().min(1, 'accountRequired'),
   debit: amountField,
   credit: amountField,
 });
 
-// الـ schema الرئيسي
 export const manualEntrySchema = z
   .object({
     date: z.string().min(1, 'dateRequired'),
-    description: z.string().trim().min(1, 'descriptionRequired').max(120, 'descriptionMax'),
+    description: z.string().trim().min(1, 'descriptionRequired').max(200, 'descriptionMax'),
     lines: z.array(lineSchema).min(2, 'linesMin'),
   })
   .superRefine((v, ctx) => {
@@ -29,12 +33,9 @@ export const manualEntrySchema = z
       debit += d;
       credit += c;
 
+      // Each line is a debit or a credit, never both or neither.
       if ((d > 0) === (c > 0)) {
-        ctx.addIssue({
-          code: 'custom',
-          message: 'lineOneSide',
-          path: ['lines', i, 'debit'],
-        });
+        ctx.addIssue({ code: 'custom', message: 'lineOneSide', path: ['lines', i, 'debit'] });
       }
     });
 

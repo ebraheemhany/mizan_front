@@ -4,21 +4,11 @@
 import { useState } from 'react';
 import { Controller, useForm, useFieldArray, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useFormatter, useLocale, useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { BookOpenText, Check, ChevronDown, Plus, Trash2, X } from 'lucide-react';
 import { toast } from 'sonner';
 
-import { cn } from '@/lib/utils';
-import {
-  ACCOUNTS,
-  ACCOUNTS_TODAY,
-  type JournalEntry,
-  type LineAccount,
-} from '@/lib/mock/accounts';
-import {
-  manualEntrySchema,
-  type ManualEntryValues,
-} from '@/lib/validations/journal-entry';
+import DateField from '@/component/DateField';
 import { Button } from '@/components/ui/button';
 import {
   Command,
@@ -30,28 +20,33 @@ import {
 } from '@/components/ui/command';
 import { Input } from '@/components/ui/input';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@/components/ui/sheet';
+import { ApiError } from '@/lib/api/client';
+import { useApiErrorMessage } from '@/lib/api/use-api-error';
+import { addDaysIso, deviceCairoToday } from '@/lib/iso-date';
 import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-} from '@/components/ui/sheet';
+  useSaveEntry,
+  type EntryStatus,
+  type JournalEntry,
+  type LedgerAccount,
+} from '@/lib/ledger/hooks';
+import { cn } from '@/lib/utils';
+import { manualEntrySchema, toCents, type ManualEntryValues } from '@/lib/validations/journal-entry';
+import { useAccountName, useNum } from './ledger-ui';
 
 type Props = {
   open: boolean;
   onClose: () => void;
-  nextNumber: string;
-  isClosed: (date: string) => boolean;
-  onCreate: (entry: JournalEntry) => void;
+  /** A manual entry to edit; none for a new one. */
+  entry: JournalEntry | null;
+  accounts: LedgerAccount[];
+  /** Nothing can be dated on or before this day. */
+  closedThrough: string | null;
 };
 
-const ACCOUNT_KEYS: LineAccount[] = [
-  ...ACCOUNTS.map((a) => a.key),
-  'utilities',
-];
-
-const emptyLine = { account: '', debit: '', credit: '' };
+const emptyLine = { accountId: '', debit: '', credit: '' };
+/** Accounts the documents keep: a manual entry there won't show on customer statements or due expenses. */
+const AUTO_KEYS = new Set(['customers', 'cheques', 'suppliers']);
 
 const fieldClass =
   'border-line-strong hover:border-brand/50 focus-visible:border-brand focus-visible:ring-brand/15 h-11 w-full rounded-btn border bg-transparent px-3 text-xs outline-none transition-colors focus-visible:outline-none focus-visible:ring-2';
@@ -59,58 +54,60 @@ const fieldClass =
 function AccountPicker({
   value,
   onChange,
-  t,
-  tNames,
+  accounts,
+  invalid,
 }: {
   value: string;
   onChange: (value: string) => void;
-  t: (key: 'account' | 'selectAccount') => string;
-  tNames: (key: LineAccount) => string;
+  accounts: LedgerAccount[];
+  invalid?: boolean;
 }) {
+  const t = useTranslations('Accounts.manual');
+  const accountName = useAccountName();
   const [open, setOpen] = useState(false);
-  const selected = value ? tNames(value as LineAccount) : '';
+  const selected = accounts.find((a) => a.id === value);
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger
         aria-label={t('account')}
+        aria-invalid={invalid}
         className={cn(
           fieldClass,
-          'bg-surface text-start flex items-center justify-between gap-2',
-          value ? 'text-ink' : 'text-muted',
+          'bg-surface flex items-center justify-between gap-2 text-start',
+          selected ? 'text-ink' : 'text-muted',
+          invalid && 'border-danger',
         )}
       >
         <span className="min-w-0 flex-1 truncate">
-          {selected || t('selectAccount')}
+          {selected ? `${selected.code} · ${accountName(selected)}` : t('selectAccount')}
         </span>
         <ChevronDown className="size-4 shrink-0 opacity-60" />
       </PopoverTrigger>
       <PopoverContent
         align="start"
-        className="border-line w-[min(22rem,calc(100vw-2rem))] gap-0 overflow-hidden rounded-xl border bg-surface p-0 shadow-lg"
+        className="border-line bg-surface w-[min(22rem,calc(100vw-2rem))] gap-0 overflow-hidden rounded-xl border p-0 shadow-lg"
       >
-        <Command className="rounded-xl bg-surface p-1.5">
-          <CommandInput
-            placeholder={t('selectAccount')}
-            className="text-ink placeholder:text-muted"
-          />
+        <Command className="bg-surface rounded-xl p-1.5">
+          <CommandInput placeholder={t('searchAccount')} className="text-ink placeholder:text-muted" />
           <CommandList className="max-h-64 py-1">
-            <CommandEmpty className="text-muted py-5 text-xs">
-              {t('selectAccount')}
-            </CommandEmpty>
+            <CommandEmpty className="text-muted py-5 text-xs">{t('noAccount')}</CommandEmpty>
             <CommandGroup>
-              {ACCOUNT_KEYS.map((key) => (
+              {accounts.map((a) => (
                 <CommandItem
-                  key={key}
-                  value={tNames(key)}
+                  key={a.id}
+                  value={`${a.code} ${accountName(a)}`}
                   onSelect={() => {
-                    onChange(key);
+                    onChange(a.id);
                     setOpen(false);
                   }}
                   className="text-ink cursor-pointer"
                 >
-                  <span className="min-w-0 flex-1 truncate">{tNames(key)}</span>
-                  {key === value && <Check className="text-brand size-4" />}
+                  <span className="text-muted w-10 shrink-0 tabular-nums" dir="ltr">
+                    {a.code}
+                  </span>
+                  <span className="min-w-0 flex-1 truncate">{accountName(a)}</span>
+                  {a.id === value && <Check className="text-brand size-4" />}
                 </CommandItem>
               ))}
             </CommandGroup>
@@ -121,17 +118,16 @@ function AccountPicker({
   );
 }
 
-export function ManualEntrySheet({
-  open,
-  onClose,
-  nextNumber,
-  isClosed,
-  onCreate,
-}: Props) {
+export function ManualEntrySheet({ open, onClose, entry, accounts, closedThrough }: Props) {
   const t = useTranslations('Accounts.manual');
-  const tNames = useTranslations('Accounts.names');
+  const tDates = useTranslations('InvoiceForm.details');
   const locale = useLocale();
-  const format = useFormatter();
+  const num = useNum();
+  const errorMessage = useApiErrorMessage();
+  const saveEntry = useSaveEntry();
+
+  const firstOpenDay = closedThrough ? addDaysIso(closedThrough, 1) : undefined;
+  const isClosed = (date: string) => closedThrough !== null && date <= closedThrough;
 
   const {
     register,
@@ -139,24 +135,27 @@ export function ManualEntrySheet({
     handleSubmit,
     reset,
     setError,
-    formState: { errors },
+    formState: { errors, isSubmitting },
   } = useForm<ManualEntryValues>({
     resolver: zodResolver(manualEntrySchema),
-    defaultValues: {
-      date: ACCOUNTS_TODAY,
-      description: '',
-      lines: [emptyLine, emptyLine],
-    },
+    defaultValues: entry
+      ? {
+          date: entry.date,
+          description: entry.memo ?? '',
+          lines: entry.lines.map((l) => ({
+            accountId: l.id,
+            debit: l.debit ? String(l.debit) : '',
+            credit: l.credit ? String(l.credit) : '',
+          })),
+        }
+      : { date: deviceCairoToday(), description: '', lines: [emptyLine, emptyLine] },
   });
 
   const { fields, append, remove } = useFieldArray({ control, name: 'lines' });
   const watched = useWatch({ control, name: 'lines' });
 
-  const num = (n: number) => format.number(n, { numberingSystem: 'latn' });
-  const toNum = (s: string) => Number(s) || 0;
-
-  const debit = (watched ?? []).reduce((s, l) => s + toNum(l.debit), 0);
-  const credit = (watched ?? []).reduce((s, l) => s + toNum(l.credit), 0);
+  const debit = (watched ?? []).reduce((s, l) => s + toCents(l.debit), 0) / 100;
+  const credit = (watched ?? []).reduce((s, l) => s + toCents(l.credit), 0) / 100;
   const diff = Math.round((debit - credit) * 100) / 100;
   const balanced = diff === 0 && debit > 0;
 
@@ -165,38 +164,44 @@ export function ManualEntrySheet({
     onClose();
   };
 
-  const onSubmit = (v: ManualEntryValues) => {
-    // الفترة المقفلة ما تقبلش قيود جديدة
+  const onSubmit = async (v: ManualEntryValues, status: EntryStatus) => {
     if (isClosed(v.date)) {
-      setError('date', { message: 'periodClosed' });
+      setError('date', { message: 'periodClosed' }, { shouldFocus: true });
       return;
     }
-
-    // TODO: حفظ القيد من الـ API
-    onCreate({
-      id: `je-${nextNumber}`,
-      number: nextNumber,
-      date: v.date,
-      desc: { key: 'manual', text: v.description.trim() },
-      source: 'manual',
-      status: 'posted',
-      lines: v.lines.map((l) => ({
-        account: l.account as LineAccount,
-        debit: toNum(l.debit),
-        credit: toNum(l.credit),
-      })),
-    });
-
-    toast.success(t('success', { number: nextNumber }));
-    close();
+    try {
+      const saved = await saveEntry.mutateAsync({
+        id: entry?.id,
+        input: {
+          date: v.date,
+          memo: v.description.trim(),
+          status,
+          lines: v.lines.map((l) => ({
+            accountId: l.accountId,
+            debit: l.debit.replace(/,/g, '') || '0',
+            credit: l.credit.replace(/,/g, '') || '0',
+          })),
+        },
+      });
+      toast.success(
+        entry
+          ? t('updated', { number: saved.ref ?? '' })
+          : t(saved.status === 'draft' ? 'savedDraft' : 'success', { number: saved.ref ?? '' }),
+      );
+      close();
+    } catch (error) {
+      if (error instanceof ApiError && error.code === 'PERIOD_CLOSED') {
+        setError('date', { message: 'periodClosed' }, { shouldFocus: true });
+      } else if (error instanceof ApiError && error.code === 'ENTRY_NOT_BALANCED') {
+        setError('lines', { message: 'unbalanced' });
+      } else {
+        toast.error(errorMessage(error));
+      }
+    }
   };
 
   const err = (key?: string) =>
-    key ? (
-      <p className="text-danger mt-1 text-xs font-semibold">
-        {t(`errors.${key}`)}
-      </p>
-    ) : null;
+    key ? <p className="text-danger mt-1 text-xs font-semibold">{t(`errors.${key}`)}</p> : null;
 
   const linesError = errors.lines?.root?.message ?? errors.lines?.message;
 
@@ -213,11 +218,9 @@ export function ManualEntrySheet({
           </span>
           <div className="min-w-0 pe-8">
             <SheetTitle className="text-ink text-lg font-extrabold">
-              {t('title')}
+              {entry ? t('editTitle', { number: entry.ref ?? '' }) : t('title')}
             </SheetTitle>
-            <SheetDescription className="text-muted mt-1 text-xs">
-              {t('description')}
-            </SheetDescription>
+            <SheetDescription className="text-muted mt-1 text-xs">{t('description')}</SheetDescription>
           </div>
           <button
             type="button"
@@ -234,36 +237,50 @@ export function ManualEntrySheet({
           noValidate
           onSubmit={(e) => {
             e.stopPropagation();
-            handleSubmit(onSubmit)(e);
+            // Enter and the main button post; the draft button saves a draft.
+            void handleSubmit((v) => onSubmit(v, 'posted'))(e);
           }}
           className="flex min-h-0 flex-1 flex-col"
         >
-          <div className="flex-1 space-y-5 overflow-y-auto bg-canvas/40 p-4 sm:p-6">
-            <div className="rounded-card border-line bg-surface grid gap-4 border p-4 sm:grid-cols-2">
+          <div className="bg-canvas/40 flex-1 space-y-5 overflow-y-auto p-4 sm:p-6">
+            <div className="rounded-card border-line bg-surface grid gap-4 border p-4 sm:grid-cols-[9rem_1fr]">
               <div>
-                <label className="text-ink-2 mb-1.5 block text-xs font-bold">
-                  {t('number')}
-                </label>
+                <label className="text-ink-2 mb-1.5 block text-xs font-bold">{t('number')}</label>
                 <Input
-                  value={nextNumber}
+                  value={entry?.ref ?? t('autoNumber')}
                   readOnly
-                  dir="ltr"
-                  className="border-line-strong bg-neutral-soft hover:border-brand/50 focus-visible:border-brand focus-visible:ring-brand/15 rounded-btn h-11 text-start outline-none transition-colors focus-visible:outline-none focus-visible:ring-2"
+                  dir={entry ? 'ltr' : undefined}
+                  className="border-line-strong bg-neutral-soft rounded-btn h-11 text-start"
                 />
               </div>
               <div>
-                <label className="text-ink-2 mb-1.5 block text-xs font-bold">
+                <label htmlFor="entry-date" className="text-ink-2 mb-1.5 block text-xs font-bold">
                   {t('date')}
                 </label>
-                <input type="date" className={fieldClass} {...register('date')} />
+                <Controller
+                  control={control}
+                  name="date"
+                  render={({ field }) => (
+                    <DateField
+                      id="entry-date"
+                      value={field.value}
+                      onChange={field.onChange}
+                      placeholder={tDates('pickDate')}
+                      invalid={!!errors.date}
+                      minDate={firstOpenDay}
+                    />
+                  )}
+                />
                 {err(errors.date?.message)}
               </div>
               <div className="sm:col-span-2">
-                <label className="text-ink-2 mb-1.5 block text-xs font-bold">
+                <label htmlFor="entry-memo" className="text-ink-2 mb-1.5 block text-xs font-bold">
                   {t('descriptionLabel')}
                 </label>
                 <input
+                  id="entry-memo"
                   placeholder={t('descriptionPlaceholder')}
+                  aria-invalid={!!errors.description}
                   className={fieldClass}
                   {...register('description')}
                 />
@@ -275,7 +292,7 @@ export function ManualEntrySheet({
               <div className="border-line flex items-center justify-between border-b px-4 py-3">
                 <div>
                   <p className="text-ink text-sm font-extrabold">{t('lines')}</p>
-                  <p className="text-muted mt-0.5 text-[11px]">{t('description')}</p>
+                  <p className="text-muted mt-0.5 text-[11px]">{t('linesHint')}</p>
                 </div>
                 <span className="bg-brand-soft text-brand-deep rounded-full px-2.5 py-1 text-[11px] font-bold">
                   {num(fields.length)}
@@ -286,9 +303,7 @@ export function ManualEntrySheet({
                 {fields.map((f, i) => (
                   <div key={f.id} className="border-line bg-canvas/50 rounded-btn border p-3">
                     <div className="mb-2 flex items-center justify-between">
-                      <span className="text-muted text-[11px] font-bold">
-                        {num(i + 1)}
-                      </span>
+                      <span className="text-muted text-[11px] font-bold">{num(i + 1)}</span>
                       <button
                         type="button"
                         aria-label={t('removeLine')}
@@ -302,50 +317,49 @@ export function ManualEntrySheet({
                     {/* الدرج ضيق، فالحساب في صف لوحده والمدين والدائن تحته */}
                     <div className="space-y-3">
                       <div>
-                        <span className="text-muted mb-1.5 block text-xs">
-                          {t('account')}
-                        </span>
+                        <span className="text-muted mb-1.5 block text-xs">{t('account')}</span>
                         <Controller
                           control={control}
-                          name={`lines.${i}.account`}
+                          name={`lines.${i}.accountId`}
                           render={({ field }) => (
                             <AccountPicker
                               value={field.value}
                               onChange={field.onChange}
-                              t={t}
-                              tNames={tNames}
+                              accounts={accounts}
+                              invalid={!!errors.lines?.[i]?.accountId}
                             />
                           )}
                         />
                       </div>
                       <div className="grid grid-cols-2 gap-3">
                         <label className="min-w-0">
-                          <span className="text-muted mb-1.5 block text-xs">
-                            {t('debit')}
-                          </span>
+                          <span className="text-muted mb-1.5 block text-xs">{t('debit')}</span>
                           <input
                             inputMode="decimal"
                             dir="ltr"
                             placeholder="0.00"
+                            autoComplete="off"
                             className={cn(fieldClass, 'bg-surface text-start tabular-nums')}
                             {...register(`lines.${i}.debit`)}
                           />
                         </label>
                         <label className="min-w-0">
-                          <span className="text-muted mb-1.5 block text-xs">
-                            {t('credit')}
-                          </span>
+                          <span className="text-muted mb-1.5 block text-xs">{t('credit')}</span>
                           <input
                             inputMode="decimal"
                             dir="ltr"
                             placeholder="0.00"
+                            autoComplete="off"
                             className={cn(fieldClass, 'bg-surface text-start tabular-nums')}
                             {...register(`lines.${i}.credit`)}
                           />
                         </label>
                       </div>
                     </div>
-                    {err(errors.lines?.[i]?.account?.message)}
+                    {AUTO_KEYS.has(accounts.find((a) => a.id === watched?.[i]?.accountId)?.key ?? '') && (
+                      <p className="text-amber-700 mt-2 text-[11px] leading-5">{t('autoAccountHint')}</p>
+                    )}
+                    {err(errors.lines?.[i]?.accountId?.message)}
                     {err(errors.lines?.[i]?.debit?.message)}
                     {err(errors.lines?.[i]?.credit?.message)}
                   </div>
@@ -355,6 +369,7 @@ export function ManualEntrySheet({
                   type="button"
                   variant="outline"
                   onClick={() => append(emptyLine)}
+                  disabled={fields.length >= 50}
                   className="border-line-strong h-10 w-full gap-2 text-xs font-bold"
                 >
                   <Plus className="size-4" />
@@ -366,27 +381,20 @@ export function ManualEntrySheet({
             <div
               className={cn(
                 'rounded-card space-y-1.5 border p-4 text-xs',
-                balanced
-                  ? 'border-brand bg-brand-soft/40'
-                  : 'border-line bg-surface',
+                balanced ? 'border-brand bg-brand-soft/40' : 'border-line bg-surface',
               )}
             >
               <div className="flex justify-between">
                 <span className="text-muted">{t('totalDebit')}</span>
-                <span className="text-ink font-bold">{num(debit)}</span>
+                <span className="text-ink font-bold tabular-nums">{num(debit)}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-muted">{t('totalCredit')}</span>
-                <span className="text-ink font-bold">{num(credit)}</span>
+                <span className="text-ink font-bold tabular-nums">{num(credit)}</span>
               </div>
               <div className="border-line flex justify-between border-t pt-1.5">
                 <span className="text-ink-2 font-bold">{t('difference')}</span>
-                <span
-                  className={cn(
-                    'font-extrabold',
-                    balanced ? 'text-brand-deep' : 'text-danger',
-                  )}
-                >
+                <span className={cn('font-extrabold tabular-nums', balanced ? 'text-brand-deep' : 'text-danger')}>
                   {balanced ? t('balanced') : num(Math.abs(diff))}
                 </span>
               </div>
@@ -402,11 +410,24 @@ export function ManualEntrySheet({
             >
               {t('cancel')}
             </Button>
+            {/* A posted entry stays posted; a new one or a draft can be saved as a draft. */}
+            {entry?.status !== 'posted' && (
+              <Button
+                type="button"
+                variant="outline"
+                disabled={isSubmitting}
+                onClick={(e) => void handleSubmit((v) => onSubmit(v, 'draft'))(e)}
+                className="rounded-btn border-line-strong bg-surface h-11 px-6 text-xs font-bold"
+              >
+                {t('saveDraft')}
+              </Button>
+            )}
             <Button
               type="submit"
+              disabled={isSubmitting}
               className="rounded-btn bg-brand hover:bg-brand-deep h-11 px-8 text-xs font-bold text-white"
             >
-              {t('save')}
+              {entry?.status === 'posted' ? t('saveChanges') : t('save')}
             </Button>
           </div>
         </form>

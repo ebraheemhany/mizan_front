@@ -251,6 +251,7 @@ function useAfterInvoiceChange() {
     void queryClient.invalidateQueries({ queryKey: queryKeys.expenses.stats });
     // Every report is built from invoices (revenue, aging, VAT, statements).
     void queryClient.invalidateQueries({ queryKey: queryKeys.reports.all });
+    void queryClient.invalidateQueries({ queryKey: queryKeys.ledger.all });
     // An invoice made from a quote marks that quote as converted.
     void queryClient.invalidateQueries({ queryKey: queryKeys.quotes.all });
     // A recurring template shows its last invoice.

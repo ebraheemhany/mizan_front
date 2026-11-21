@@ -163,6 +163,7 @@ function useAfterRecurringChange() {
     void queryClient.invalidateQueries({ queryKey: queryKeys.customers.all });
     void queryClient.invalidateQueries({ queryKey: queryKeys.dashboard });
     void queryClient.invalidateQueries({ queryKey: queryKeys.reports.all });
+    void queryClient.invalidateQueries({ queryKey: queryKeys.ledger.all });
   };
 }
 

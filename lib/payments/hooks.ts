@@ -185,6 +185,7 @@ function useAfterPaymentChange() {
       queryKeys.customers.all,
       queryKeys.dashboard,
       queryKeys.reports.all,
+      queryKeys.ledger.all,
     ]) {
       void queryClient.invalidateQueries({ queryKey: key });
     }

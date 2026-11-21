@@ -1,100 +1,84 @@
 // component/dashbord/accounts/ClosePeriodChecklist.tsx
+// What has to be true before last month can be closed.
 'use client';
 
-import { useFormatter, useTranslations } from 'next-intl';
-import { CheckCircle2, XCircle } from 'lucide-react';
+import { useTranslations } from 'next-intl';
+import { AlertTriangle, CheckCircle2, Info, XCircle } from 'lucide-react';
+import { toast } from 'sonner';
 
+import { useApiErrorMessage } from '@/lib/api/use-api-error';
+import { usePostDrafts, useTrialBalance, type Periods } from '@/lib/ledger/hooks';
 import { cn } from '@/lib/utils';
-import type { FiscalPeriod, JournalEntry } from '@/lib/mock/accounts';
-import { computeTrial } from '@/lib/trial-balance';
-
-type Props = {
-  period?: FiscalPeriod; // الشهر المفتوح
-  periods: FiscalPeriod[];
-  entries: JournalEntry[];
-  monthLabel: string;
-  unpostedText: (count: number) => string;
-  onPostDrafts: (periodId: string) => void;
-  onRequestClose: () => void;
-};
-
-const card = 'rounded-card border-line bg-surface border shadow-sm';
+import { card, outlineBtn, useMonthLabel, useNum } from './ledger-ui';
 
 export default function ClosePeriodChecklist({
-  period,
   periods,
-  entries,
-  monthLabel,
-  unpostedText,
-  onPostDrafts,
   onRequestClose,
-}: Props) {
+}: {
+  periods: Periods;
+  onRequestClose: () => void;
+}) {
   const t = useTranslations('Accounts');
-  const format = useFormatter();
-  const num = (n: number) =>
-    format.number(n, { numberingSystem: 'latn', maximumFractionDigits: 2 });
+  const num = useNum();
+  const monthLabel = useMonthLabel();
+  const errorMessage = useApiErrorMessage();
+  const postDrafts = usePostDrafts();
+  const month = periods.toClose;
+  const trial = useTrialBalance(month ?? 'all', { enabled: month !== null });
 
-  if (!period) {
+  if (!month) {
     return (
-      <section className={cn(card, 'text-muted py-16 text-center text-sm')}>
-        {t('closeTab.allClosed')}
+      <section className={cn(card, 'text-muted px-6 py-16 text-center text-sm')}>
+        {periods.closedThrough ? t('closeTab.allClosed') : t('closeTab.nothingToClose')}
       </section>
     );
   }
 
-  const drafts = entries.filter(
-    (e) => e.status === 'draft' && e.date.startsWith(period.id),
-  ).length;
-  const trial = computeTrial(entries, period.id);
-  // الفترات الشهرية الأقدم اللي لسه مفتوحة
-  const previousOpen = periods.filter(
-    (p) => p.kind === 'month' && p.status !== 'closed' && p.id < period.id,
-  ).length;
+  // Closing a month closes every open month before it too.
+  const closing = periods.open.filter((m) => m.ended && m.month <= month);
+  const withDrafts = closing.filter((m) => m.drafts > 0);
+  const drafts = withDrafts.reduce((s, m) => s + m.drafts, 0);
+  const earlier = closing.length - 1;
+  const balanced = trial.data?.balanced ?? true;
+  const difference = trial.data ? Math.abs(trial.data.totalDebit - trial.data.totalCredit) : 0;
+
+  async function postAll() {
+    try {
+      let posted = 0;
+      for (const m of withDrafts) posted += (await postDrafts.mutateAsync(m.month)).posted;
+      toast.success(t('closeTab.posted', { count: posted }));
+    } catch (error) {
+      toast.error(errorMessage(error));
+    }
+  }
 
   const checks = [
     {
       id: 'drafts',
       ok: drafts === 0,
-      detail:
-        drafts === 0
-          ? t('closeTab.checks.drafts.ok')
-          : t('closeTab.checks.drafts.fail', { unposted: unpostedText(drafts) }),
+      detail: drafts === 0 ? t('closeTab.checks.drafts.ok') : t('closeTab.checks.drafts.fail', { count: drafts }),
       action:
         drafts > 0 ? (
-          <button
-            type="button"
-            onClick={() => onPostDrafts(period.id)}
-            className="border-line-strong bg-surface text-ink hover:bg-neutral-soft rounded-btn h-9 shrink-0 border px-3 text-xs font-bold transition-colors"
-          >
+          <button type="button" disabled={postDrafts.isPending} onClick={postAll} className={cn(outlineBtn, 'h-9 px-3')}>
             {t('closeTab.postDrafts')}
           </button>
         ) : null,
     },
     {
       id: 'balanced',
-      ok: trial.balanced,
-      detail: trial.balanced
+      ok: balanced,
+      detail: balanced
         ? t('closeTab.checks.balanced.ok')
-        : t('closeTab.checks.balanced.fail', { amount: num(Math.abs(trial.difference)) }),
-      action: null,
-    },
-    {
-      id: 'previous',
-      ok: previousOpen === 0,
-      detail:
-        previousOpen === 0
-          ? t('closeTab.checks.previous.ok')
-          : t('closeTab.checks.previous.fail', { text: num(previousOpen) }),
+        : t('closeTab.checks.balanced.fail', { amount: num(difference) }),
       action: null,
     },
   ];
-
   const canClose = checks.every((c) => c.ok);
 
   return (
     <section className={card}>
       <h2 className="text-ink px-5 pt-5 pb-3 text-base font-extrabold">
-        {t('closeTab.title', { month: monthLabel })}
+        {t('closeTab.title', { month: monthLabel(month) })}
       </h2>
 
       <div className="divide-line divide-y px-5">
@@ -106,16 +90,29 @@ export default function ClosePeriodChecklist({
               <XCircle className="text-danger size-5 shrink-0" />
             )}
             <div className="min-w-0 flex-1 text-start">
-              <p className="text-ink text-sm font-extrabold">
-                {t(`closeTab.checks.${c.id}.title`)}
-              </p>
-              <p className={cn('mt-0.5 text-[11px]', c.ok ? 'text-muted' : 'text-danger')}>
-                {c.detail}
-              </p>
+              <p className="text-ink text-sm font-extrabold">{t(`closeTab.checks.${c.id}.title`)}</p>
+              <p className={cn('mt-0.5 text-[11px]', c.ok ? 'text-muted' : 'text-danger')}>{c.detail}</p>
             </div>
             {c.action}
           </div>
         ))}
+        {periods.pendingCheques > 0 && (
+          <div className="flex items-start gap-3 py-4">
+            <AlertTriangle className="text-amber-700 mt-0.5 size-5 shrink-0" />
+            <div className="min-w-0 flex-1 text-start">
+              <p className="text-ink text-sm font-extrabold">{t('closeTab.pendingCheques.title')}</p>
+              <p className="text-muted mt-0.5 text-[11px] leading-5">
+                {t('closeTab.pendingCheques.detail', { count: periods.pendingCheques })}
+              </p>
+            </div>
+          </div>
+        )}
+        <div className="flex items-start gap-3 py-4">
+          <Info className="text-info mt-0.5 size-5 shrink-0" />
+          <p className="text-muted min-w-0 flex-1 text-[11px] leading-5">
+            {earlier > 0 ? t('closeTab.earlier', { count: earlier }) : t('closeTab.whatClosing')}
+          </p>
+        </div>
       </div>
 
       <div className="border-line flex flex-wrap items-center justify-between gap-3 border-t p-5">
@@ -128,7 +125,7 @@ export default function ClosePeriodChecklist({
           onClick={onRequestClose}
           className="bg-brand hover:bg-brand-deep rounded-btn h-10 px-4 text-xs font-bold text-white transition-colors disabled:cursor-not-allowed disabled:opacity-50"
         >
-          {t('close.closeButton', { month: monthLabel })}
+          {t('close.closeButton', { month: monthLabel(month, false) })}
         </button>
       </div>
     </section>

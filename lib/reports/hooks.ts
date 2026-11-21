@@ -268,3 +268,108 @@ export function useCustomerStatement(customerId: string | null, period: ReportPe
     enabled: allowed && !!customerId,
   });
 }
+
+// ---------------------------------------------------------------------------
+// Balance sheet and cash flow: read from the books (the ledger)
+// ---------------------------------------------------------------------------
+
+export type StatementAccount = {
+  id: string;
+  code: string;
+  /** Built-in accounts have a key (named by Accounts.names); added ones a name. */
+  key: string | null;
+  name: string | null;
+  type: 'asset' | 'liability' | 'equity' | 'revenue' | 'expense';
+};
+export type StatementRow = { account: StatementAccount; amount: number };
+
+export type BalanceSheet = {
+  period: PeriodRange;
+  /** The end of the period, or today for one still running. */
+  asOf: string;
+  fiscalYear: { start: string; end: string };
+  assets: { rows: StatementRow[]; total: number };
+  liabilities: { rows: StatementRow[]; total: number };
+  /** The profit isn't closed into an account: this fiscal year's and earlier years' show as lines. */
+  equity: { rows: StatementRow[]; priorYearsProfit: number; yearProfit: number; total: number };
+  totalLiabilitiesAndEquity: number;
+  balanced: boolean;
+};
+
+export type CashFlowSection = 'operating' | 'investing' | 'financing';
+export const CASH_FLOW_SECTIONS: CashFlowSection[] = ['operating', 'investing', 'financing'];
+
+export type CashFlow = {
+  period: PeriodRange;
+  to: string;
+  opening: number;
+  closing: number;
+  net: number;
+  /** In (+) and out (-) of the cash box, bank and e-wallets, by what it was for. */
+  lines: { section: CashFlowSection; key: string; amount: number }[];
+  totals: Record<CashFlowSection, number>;
+  accounts: { key: string; opening: number; closing: number }[];
+};
+
+type ApiStatementRow = { account: StatementAccount; amount: string };
+type ApiBalanceSheet = Omit<BalanceSheet, 'assets' | 'liabilities' | 'equity' | 'totalLiabilitiesAndEquity'> & {
+  assets: { rows: ApiStatementRow[]; total: string };
+  liabilities: { rows: ApiStatementRow[]; total: string };
+  equity: { rows: ApiStatementRow[]; priorYearsProfit: string; yearProfit: string; total: string };
+  totalLiabilitiesAndEquity: string;
+};
+type ApiCashFlow = Money<Omit<CashFlow, 'lines' | 'totals' | 'accounts'>, 'opening' | 'closing' | 'net'> & {
+  lines: { section: CashFlowSection; key: string; amount: string }[];
+  totals: Record<CashFlowSection, string>;
+  accounts: { key: string; opening: string; closing: string }[];
+};
+
+const toRows = (rows: ApiStatementRow[]): StatementRow[] => rows.map((r) => ({ account: r.account, amount: Number(r.amount) }));
+
+export function useBalanceSheet(period: ReportPeriod | null, opts?: QueryOptions) {
+  const allowed = useCanSeeReports();
+  return useQuery({
+    queryKey: queryKeys.reports.balanceSheet(period),
+    queryFn: async (): Promise<BalanceSheet> => {
+      const b = (await api<{ balanceSheet: ApiBalanceSheet }>(`/api/reports/balance-sheet${periodQuery(period)}`))
+        .balanceSheet;
+      return {
+        ...b,
+        assets: { rows: toRows(b.assets.rows), total: Number(b.assets.total) },
+        liabilities: { rows: toRows(b.liabilities.rows), total: Number(b.liabilities.total) },
+        equity: {
+          rows: toRows(b.equity.rows),
+          priorYearsProfit: Number(b.equity.priorYearsProfit),
+          yearProfit: Number(b.equity.yearProfit),
+          total: Number(b.equity.total),
+        },
+        totalLiabilitiesAndEquity: Number(b.totalLiabilitiesAndEquity),
+      };
+    },
+    enabled: allowed && (opts?.enabled ?? true),
+  });
+}
+
+export function useCashFlow(period: ReportPeriod | null, opts?: QueryOptions) {
+  const allowed = useCanSeeReports();
+  return useQuery({
+    queryKey: queryKeys.reports.cashFlow(period),
+    queryFn: async (): Promise<CashFlow> => {
+      const c = (await api<{ cashFlow: ApiCashFlow }>(`/api/reports/cash-flow${periodQuery(period)}`)).cashFlow;
+      return {
+        ...c,
+        opening: Number(c.opening),
+        closing: Number(c.closing),
+        net: Number(c.net),
+        lines: c.lines.map((l) => ({ ...l, amount: Number(l.amount) })),
+        totals: {
+          operating: Number(c.totals.operating),
+          investing: Number(c.totals.investing),
+          financing: Number(c.totals.financing),
+        },
+        accounts: c.accounts.map((a) => ({ key: a.key, opening: Number(a.opening), closing: Number(a.closing) })),
+      };
+    },
+    enabled: allowed && (opts?.enabled ?? true),
+  });
+}

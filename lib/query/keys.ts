@@ -49,6 +49,8 @@ export const queryKeys = {
     aging: ['reports', 'aging'] as const,
     vat: (period: string | null) => ['reports', 'vat', period] as const,
     statement: (customerId: string, period: string | null) => ['reports', 'statement', customerId, period] as const,
+    balanceSheet: (period: string | null) => ['reports', 'balance-sheet', period] as const,
+    cashFlow: (period: string | null) => ['reports', 'cash-flow', period] as const,
   },
   /**
    * Tasks: one list for the whole company (open ones + the last 60 days' completed ones),
@@ -70,6 +72,17 @@ export const queryKeys = {
     stats: ['quotes', 'stats'] as const,
     /** By number (/quotes/212) or id; both are cached after a change. */
     detail: (ref: string | number) => ['quotes', 'detail', String(ref)] as const,
+  },
+  /**
+   * The books. Their automatic entries come from invoices, payments and expenses,
+   * so any change to those refreshes everything under ledger.all.
+   */
+  ledger: {
+    all: ['ledger'] as const,
+    accounts: ['ledger', 'accounts'] as const,
+    entries: (params: object) => ['ledger', 'entries', params] as const,
+    trial: (month: string) => ['ledger', 'trial', month] as const,
+    periods: ['ledger', 'periods'] as const,
   },
   /** Public: an invoice opened from its shareable link (no login). */
   publicInvoice: (token: string) => ['public-invoice', token] as const,

@@ -7,8 +7,6 @@ export const REPORT_TABS = ['pnl', 'balanceSheet', 'cashFlow', 'aging', 'vat', '
 export type ReportTab = (typeof REPORT_TABS)[number];
 
 /** Tabs that need a general ledger, which doesn't exist yet. */
-export const LEDGER_TABS: readonly ReportTab[] = ['balanceSheet', 'cashFlow'];
-
 export const PERIOD_KEYWORDS = ['thisQuarter', 'thisYear'] as const;
 
 // Same rule as the API (years 1000-2999); a month after the current one is refused there.

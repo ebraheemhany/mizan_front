@@ -27,17 +27,22 @@ import { useMoney } from '@/lib/money';
 import { printWithTitle } from '@/lib/print';
 import {
   AGING_BUCKETS,
+  CASH_FLOW_SECTIONS,
   useCustomerStatement,
   useReportAging,
   useReportSummary,
   useReportVat,
+  useBalanceSheet,
+  useCashFlow,
   type ReportPeriod,
   type ReportSummary,
 } from '@/lib/reports/hooks';
 import { cn } from '@/lib/utils';
+import { useAccountName } from '@/component/dashbord/accounts/ledger-ui';
 import AgingCard from './AgingCard';
 import AgingTab from './AgingTab';
-import LedgerComingSoon from './LedgerComingSoon';
+import BalanceSheetTab from './BalanceSheetTab';
+import CashFlowTab from './CashFlowTab';
 import PnlStatement from './PnlStatement';
 import { outlineBtn, WithReport } from './ReportState';
 import ReportsPrintSheet from './ReportsPrintSheet';
@@ -48,7 +53,6 @@ import StatementTab, { type StatementCustomer } from './StatementTab';
 import TopCustomersTable from './TopCustomersTable';
 import {
   deviceCairoMonth,
-  LEDGER_TABS,
   monthToDate,
   parseReportsSearch,
   PERIOD_KEYWORDS,
@@ -90,6 +94,7 @@ function ReportsContent() {
   const format = useFormatter();
   const money = useMoney();
   const errorMessage = useApiErrorMessage();
+  const accountName = useAccountName();
 
   // The URL (?tab=&period=&customer=) is the only source of the page's state: a link
   // such as a customer's "Statement" button always opens what it says, even when Next
@@ -113,6 +118,9 @@ function ReportsContent() {
   const summaryQuery = useReportSummary(period);
   const agingQuery = useReportAging({ enabled: tab === 'pnl' || tab === 'aging' });
   const vatQuery = useReportVat(period, { enabled: tab === 'pnl' || tab === 'vat' });
+  // From the books (the ledger).
+  const balanceSheetQuery = useBalanceSheet(period, { enabled: tab === 'balanceSheet' });
+  const cashFlowQuery = useCashFlow(period, { enabled: tab === 'cashFlow' });
 
   // Statement: the picked customer, else the one with the largest balance.
   const onStatement = tab === 'statement';
@@ -258,8 +266,10 @@ function ReportsContent() {
           )}
         </WithReport>
       </div>
-    ) : LEDGER_TABS.includes(tab) ? (
-      <LedgerComingSoon />
+    ) : tab === 'balanceSheet' ? (
+      <WithReport query={balanceSheetQuery}>{(data) => <BalanceSheetTab sheet={data} />}</WithReport>
+    ) : tab === 'cashFlow' ? (
+      <WithReport query={cashFlowQuery}>{(data) => <CashFlowTab flow={data} />}</WithReport>
     ) : tab === 'aging' ? (
       <WithReport query={agingQuery}>{(data) => <AgingTab aging={data} />}</WithReport>
     ) : tab === 'vat' ? (
@@ -341,6 +351,40 @@ function ReportsContent() {
       ];
     }
 
+    if (tab === 'balanceSheet') {
+      const sheet = balanceSheetQuery.data;
+      if (!sheet) return null;
+      const tBs = (key: string) => tApi(`balanceSheet.${key}`);
+      const rowsOf = (section: string, rows: { account: Parameters<typeof accountName>[0]; amount: number }[]) =>
+        rows.map((r): CsvRow => [section, accountName(r.account), r.amount]);
+      return [
+        columns('section', 'item', 'amount'),
+        ...rowsOf(tBs('assets'), sheet.assets.rows),
+        [tBs('assets'), tBs('totalAssets'), sheet.assets.total],
+        ...rowsOf(tBs('liabilities'), sheet.liabilities.rows),
+        [tBs('liabilities'), tBs('totalLiabilities'), sheet.liabilities.total],
+        ...rowsOf(tBs('equity'), sheet.equity.rows),
+        [tBs('equity'), tBs('priorYearsProfit'), sheet.equity.priorYearsProfit],
+        [tBs('equity'), tBs('yearProfit'), sheet.equity.yearProfit],
+        [tBs('equity'), tBs('totalEquity'), sheet.equity.total],
+        ['', tBs('totalLiabilitiesAndEquity'), sheet.totalLiabilitiesAndEquity],
+      ];
+    }
+
+    if (tab === 'cashFlow') {
+      const flow = cashFlowQuery.data;
+      if (!flow) return null;
+      const tCf = (key: string) => tApi(`cashFlow.${key}`);
+      return [
+        columns('section', 'item', 'amount'),
+        ['', tCf('opening'), flow.opening],
+        ...flow.lines.map((l): CsvRow => [tCf(`sections.${l.section}`), tCf(`lines.${l.key}`), l.amount]),
+        ...CASH_FLOW_SECTIONS.map((s): CsvRow => [tCf(`sections.${s}`), tCf('total'), flow.totals[s]]),
+        ['', tCf('net'), flow.net],
+        ['', tCf('closing'), flow.closing],
+      ];
+    }
+
     if (tab === 'vat') {
       if (!vat) return null;
       return [
@@ -388,15 +432,14 @@ function ReportsContent() {
       ];
     }
 
-    // Balance sheet and cash flow: nothing real to export until the ledger exists.
     return null;
   }
 
   // What each tab's export needs; balance sheet and cash flow have nothing real yet.
   const exportReady: Record<ReportTab, boolean> = {
     pnl: !!(s && agingQuery.data && vatQuery.data),
-    balanceSheet: false,
-    cashFlow: false,
+    balanceSheet: !!balanceSheetQuery.data,
+    cashFlow: !!cashFlowQuery.data,
     aging: !!agingQuery.data,
     vat: !!vatQuery.data,
     statement: !!statementQuery.data,
