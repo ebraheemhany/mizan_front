@@ -39,7 +39,8 @@ export default function AuditFilter({
         {options.map((o) => (
           <DropdownMenuItem
             key={o.value}
-            onSelect={() => onChange(o.value)}
+            // Base UI menu items fire onClick (onSelect is the DOM text-selection event).
+            onClick={() => onChange(o.value)}
             className="flex items-center justify-between gap-3 text-xs font-semibold"
           >
             <span>{o.label}</span>

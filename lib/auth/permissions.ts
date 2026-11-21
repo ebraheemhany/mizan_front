@@ -24,6 +24,8 @@ export const PERMISSIONS = [
   { key: 'ledger', roles: ['owner', 'accountant'] },
   /** Opening a closed month again. */
   { key: 'reopenPeriods', roles: ['owner'] },
+  /** The audit log: everyone's actions, sign-ins and IPs. */
+  { key: 'auditLog', roles: ['owner'] },
   /** Add, edit, complete and delete tasks (everyone can see them). */
   { key: 'tasks', roles: ['owner', 'accountant', 'sales'] },
   /**

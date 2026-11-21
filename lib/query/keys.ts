@@ -84,6 +84,11 @@ export const queryKeys = {
     trial: (month: string) => ['ledger', 'trial', month] as const,
     periods: ['ledger', 'periods'] as const,
   },
+  /** The audit log (owner only). */
+  audit: {
+    all: ['audit'] as const,
+    list: (params: object) => ['audit', 'list', params] as const,
+  },
   /** Public: an invoice opened from its shareable link (no login). */
   publicInvoice: (token: string) => ['public-invoice', token] as const,
   /** Public: a quote opened from its shareable link (no login). */
