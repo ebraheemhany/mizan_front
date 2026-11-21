@@ -7,6 +7,7 @@ import { Download, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 
 import Amount from '@/component/Amount';
+import ConfirmDialog from '@/component/ConfirmDialog';
 import PageHeader from '@/component/PageHeader';
 import StatCard from '@/component/StatCard';
 import { Button } from '@/components/ui/button';
@@ -18,6 +19,7 @@ import { useMoney } from '@/lib/money';
 import {
   fetchPaymentsForExport,
   toUiPayment,
+  useBouncePayment,
   useClearPayment,
   useOpenInvoices,
   usePayments,
@@ -65,6 +67,19 @@ export default function PaymentsView() {
 
   const recordPayment = useRecordPayment();
   const clearPayment = useClearPayment();
+  const bouncePayment = useBouncePayment();
+  // The pending cheque about to be marked as bounced (asked first).
+  const [bouncing, setBouncing] = useState<{ id: string; number: string; amount: number } | null>(null);
+
+  function confirmBounce() {
+    if (!bouncing) return;
+    const cheque = bouncing;
+    setBouncing(null);
+    bouncePayment.mutate(cheque.id, {
+      onSuccess: () => toast.success(tApi('bounced', { number: cheque.number })),
+      onError: (error) => toast.error(errorMessage(error)),
+    });
+  }
   const removePayment = useRemovePayment();
 
   const data = paymentsQuery.data;
@@ -193,7 +208,11 @@ export default function PaymentsView() {
             <div className="border-line text-muted border-t px-4 py-14 text-center text-sm">{t('empty')}</div>
           ) : (
             <div className={paymentsQuery.isPlaceholderData ? 'opacity-60 transition-opacity' : undefined}>
-              <PaymentsTable rows={rows} onClear={canRecord ? (p) => markCleared(p.id, p.number) : undefined} />
+              <PaymentsTable
+                rows={rows}
+                onClear={canRecord ? (p) => markCleared(p.id, p.number) : undefined}
+                onBounce={canRecord ? (p) => setBouncing({ id: p.id, number: p.number, amount: p.amount }) : undefined}
+              />
               <Pagination page={page} pageSize={PAGE_SIZE} total={data?.total ?? 0} onPageChange={setPage} />
             </div>
           )}
@@ -204,6 +223,16 @@ export default function PaymentsView() {
           <RemindersCard invoices={openInvoices} />
         </div>
       </div>
+
+      <ConfirmDialog
+        open={bouncing !== null}
+        title={tApi('bounceTitle', { number: bouncing?.number ?? '' })}
+        description={tApi('bounceDescription', { amount: money(bouncing?.amount ?? 0) })}
+        cancelLabel={tApi('bounceCancel')}
+        confirmLabel={tApi('bounceConfirm')}
+        onConfirm={confirmBounce}
+        onClose={() => setBouncing(null)}
+      />
     </div>
   );
 }

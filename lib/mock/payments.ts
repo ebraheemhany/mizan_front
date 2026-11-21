@@ -11,7 +11,7 @@ export type PaymentMethod =
   | 'cheque'
 
 // cleared = اتحصّلت، pending = شيك لسه قيد الصرف
-export type PaymentStatus = 'cleared' | 'pending'
+export type PaymentStatus = 'cleared' | 'pending' | 'bounced'
 
 export type Payment = {
   id: string

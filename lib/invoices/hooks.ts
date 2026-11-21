@@ -52,7 +52,7 @@ export type ApiInvoiceDetail = ApiInvoice & {
     amount: string;
     date: string;
     method: InvoicePaymentMethod;
-    status: 'cleared' | 'pending';
+    status: 'cleared' | 'pending' | 'bounced';
     account: 'bank' | 'cashbox' | 'wallet' | null;
     reference: string | null;
     note: string | null;

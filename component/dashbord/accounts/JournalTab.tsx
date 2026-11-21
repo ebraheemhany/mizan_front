@@ -33,7 +33,7 @@ const STATUS_STYLES: Record<EntryStatus, string> = {
 
 /** Where an entry's document is (manual entries have none). */
 function sourceHref(e: JournalEntry) {
-  if (e.invoice && (e.source === 'invoice' || e.source === 'payment' || e.source === 'chequeCleared')) {
+  if (e.invoice && ['invoice', 'payment', 'chequeCleared', 'chequeBounced'].includes(e.source)) {
     return `/invoices/${e.invoice.number}`;
   }
   if (e.source === 'expense' || e.source === 'expensePayment') return '/expenses';

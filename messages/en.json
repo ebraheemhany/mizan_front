@@ -531,134 +531,158 @@
   },
   "note": "Notes",
   "quickActions": {
-  "title": "Quick actions",
-  "recordPayment": "Record payment",
-  "sendReminder": "Send payment reminder",
-  "copyLink": "Copy public link",
-  "preview": "Preview as the customer sees it",
-  "viewEntry": "View accounting entry"
-},
-"payments": {
-  "title": "Payments",
-  "empty": "No payments recorded on this invoice.",
-  "methods": {
-    "cash": "Cash",
-    "bank": "Bank transfer",
-    "card": "Card",
-    "instapay": "InstaPay",
-    "vodafoneCash": "Vodafone Cash",
-    "cheque": "Cheque"
-  }
-},
-"history": {
-  "title": "History",
-  "events": {
-    "created": { "title": "Invoice created", "detail": "by {name}" },
-    "sent": { "title": "Invoice issued" },
-    "cancelled": { "title": "Invoice cancelled" },
-    "paymentRemoved": { "title": "Payment removed", "detail": "for {amount}" },
-    "viewed": { "title": "Customer viewed the invoice" },
-    "reminder": { "title": "Automatic reminder", "detail": "Sent via WhatsApp" },
-    "payment": { "title": "Payment recorded", "detail": "for {amount}" },
-    "reminderSent": { "title": "Payment reminder sent", "detail": "via {channel}" }
-  }
-},
-"attachments": {
-  "title": "Attachments",
-  "drop": "Drag files here or click to upload — PDF and JPG up to 10MB",
-  "remove": "Remove {name}",
-  "errors": {
-    "type": "Unsupported file type. Only PDF and JPG are allowed.",
-    "size": "File is larger than 10MB."
-  }
-},
-"paymentDialog": {
-  "title": "Record payment",
-  "description": "Invoice #{number} · {customer}",
-  "remainingNow": "Remaining now",
-  "remainingAfter": "Remaining after payment",
-  "paidInFull": "The invoice will be fully paid",
-  "amount": "Amount paid",
-  "payFull": "Pay full remaining",
-  "payHalf": "Half of remaining",
-  "date": "Payment date",
-  "pickDate": "Pick a date",
-  "method": "Payment method",
-  "note": "Note (optional)",
-  "notePlaceholder": "e.g. transfer reference",
-  "submit": "Record payment",
-  "cancel": "Cancel",
-  "close": "Close",
-  "errors": {
-    "amountRequired": "Amount is required",
-    "amountInvalid": "Enter a valid amount greater than zero",
-    "amountMax": "Amount is more than the invoice remaining",
-    "dateRequired": "Payment date is required",
-    "noteMax": "Note must be 200 characters or fewer"
-  }
-},
-
-"reminderDialog": {
-  "title": "Send payment reminder",
-  "description": "Invoice #{number} · {customer}",
-  "channel": "Send via",
-  "channels": {
-    "email": "Email",
-    "whatsapp": "WhatsApp"
+    "title": "Quick actions",
+    "recordPayment": "Record payment",
+    "sendReminder": "Send payment reminder",
+    "copyLink": "Copy public link",
+    "preview": "Preview as the customer sees it",
+    "viewEntry": "View accounting entry"
   },
-  "message": "Message",
-  "template": "Hello {customer},\n\nThis is a reminder that invoice {number} for {amount} is due on {dueDate}.\nPlease arrange payment at your earliest convenience.\n\nThank you for your business.",
-  "templateOverdue": "Hello {customer},\n\nThis is a reminder that invoice {number} for {amount} is past its due date ({dueDate}).\nPlease arrange payment at your earliest convenience.\n\nThank you for your business.",
-  "errors": {
-    "required": "Message is required",
-    "max": "Message is too long (600 characters max)"
+  "payments": {
+    "title": "Payments",
+    "empty": "No payments recorded on this invoice.",
+    "methods": {
+      "cash": "Cash",
+      "bank": "Bank transfer",
+      "card": "Card",
+      "instapay": "InstaPay",
+      "vodafoneCash": "Vodafone Cash",
+      "cheque": "Cheque"
+    }
   },
-  "submit": "Send reminder",
-  "cancel": "Cancel",
-  "close": "Close"
-},
-"ledger": {
-  "title": "Accounting entry",
-  "description": "Invoice #{number} · Entries are generated automatically from the invoice and its payments.",
-  "close": "Close",
-  "empty": "There is no accounting entry for this invoice. Drafts and cancelled invoices are not posted.",
-  "entries": {
-    "invoice": "Invoice issue entry",
-    "payment": "Payment received entry"
+  "history": {
+    "title": "History",
+    "events": {
+      "created": {
+        "title": "Invoice created",
+        "detail": "by {name}"
+      },
+      "sent": {
+        "title": "Invoice issued"
+      },
+      "cancelled": {
+        "title": "Invoice cancelled"
+      },
+      "paymentRemoved": {
+        "title": "Payment removed",
+        "detail": "for {amount}"
+      },
+      "viewed": {
+        "title": "Customer viewed the invoice"
+      },
+      "reminder": {
+        "title": "Automatic reminder",
+        "detail": "Sent via WhatsApp"
+      },
+      "payment": {
+        "title": "Payment recorded",
+        "detail": "for {amount}"
+      },
+      "reminderSent": {
+        "title": "Payment reminder sent",
+        "detail": "via {channel}"
+      },
+      "chequeBounced": {
+        "title": "Cheque bounced",
+        "detail": "{amount}; owed again"
+      }
+    }
   },
-  "columns": {
-    "account": "Account",
-    "debit": "Debit",
-    "credit": "Credit",
-    "currency": "Currency"
+  "attachments": {
+    "title": "Attachments",
+    "drop": "Drag files here or click to upload — PDF and JPG up to 10MB",
+    "remove": "Remove {name}",
+    "errors": {
+      "type": "Unsupported file type. Only PDF and JPG are allowed.",
+      "size": "File is larger than 10MB."
+    }
   },
-  "total": "Total",
-  "balanced": "Balanced",
-  "unbalanced": "Unbalanced",
-  "accounts": {
-    "cash": "Cash",
-    "bank": "Bank",
-    "card": "Card clearing",
-    "wallet": "E-wallet",
-    "receivable": "Accounts receivable",
-    "vat": "VAT payable",
-    "revenue": "Sales revenue",
-    "rounding": "Rounding differences"
+  "paymentDialog": {
+    "title": "Record payment",
+    "description": "Invoice #{number} · {customer}",
+    "remainingNow": "Remaining now",
+    "remainingAfter": "Remaining after payment",
+    "paidInFull": "The invoice will be fully paid",
+    "amount": "Amount paid",
+    "payFull": "Pay full remaining",
+    "payHalf": "Half of remaining",
+    "date": "Payment date",
+    "pickDate": "Pick a date",
+    "method": "Payment method",
+    "note": "Note (optional)",
+    "notePlaceholder": "e.g. transfer reference",
+    "submit": "Record payment",
+    "cancel": "Cancel",
+    "close": "Close",
+    "errors": {
+      "amountRequired": "Amount is required",
+      "amountInvalid": "Enter a valid amount greater than zero",
+      "amountMax": "Amount is more than the invoice remaining",
+      "dateRequired": "Payment date is required",
+      "noteMax": "Note must be 200 characters or fewer"
+    }
+  },
+  "reminderDialog": {
+    "title": "Send payment reminder",
+    "description": "Invoice #{number} · {customer}",
+    "channel": "Send via",
+    "channels": {
+      "email": "Email",
+      "whatsapp": "WhatsApp"
+    },
+    "message": "Message",
+    "template": "Hello {customer},\n\nThis is a reminder that invoice {number} for {amount} is due on {dueDate}.\nPlease arrange payment at your earliest convenience.\n\nThank you for your business.",
+    "templateOverdue": "Hello {customer},\n\nThis is a reminder that invoice {number} for {amount} is past its due date ({dueDate}).\nPlease arrange payment at your earliest convenience.\n\nThank you for your business.",
+    "errors": {
+      "required": "Message is required",
+      "max": "Message is too long (600 characters max)"
+    },
+    "submit": "Send reminder",
+    "cancel": "Cancel",
+    "close": "Close"
+  },
+  "ledger": {
+    "title": "Accounting entry",
+    "description": "Invoice #{number} · Entries are generated automatically from the invoice and its payments.",
+    "close": "Close",
+    "empty": "There is no accounting entry for this invoice. Drafts and cancelled invoices are not posted.",
+    "entries": {
+      "invoice": "Invoice issue entry",
+      "payment": "Payment received entry"
+    },
+    "columns": {
+      "account": "Account",
+      "debit": "Debit",
+      "credit": "Credit",
+      "currency": "Currency"
+    },
+    "total": "Total",
+    "balanced": "Balanced",
+    "unbalanced": "Unbalanced",
+    "accounts": {
+      "cash": "Cash",
+      "bank": "Bank",
+      "card": "Card clearing",
+      "wallet": "E-wallet",
+      "receivable": "Accounts receivable",
+      "vat": "VAT payable",
+      "revenue": "Sales revenue",
+      "rounding": "Rounding differences"
+    }
+  },
+  "preview": {
+    "title": "Preview as the customer sees it",
+    "description": "This is what {customer} will see when opening the invoice.",
+    "close": "Close"
+  },
+  "print": {
+    "footer": "This invoice was issued with Mizan"
+  },
+  "toasts": {
+    "linkCopied": "Link copied",
+    "linkFailed": "Could not copy the link",
+    "reminderSent": "Reminder sent to {recipient}"
   }
-},
-"preview": {
-  "title": "Preview as the customer sees it",
-  "description": "This is what {customer} will see when opening the invoice.",
-  "close": "Close"
-},
-"print": {
-  "footer": "This invoice was issued with Mizan"
-},
-"toasts": {
-  "linkCopied": "Link copied",
-  "linkFailed": "Could not copy the link",
-  "reminderSent": "Reminder sent to {recipient}"
-}
 },
 "InvoiceForm": {
   "title": "New invoice",
@@ -1763,59 +1787,20 @@
   "toasts": {
     "soon": "This will be enabled in the next steps",
     "added": "Payment {number} recorded for {amount}",
-"undo": "Undo"
+    "undo": "Undo"
   },
-
-"toolbar": {
-  "search": "Search by payment number or customer…",
-  "allMethods": "All methods",
-  "methodLabel": "Payment method",
-  "periodLabel": "Period",
-  "clear": "Clear filters"
-},
-"periods": {
-  "thisMonth": "This month",
-  "lastMonth": "Last month",
-  "thisYear": "This year",
-  "all": "All time"
-},
-"methods": {
-  "bankTransfer": "Bank transfer",
-  "cash": "Cash",
-  "instapay": "InstaPay",
-  "vodafoneCash": "Vodafone Cash",
-  "cheque": "Cheque"
-},
-"table": {
-  "number": "Payment no.",
-  "invoice": "Invoice",
-  "customer": "Customer",
-  "date": "Date",
-  "method": "Method",
-  "amount": "Amount"
-},
-"status": {
-  "label": "Status",
-  "cleared": "Collected",
-  "pending": "Pending"
-},
-"empty": "No payments match these filters.",
-
-"form": {
-  "title": "Record a payment",
-  "noInvoices": "No open invoices.",
-  "fields": {
-    "invoice": "Invoice",
-    "amount": "Amount",
-    "date": "Payment date",
-    "method": "Payment method",
-    "account": "Receiving account",
-    "reference": "Reference no.",
-    "note": "Note",
-    "currency": "Currency"
+  "toolbar": {
+    "search": "Search by payment number or customer…",
+    "allMethods": "All methods",
+    "methodLabel": "Payment method",
+    "periodLabel": "Period",
+    "clear": "Clear filters"
   },
-  "placeholders": {
-    "reference": "Transaction or cheque number"
+  "periods": {
+    "thisMonth": "This month",
+    "lastMonth": "Last month",
+    "thisYear": "This year",
+    "all": "All time"
   },
   "methods": {
     "bankTransfer": "Bank transfer",
@@ -1824,28 +1809,66 @@
     "vodafoneCash": "Vodafone Cash",
     "cheque": "Cheque"
   },
-  "accounts": {
-    "bank": "Bank account",
-    "cashbox": "Cash box",
-    "wallet": "E-wallet"
+  "table": {
+    "number": "Payment no.",
+    "invoice": "Invoice",
+    "customer": "Customer",
+    "date": "Date",
+    "method": "Method",
+    "amount": "Amount"
   },
-  "save": "Save payment",
-  "entryNote": "The amount is deducted from the invoice and customer balances and recorded under {account}.",
-  "errors": {
-    "invoiceRequired": "Pick an invoice",
-    "amountInvalid": "Enter an amount above zero",
-    "amountTooHigh": "Amount is more than the invoice balance",
-    "dateRequired": "Pick a date"
+  "status": {
+    "label": "Status",
+    "cleared": "Collected",
+    "pending": "Pending",
+    "bounced": "Bounced"
+  },
+  "empty": "No payments match these filters.",
+  "form": {
+    "title": "Record a payment",
+    "noInvoices": "No open invoices.",
+    "fields": {
+      "invoice": "Invoice",
+      "amount": "Amount",
+      "date": "Payment date",
+      "method": "Payment method",
+      "account": "Receiving account",
+      "reference": "Reference no.",
+      "note": "Note",
+      "currency": "Currency"
+    },
+    "placeholders": {
+      "reference": "Transaction or cheque number"
+    },
+    "methods": {
+      "bankTransfer": "Bank transfer",
+      "cash": "Cash",
+      "instapay": "InstaPay",
+      "vodafoneCash": "Vodafone Cash",
+      "cheque": "Cheque"
+    },
+    "accounts": {
+      "bank": "Bank account",
+      "cashbox": "Cash box",
+      "wallet": "E-wallet"
+    },
+    "save": "Save payment",
+    "entryNote": "The amount is deducted from the invoice and customer balances and recorded under {account}.",
+    "errors": {
+      "invoiceRequired": "Pick an invoice",
+      "amountInvalid": "Enter an amount above zero",
+      "amountTooHigh": "Amount is more than the invoice balance",
+      "dateRequired": "Pick a date"
+    }
+  },
+  "reminders": {
+    "title": "Collection reminders",
+    "empty": "No overdue invoices.",
+    "late": "{count, plural, one {1 day overdue} other {{text} days overdue}}",
+    "whatsapp": "WhatsApp",
+    "noPhone": "No phone number for {customer}.",
+    "message": "Hello {customer}, a friendly reminder about invoice #{number} for {amount}, which is {days} days overdue. Kindly arrange payment at your earliest convenience. Thank you."
   }
-},
-"reminders": {
-  "title": "Collection reminders",
-  "empty": "No overdue invoices.",
-  "late": "{count, plural, one {1 day overdue} other {{text} days overdue}}",
-  "whatsapp": "WhatsApp",
-  "noPhone": "No phone number for {customer}.",
-  "message": "Hello {customer}, a friendly reminder about invoice #{number} for {amount}, which is {days} days overdue. Kindly arrange payment at your earliest convenience. Thank you."
-}
 },
 "Products": {
   "title": "Products & services",
@@ -2344,7 +2367,8 @@
     "dealReopened": "Deal reopened",
     "dealFollowedUp": "Follow-up logged",
     "dealAwaiting": "Follow-up logged, waiting for the customer",
-    "dealDeleted": "Deal of {amount} deleted — {customer}"
+    "dealDeleted": "Deal of {amount} deleted — {customer}",
+    "chequeBounced": "Cheque {payment} bounced; {amount} owed again"
   },
   "methods": {
     "cash": "cash",
@@ -2460,7 +2484,8 @@
     "expense": "{memo}",
     "expenseVendor": "{memo} — {party}",
     "expensePayment": "Due expense paid: {memo}",
-    "manual": "{memo}"
+    "manual": "{memo}",
+    "chequeBounced": "Cheque {ref} bounced — {party}"
   },
   "trial": {
     "title": "Trial balance — {month}",
@@ -2686,6 +2711,7 @@
     "DEAL_NOT_OPEN": "This deal isn't open.",
     "DEAL_NOT_LOST": "This deal isn't lost.",
     "DEAL_CHANGED": "Someone just changed this deal. Reload and try again.",
+    "PAYMENT_BOUNCED": "A bounced cheque stays on record and can't be removed.",
     "PERIOD_CLOSED": "This date is in a closed period. Change the date, or have the owner reopen the period from the accounts page.",
     "PERIOD_NOT_ENDED": "A month can't be closed before it ends.",
     "PERIOD_ALREADY_CLOSED": "This month is already closed.",
@@ -2800,7 +2826,13 @@
     "retry": "Try again",
     "markCleared": "Cleared",
     "cleared": "Cheque {number} marked as cleared",
-    "removed": "Payment {number} removed"
+    "removed": "Payment {number} removed",
+    "markBounced": "Bounced",
+    "bounced": "Cheque {number} bounced; its amount is owed again",
+    "bounceTitle": "Did cheque {number} bounce?",
+    "bounceDescription": "{amount} will be owed again on the invoice and by the customer, and the books get a reversing entry dated today. The payment stays on record as bounced.",
+    "bounceConfirm": "Yes, it bounced",
+    "bounceCancel": "Back"
   },
   "DashboardApi": {
     "noComparison": "Nothing last month to compare with"

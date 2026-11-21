@@ -20,7 +20,14 @@ export const ACCOUNT_TYPES: AccountType[] = ['asset', 'liability', 'equity', 're
 export type AccountRef = { id: string; code: string; key: string | null; name: string | null; type: AccountType };
 export type LedgerAccount = AccountRef & { system: boolean; balance: number; used: boolean };
 
-export type EntrySource = 'invoice' | 'payment' | 'chequeCleared' | 'expense' | 'expensePayment' | 'manual';
+export type EntrySource =
+  | 'invoice'
+  | 'payment'
+  | 'chequeCleared'
+  | 'chequeBounced'
+  | 'expense'
+  | 'expensePayment'
+  | 'manual';
 export type EntryStatus = 'posted' | 'draft';
 /** The journal's source filter: payments include cheques clearing; expenses include paying a due one. */
 export type SourceFilter = 'all' | 'invoice' | 'payment' | 'expense' | 'manual';

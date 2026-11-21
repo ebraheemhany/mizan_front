@@ -42,6 +42,12 @@ export default function PaymentsCard({ payments }: { payments: Payment[] }) {
                     {tStatus('pending')}
                   </span>
                 )}
+                {/* Returned by the bank: it paid nothing (the amount is owed again). */}
+                {p.status === 'bounced' && (
+                  <span className="bg-danger-soft text-danger rounded-full px-2 py-0.5 text-[10px] font-bold">
+                    {tStatus('bounced')}
+                  </span>
+                )}
               </p>
               {p.note && <p className="text-body mt-1 text-xs">{p.note}</p>}
             </li>

@@ -38,7 +38,7 @@ export type ApiPayment = {
   invoiceDate: string;
   method: ApiMethod;
   amount: string;
-  status: 'cleared' | 'pending';
+  status: 'cleared' | 'pending' | 'bounced';
   account: ApiAccount | null;
   reference: string | null;
   note: string | null;
@@ -220,6 +220,15 @@ export function useClearPayment() {
   const after = useAfterPaymentChange();
   return useMutation({
     mutationFn: (id: string) => api(`/api/payments/${id}/clear`, { method: 'POST' }),
+    onSuccess: after,
+  });
+}
+
+/** The bank returned a pending cheque: owed again (the server books the reversal today). */
+export function useBouncePayment() {
+  const after = useAfterPaymentChange();
+  return useMutation({
+    mutationFn: (id: string) => api(`/api/payments/${id}/bounce`, { method: 'POST' }),
     onSuccess: after,
   });
 }

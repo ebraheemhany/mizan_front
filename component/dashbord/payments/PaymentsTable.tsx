@@ -14,10 +14,13 @@ const td = 'px-4 py-3.5 text-xs';
 export default function PaymentsTable({
   rows,
   onClear,
+  onBounce,
 }: {
   rows: Payment[];
   /** Marks a pending cheque as cleared. Omitted when the user's role can't record payments. */
   onClear?: (payment: Payment) => void;
+  /** Marks a pending cheque as bounced (asks first). Omitted like onClear. */
+  onBounce?: (payment: Payment) => void;
 }) {
   const t = useTranslations('Payments');
   const tApi = useTranslations('PaymentsApi');
@@ -81,9 +84,29 @@ export default function PaymentsTable({
                       {tApi('markCleared')}
                     </button>
                   )}
+                  {p.status === 'pending' && onBounce && (
+                    <button
+                      type="button"
+                      onClick={() => onBounce(p)}
+                      className="text-danger hover:bg-danger-soft border-danger/30 rounded-full border px-2 py-0.5 text-[10px] font-bold"
+                    >
+                      {tApi('markBounced')}
+                    </button>
+                  )}
+                  {p.status === 'bounced' && (
+                    <span className="bg-danger-soft text-danger rounded-full px-2 py-0.5 text-[10px] font-bold">
+                      {t('status.bounced')}
+                    </span>
+                  )}
                 </span>
               </td>
-              <td className={cn(td, 'text-ink font-bold tabular-nums')}>
+              <td
+                className={cn(
+                  td,
+                  'font-bold tabular-nums',
+                  p.status === 'bounced' ? 'text-muted line-through' : 'text-ink',
+                )}
+              >
                 {money(p.amount)}
               </td>
             </tr>

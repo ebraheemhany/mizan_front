@@ -531,135 +531,158 @@
   },
   "note": "ملاحظات",
   "quickActions": {
-  "title": "إجراءات سريعة",
-  "recordPayment": "تسجيل دفعة",
-  "sendReminder": "إرسال تذكير بالدفع",
-  "copyLink": "نسخ الرابط العام",
-  "preview": "معاينة كما يراها العميل",
-  "viewEntry": "عرض القيد المحاسبي"
-},
-"payments": {
-  "title": "الدفعات",
-  "empty": "لا توجد دفعات مسجّلة على هذه الفاتورة.",
-  "methods": {
-    "cash": "نقداً",
-    "bank": "تحويل بنكي",
-    "card": "بطاقة",
-    "instapay": "إنستاباي",
-    "vodafoneCash": "فودافون كاش",
-    "cheque": "شيك"
-  }
-},
-"history": {
-  "title": "السجل",
-  "events": {
-    "created": { "title": "أنشئت الفاتورة", "detail": "بواسطة {name}" },
-    "sent": { "title": "أُصدرت الفاتورة" },
-    "cancelled": { "title": "أُلغيت الفاتورة" },
-    "paymentRemoved": { "title": "اتشالت دفعة", "detail": "بقيمة {amount}" },
-    "viewed": { "title": "شاهد العميل الفاتورة" },
-    "reminder": { "title": "تذكير تلقائي", "detail": "أُرسل عبر واتساب" },
-    "payment": { "title": "سُجّلت دفعة", "detail": "بقيمة {amount}" },
-    "reminderSent": { "title": "أُرسل تذكير بالدفع", "detail": "عبر {channel}" }
-  }
-},
-"attachments": {
-  "title": "المرفقات",
-  "drop": "اسحب الملفات هنا أو اضغط للرفع — PDF وJPG حتى 10MB",
-  "remove": "حذف {name}",
-  "errors": {
-    "type": "نوع الملف غير مدعوم. المسموح PDF وJPG فقط.",
-    "size": "حجم الملف أكبر من 10MB."
-  }
-},
-"paymentDialog": {
-  "title": "تسجيل دفعة",
-  "description": "فاتورة #{number} · {customer}",
-  "remainingNow": "المتبقي الآن",
-  "remainingAfter": "المتبقي بعد الدفعة",
-  "paidInFull": "ستُسدَّد الفاتورة بالكامل",
-  "amount": "المبلغ المدفوع",
-  "payFull": "دفع المتبقي كاملاً",
-  "payHalf": "نصف المتبقي",
-  "date": "تاريخ الدفع",
-  "pickDate": "اختر التاريخ",
-  "method": "طريقة الدفع",
-  "note": "ملاحظة (اختياري)",
-  "notePlaceholder": "مثال: رقم الحوالة",
-  "submit": "تسجيل الدفعة",
-  "cancel": "إلغاء",
-  "close": "إغلاق",
-  "errors": {
-    "amountRequired": "المبلغ مطلوب",
-    "amountInvalid": "أدخل مبلغاً صحيحاً أكبر من صفر",
-    "amountMax": "المبلغ أكبر من المتبقي على الفاتورة",
-    "dateRequired": "تاريخ الدفع مطلوب",
-    "noteMax": "الملاحظة يجب ألا تزيد عن 200 حرف"
-  }
-},
-
-"reminderDialog": {
-  "title": "إرسال تذكير بالدفع",
-  "description": "فاتورة #{number} · {customer}",
-  "channel": "قناة الإرسال",
-  "channels": {
-    "email": "البريد الإلكتروني",
-    "whatsapp": "واتساب"
+    "title": "إجراءات سريعة",
+    "recordPayment": "تسجيل دفعة",
+    "sendReminder": "إرسال تذكير بالدفع",
+    "copyLink": "نسخ الرابط العام",
+    "preview": "معاينة كما يراها العميل",
+    "viewEntry": "عرض القيد المحاسبي"
   },
-  "message": "نص الرسالة",
-  "template": "مرحباً {customer}،\n\nنود تذكيرك بأن الفاتورة رقم {number} بقيمة {amount} مستحقة السداد بتاريخ {dueDate}.\nنرجو التكرم بالسداد في أقرب وقت.\n\nشكراً لتعاملكم معنا.",
-  "templateOverdue": "مرحباً {customer}،\n\nنود تذكيرك بأن الفاتورة رقم {number} بقيمة {amount} تجاوزت تاريخ الاستحقاق ({dueDate}).\nنرجو التكرم بسداد المبلغ في أقرب وقت.\n\nشكراً لتعاملكم معنا.",
-  "errors": {
-    "required": "نص الرسالة مطلوب",
-    "max": "نص الرسالة طويل جداً (الحد الأقصى 600 حرف)"
+  "payments": {
+    "title": "الدفعات",
+    "empty": "لا توجد دفعات مسجّلة على هذه الفاتورة.",
+    "methods": {
+      "cash": "نقداً",
+      "bank": "تحويل بنكي",
+      "card": "بطاقة",
+      "instapay": "إنستاباي",
+      "vodafoneCash": "فودافون كاش",
+      "cheque": "شيك"
+    }
   },
-  "submit": "إرسال التذكير",
-  "cancel": "إلغاء",
-  "close": "إغلاق"
-},
-"ledger": {
-  "title": "القيد المحاسبي",
-  "description": "فاتورة #{number} · تُولَّد القيود تلقائياً من الفاتورة والدفعات.",
-  "close": "إغلاق",
-  "empty": "لا يوجد قيد محاسبي لهذه الفاتورة. المسودات والفواتير الملغاة لا تُرحَّل.",
-  "entries": {
-    "invoice": "قيد إصدار الفاتورة",
-    "payment": "قيد تحصيل دفعة"
+  "history": {
+    "title": "السجل",
+    "events": {
+      "created": {
+        "title": "أنشئت الفاتورة",
+        "detail": "بواسطة {name}"
+      },
+      "sent": {
+        "title": "أُصدرت الفاتورة"
+      },
+      "cancelled": {
+        "title": "أُلغيت الفاتورة"
+      },
+      "paymentRemoved": {
+        "title": "اتشالت دفعة",
+        "detail": "بقيمة {amount}"
+      },
+      "viewed": {
+        "title": "شاهد العميل الفاتورة"
+      },
+      "reminder": {
+        "title": "تذكير تلقائي",
+        "detail": "أُرسل عبر واتساب"
+      },
+      "payment": {
+        "title": "سُجّلت دفعة",
+        "detail": "بقيمة {amount}"
+      },
+      "reminderSent": {
+        "title": "أُرسل تذكير بالدفع",
+        "detail": "عبر {channel}"
+      },
+      "chequeBounced": {
+        "title": "الشيك اترفض",
+        "detail": "بقيمة {amount}، والمبلغ رجع مستحق"
+      }
+    }
   },
-  "columns": {
-    "account": "الحساب",
-    "debit": "مدين",
-    "credit": "دائن",
-    "currency": "العملة"
+  "attachments": {
+    "title": "المرفقات",
+    "drop": "اسحب الملفات هنا أو اضغط للرفع — PDF وJPG حتى 10MB",
+    "remove": "حذف {name}",
+    "errors": {
+      "type": "نوع الملف غير مدعوم. المسموح PDF وJPG فقط.",
+      "size": "حجم الملف أكبر من 10MB."
+    }
   },
-  "total": "الإجمالي",
-  "balanced": "متوازن",
-  "unbalanced": "غير متوازن",
-  "accounts": {
-    "cash": "الصندوق",
-    "bank": "البنك",
-    "card": "حساب البطاقات",
-    "wallet": "المحفظة الإلكترونية",
-    "receivable": "العملاء",
-    "vat": "ضريبة القيمة المضافة المستحقة",
-    "revenue": "إيرادات المبيعات",
-    "rounding": "فروق التقريب"
+  "paymentDialog": {
+    "title": "تسجيل دفعة",
+    "description": "فاتورة #{number} · {customer}",
+    "remainingNow": "المتبقي الآن",
+    "remainingAfter": "المتبقي بعد الدفعة",
+    "paidInFull": "ستُسدَّد الفاتورة بالكامل",
+    "amount": "المبلغ المدفوع",
+    "payFull": "دفع المتبقي كاملاً",
+    "payHalf": "نصف المتبقي",
+    "date": "تاريخ الدفع",
+    "pickDate": "اختر التاريخ",
+    "method": "طريقة الدفع",
+    "note": "ملاحظة (اختياري)",
+    "notePlaceholder": "مثال: رقم الحوالة",
+    "submit": "تسجيل الدفعة",
+    "cancel": "إلغاء",
+    "close": "إغلاق",
+    "errors": {
+      "amountRequired": "المبلغ مطلوب",
+      "amountInvalid": "أدخل مبلغاً صحيحاً أكبر من صفر",
+      "amountMax": "المبلغ أكبر من المتبقي على الفاتورة",
+      "dateRequired": "تاريخ الدفع مطلوب",
+      "noteMax": "الملاحظة يجب ألا تزيد عن 200 حرف"
+    }
+  },
+  "reminderDialog": {
+    "title": "إرسال تذكير بالدفع",
+    "description": "فاتورة #{number} · {customer}",
+    "channel": "قناة الإرسال",
+    "channels": {
+      "email": "البريد الإلكتروني",
+      "whatsapp": "واتساب"
+    },
+    "message": "نص الرسالة",
+    "template": "مرحباً {customer}،\n\nنود تذكيرك بأن الفاتورة رقم {number} بقيمة {amount} مستحقة السداد بتاريخ {dueDate}.\nنرجو التكرم بالسداد في أقرب وقت.\n\nشكراً لتعاملكم معنا.",
+    "templateOverdue": "مرحباً {customer}،\n\nنود تذكيرك بأن الفاتورة رقم {number} بقيمة {amount} تجاوزت تاريخ الاستحقاق ({dueDate}).\nنرجو التكرم بسداد المبلغ في أقرب وقت.\n\nشكراً لتعاملكم معنا.",
+    "errors": {
+      "required": "نص الرسالة مطلوب",
+      "max": "نص الرسالة طويل جداً (الحد الأقصى 600 حرف)"
+    },
+    "submit": "إرسال التذكير",
+    "cancel": "إلغاء",
+    "close": "إغلاق"
+  },
+  "ledger": {
+    "title": "القيد المحاسبي",
+    "description": "فاتورة #{number} · تُولَّد القيود تلقائياً من الفاتورة والدفعات.",
+    "close": "إغلاق",
+    "empty": "لا يوجد قيد محاسبي لهذه الفاتورة. المسودات والفواتير الملغاة لا تُرحَّل.",
+    "entries": {
+      "invoice": "قيد إصدار الفاتورة",
+      "payment": "قيد تحصيل دفعة"
+    },
+    "columns": {
+      "account": "الحساب",
+      "debit": "مدين",
+      "credit": "دائن",
+      "currency": "العملة"
+    },
+    "total": "الإجمالي",
+    "balanced": "متوازن",
+    "unbalanced": "غير متوازن",
+    "accounts": {
+      "cash": "الصندوق",
+      "bank": "البنك",
+      "card": "حساب البطاقات",
+      "wallet": "المحفظة الإلكترونية",
+      "receivable": "العملاء",
+      "vat": "ضريبة القيمة المضافة المستحقة",
+      "revenue": "إيرادات المبيعات",
+      "rounding": "فروق التقريب"
+    }
+  },
+  "preview": {
+    "title": "معاينة كما يراها العميل",
+    "description": "هذا ما سيظهر لـ {customer} عند فتح الفاتورة.",
+    "close": "إغلاق"
+  },
+  "print": {
+    "footer": "أُصدرت هذه الفاتورة عبر ميزان"
+  },
+  "toasts": {
+    "linkCopied": "تم نسخ الرابط",
+    "linkFailed": "تعذّر نسخ الرابط",
+    "reminderSent": "تم إرسال التذكير إلى {recipient}"
   }
-},
-"preview": {
-  "title": "معاينة كما يراها العميل",
-  "description": "هذا ما سيظهر لـ {customer} عند فتح الفاتورة.",
-  "close": "إغلاق"
-},
-"print": {
-  "footer": "أُصدرت هذه الفاتورة عبر ميزان"
-},
-"toasts": {
-  "linkCopied": "تم نسخ الرابط",
-  "linkFailed": "تعذّر نسخ الرابط",
-  "reminderSent": "تم إرسال التذكير إلى {recipient}"
-}
-
 },
 "InvoiceForm": {
   "title": "فاتورة جديدة",
@@ -1770,57 +1793,18 @@
     "added": "تم تسجيل الدفعة {number} بمبلغ {amount}",
     "undo": "تراجع"
   },
- 
-"toolbar": {
-  "search": "ابحث برقم الدفعة أو العميل…",
-  "allMethods": "كل الطرق",
-  "methodLabel": "طريقة الدفع",
-  "periodLabel": "الفترة",
-  "clear": "مسح الفلاتر"
-},
-"periods": {
-  "thisMonth": "هذا الشهر",
-  "lastMonth": "الشهر الماضي",
-  "thisYear": "هذه السنة",
-  "all": "كل الفترات"
-},
-"methods": {
-  "bankTransfer": "تحويل بنكي",
-  "cash": "نقدي",
-  "instapay": "إنستاباي",
-  "vodafoneCash": "فودافون كاش",
-  "cheque": "شيك"
-},
-"table": {
-  "number": "رقم الدفعة",
-  "invoice": "الفاتورة",
-  "customer": "العميل",
-  "date": "التاريخ",
-  "method": "الطريقة",
-  "amount": "المبلغ"
-},
-"status": {
-  "label": "الحالة",
-  "cleared": "تم التحصيل",
-  "pending": "قيد الصرف"
-},
-"empty": "مفيش دفعات بالفلاتر دي.",
-
-"form": {
-  "title": "تسجيل دفعة جديدة",
-  "noInvoices": "مفيش فواتير مفتوحة.",
-  "fields": {
-    "invoice": "الفاتورة",
-    "amount": "المبلغ",
-    "date": "تاريخ الدفع",
-    "method": "طريقة الدفع",
-    "account": "الحساب المستلم",
-    "reference": "رقم المرجع",
-    "note": "ملاحظة",
-    "currency": "العملة"
+  "toolbar": {
+    "search": "ابحث برقم الدفعة أو العميل…",
+    "allMethods": "كل الطرق",
+    "methodLabel": "طريقة الدفع",
+    "periodLabel": "الفترة",
+    "clear": "مسح الفلاتر"
   },
-  "placeholders": {
-    "reference": "رقم العملية أو الشيك"
+  "periods": {
+    "thisMonth": "هذا الشهر",
+    "lastMonth": "الشهر الماضي",
+    "thisYear": "هذه السنة",
+    "all": "كل الفترات"
   },
   "methods": {
     "bankTransfer": "تحويل بنكي",
@@ -1829,28 +1813,66 @@
     "vodafoneCash": "فودافون كاش",
     "cheque": "شيك"
   },
-  "accounts": {
-    "bank": "الحساب البنكي",
-    "cashbox": "الخزينة",
-    "wallet": "المحفظة الإلكترونية"
+  "table": {
+    "number": "رقم الدفعة",
+    "invoice": "الفاتورة",
+    "customer": "العميل",
+    "date": "التاريخ",
+    "method": "الطريقة",
+    "amount": "المبلغ"
   },
-  "save": "حفظ الدفعة",
-  "entryNote": "المبلغ هيتخصم من رصيد الفاتورة والعميل ويتسجّل في {account}.",
-  "errors": {
-    "invoiceRequired": "اختار الفاتورة",
-    "amountInvalid": "اكتب مبلغ أكبر من صفر",
-    "amountTooHigh": "المبلغ أكبر من رصيد الفاتورة",
-    "dateRequired": "اختار التاريخ"
+  "status": {
+    "label": "الحالة",
+    "cleared": "تم التحصيل",
+    "pending": "قيد الصرف",
+    "bounced": "مرتجع"
+  },
+  "empty": "مفيش دفعات بالفلاتر دي.",
+  "form": {
+    "title": "تسجيل دفعة جديدة",
+    "noInvoices": "مفيش فواتير مفتوحة.",
+    "fields": {
+      "invoice": "الفاتورة",
+      "amount": "المبلغ",
+      "date": "تاريخ الدفع",
+      "method": "طريقة الدفع",
+      "account": "الحساب المستلم",
+      "reference": "رقم المرجع",
+      "note": "ملاحظة",
+      "currency": "العملة"
+    },
+    "placeholders": {
+      "reference": "رقم العملية أو الشيك"
+    },
+    "methods": {
+      "bankTransfer": "تحويل بنكي",
+      "cash": "نقدي",
+      "instapay": "إنستاباي",
+      "vodafoneCash": "فودافون كاش",
+      "cheque": "شيك"
+    },
+    "accounts": {
+      "bank": "الحساب البنكي",
+      "cashbox": "الخزينة",
+      "wallet": "المحفظة الإلكترونية"
+    },
+    "save": "حفظ الدفعة",
+    "entryNote": "المبلغ هيتخصم من رصيد الفاتورة والعميل ويتسجّل في {account}.",
+    "errors": {
+      "invoiceRequired": "اختار الفاتورة",
+      "amountInvalid": "اكتب مبلغ أكبر من صفر",
+      "amountTooHigh": "المبلغ أكبر من رصيد الفاتورة",
+      "dateRequired": "اختار التاريخ"
+    }
+  },
+  "reminders": {
+    "title": "تذكيرات التحصيل",
+    "empty": "مفيش فواتير متأخرة.",
+    "late": "{count, plural, one {متأخرة يوم واحد} two {متأخرة يومين} few {متأخرة {text} أيام} many {متأخرة {text} يوماً} other {متأخرة {text} يوم}}",
+    "whatsapp": "واتساب",
+    "noPhone": "مفيش رقم تليفون لـ {customer}.",
+    "message": "أهلاً {customer}، تذكير ودّي بالفاتورة #{number} بمبلغ {amount}، وهي متأخرة {days} يوم. نرجو التكرم بالسداد في أقرب وقت. شكراً لتعاملكم معنا."
   }
-},
-"reminders": {
-  "title": "تذكيرات التحصيل",
-  "empty": "مفيش فواتير متأخرة.",
-  "late": "{count, plural, one {متأخرة يوم واحد} two {متأخرة يومين} few {متأخرة {text} أيام} many {متأخرة {text} يوماً} other {متأخرة {text} يوم}}",
-  "whatsapp": "واتساب",
-  "noPhone": "مفيش رقم تليفون لـ {customer}.",
-  "message": "أهلاً {customer}، تذكير ودّي بالفاتورة #{number} بمبلغ {amount}، وهي متأخرة {days} يوم. نرجو التكرم بالسداد في أقرب وقت. شكراً لتعاملكم معنا."
-}
 },
 "Products": {
   "title": "المنتجات والخدمات",
@@ -2349,7 +2371,8 @@
     "dealReopened": "إعادة فتح الصفقة",
     "dealFollowedUp": "تسجيل متابعة",
     "dealAwaiting": "تسجيل متابعة، ومستنيين رد العميل",
-    "dealDeleted": "حذف صفقة بقيمة {amount} — {customer}"
+    "dealDeleted": "حذف صفقة بقيمة {amount} — {customer}",
+    "chequeBounced": "الشيك {payment} اترفض، و{amount} رجعت مستحقة"
   },
   "methods": {
     "cash": "نقدي",
@@ -2465,7 +2488,8 @@
     "expense": "{memo}",
     "expenseVendor": "{memo} — {party}",
     "expensePayment": "سداد مصروف مستحق: {memo}",
-    "manual": "{memo}"
+    "manual": "{memo}",
+    "chequeBounced": "ارتداد الشيك {ref} — {party}"
   },
   "trial": {
     "title": "ميزان المراجعة — {month}",
@@ -2691,6 +2715,7 @@
     "DEAL_NOT_OPEN": "الصفقة دي مش مفتوحة.",
     "DEAL_NOT_LOST": "الصفقة دي مش خسرانة.",
     "DEAL_CHANGED": "حد عدّل الصفقة دي دلوقتي. حدّث الصفحة وحاول تاني.",
+    "PAYMENT_BOUNCED": "الشيك المرتجع بيفضل متسجل ومينفعش يتشال.",
     "PERIOD_CLOSED": "التاريخ ده في فترة مقفولة في الحسابات. غيّر التاريخ، أو خلّي المالك يعيد فتح الفترة من صفحة الحسابات.",
     "PERIOD_NOT_ENDED": "مينفعش تقفل شهر لسه مخلصش.",
     "PERIOD_ALREADY_CLOSED": "الشهر ده مقفول بالفعل.",
@@ -2805,7 +2830,13 @@
     "retry": "حاول تاني",
     "markCleared": "اتصرف",
     "cleared": "اتصرف الشيك {number}",
-    "removed": "اتشالت الدفعة {number}"
+    "removed": "اتشالت الدفعة {number}",
+    "markBounced": "اترفض",
+    "bounced": "الشيك {number} اترفض، ومبلغه رجع مستحق على العميل",
+    "bounceTitle": "الشيك {number} اترفض؟",
+    "bounceDescription": "مبلغ {amount} هيرجع مستحق على الفاتورة والعميل، وهيتعمل قيد عكسي في الحسابات بتاريخ النهارده. الدفعة هتفضل متسجلة إنها مرتجعة.",
+    "bounceConfirm": "أيوه، اترفض",
+    "bounceCancel": "رجوع"
   },
   "DashboardApi": {
     "noComparison": "مفيش أرقام الشهر اللي فات للمقارنة"
