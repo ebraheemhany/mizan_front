@@ -32,6 +32,8 @@ export default function DashboardView() {
   const [addCustomerOpen, setAddCustomerOpen] = useState(false);
   const user = useSession();
   const canAddCustomer = can(user.role, 'editCustomers');
+  const canIssueInvoices = can(user.role, 'issueInvoices');
+  const canWorkDeals = can(user.role, 'deals');
   const directory = useTeamDirectory();
   const createCustomer = useCreateCustomer();
   const errorMessage = useApiErrorMessage();
@@ -66,17 +68,19 @@ export default function DashboardView() {
         actions={
           <>
             {/* الموبايل: زرار فاتورة جديدة بعرض الشاشة زي التصميم */}
-            <Link
-              href="/invoices/new"
-              className={cn(
-                buttonVariants(),
-                primaryBtn,
-                'h-11 w-full text-sm sm:hidden',
-              )}
-            >
-              <Plus className="size-4" />
-              {t('newInvoice')}
-            </Link>
+            {canIssueInvoices && (
+              <Link
+                href="/invoices/new"
+                className={cn(
+                  buttonVariants(),
+                  primaryBtn,
+                  'h-11 w-full text-sm sm:hidden',
+                )}
+              >
+                <Plus className="size-4" />
+                {t('newInvoice')}
+              </Link>
+            )}
 
             {canAddCustomer && (
               <button
@@ -91,16 +95,18 @@ export default function DashboardView() {
                 {t('addCustomer')}
               </button>
             )}
-            <Link
-              href="/deals"
-              className={cn(
-                buttonVariants(),
-                primaryBtn,
-                'hidden sm:inline-flex',
-              )}
-            >
-              {t('newDeal')}
-            </Link>
+            {canWorkDeals && (
+              <Link
+                href="/deals"
+                className={cn(
+                  buttonVariants(),
+                  primaryBtn,
+                  'hidden sm:inline-flex',
+                )}
+              >
+                {t('newDeal')}
+              </Link>
+            )}
           </>
         }
       />

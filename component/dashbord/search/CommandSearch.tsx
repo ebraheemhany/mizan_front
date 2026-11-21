@@ -23,6 +23,8 @@ import {
   type SearchGroup,
   type SearchItem,
 } from './items';
+import { can, type Permission } from '@/lib/auth/permissions';
+import { useSession } from '@/lib/auth/session';
 import { useCustomers } from '@/lib/customers/hooks';
 import { useExpenses } from '@/lib/expenses/hooks';
 import { toUiQuote, useQuotesList } from '@/lib/quotes/hooks';
@@ -40,6 +42,14 @@ const GROUP_ORDER: SearchGroup[] = [
 
 // أقصى عدد نتايج في كل مجموعة علشان القائمة ما تطولش
 const MAX_PER_GROUP = 6;
+
+// Pages and actions a role can't use are left out of the results.
+const NEEDS: Partial<Record<string, Permission>> = {
+  expenses: 'expenses',
+  reports: 'reports',
+  newInvoice: 'issueInvoices',
+  newQuote: 'quotes',
+};
 
 export default function CommandSearch({
   open,
@@ -78,25 +88,29 @@ export default function CommandSearch({
   const quotes = quotesQuery.data?.items;
   const searching =
     open && (typed !== debouncedQuery || customersQuery.isFetching || quotesQuery.isFetching);
+  const { role } = useSession();
 
-  const items = useMemo<SearchItem[]>(
-    () => [
-      ...PAGE_KEYS.map((key) => ({
+  const items = useMemo<SearchItem[]>(() => {
+    const allowed = (key: string) => {
+      const needed = NEEDS[key];
+      return !needed || can(role, needed);
+    };
+    return [
+      ...PAGE_KEYS.filter(allowed).map((key) => ({
         id: `page-${key}`,
         group: 'pages' as const,
         label: t(`pages.${key}`),
         href: PAGE_HREF[key],
       })),
-      ...ACTION_KEYS.map((key) => ({
+      ...ACTION_KEYS.filter(allowed).map((key) => ({
         id: `action-${key}`,
         group: 'actions' as const,
         label: t(`actions.${key}`),
         href: ACTION_HREF[key],
       })),
       ...dataItems(customers ?? [], tasks, expenses, quotes?.map(toUiQuote)),
-    ],
-    [t, customers, tasks, expenses, quotes],
-  );
+    ];
+  }, [t, role, customers, tasks, expenses, quotes]);
 
   function setOpen(next: boolean) {
     if (!next) setQuery('');

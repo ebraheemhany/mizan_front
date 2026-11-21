@@ -24,6 +24,8 @@ export default function SettingsSelect({
   return (
     <SelectPrimitive.Root
       value={value}
+      // Lets the trigger show the label (محاسب, 30 يوم...) before the list has ever been opened.
+      items={options}
       onValueChange={(nextValue) => {
         if (typeof nextValue === 'string') onValueChange(nextValue);
       }}

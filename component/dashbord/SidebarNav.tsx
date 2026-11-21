@@ -3,6 +3,8 @@
 import { useFormatter, useTranslations } from 'next-intl';
 
 import { Link, usePathname } from '@/i18n/navigation';
+import { can } from '@/lib/auth/permissions';
+import { useSession } from '@/lib/auth/session';
 import { useInvoiceStats } from '@/lib/invoices/hooks';
 import { useTasks } from '@/lib/tasks/hooks';
 import { useDeals } from '@/lib/deals/hooks';
@@ -24,6 +26,12 @@ export default function SidebarNav({
 
   const isActive = (href: string) =>
     pathname === href || pathname.startsWith(`${href}/`);
+
+  // Only the pages this role can open (a sales user has no expenses, reports or books).
+  const { role } = useSession();
+  const groups = NAV_GROUPS.map((group) =>
+    group.filter((item) => !item.permission || can(role, item.permission)),
+  ).filter((group) => group.length > 0);
 
   // Open tasks of the company (every role may read them).
   const { tasks } = useTasks();
@@ -63,7 +71,7 @@ export default function SidebarNav({
       >
         <span className="bg-brand absolute inset-y-2 start-0 w-1 rounded-e-full" />
       </span>
-      {NAV_GROUPS.map((group, index) => (
+      {groups.map((group, index) => (
         <ul
           key={group[0]?.key ?? index}
           className={cn(
