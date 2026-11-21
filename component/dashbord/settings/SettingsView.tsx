@@ -3,7 +3,7 @@
 
 import { useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { FormProvider, useForm } from 'react-hook-form';
+import { FormProvider, useForm, useFormState } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
@@ -91,6 +91,9 @@ function SettingsForm({ initial }: { initial: SettingsValues }) {
     resolver: zodResolver(settingsSchema),
     defaultValues: initial,
   });
+  // Subscribed here, at render: react-hook-form only keeps the form state it is asked
+  // for while rendering (read inside save() alone, isDirty stayed false and nothing saved).
+  const { isDirty, isSubmitting } = useFormState({ control: form.control });
 
   const tabs = TAB_KEYS.map((key) => ({
     value: key,
@@ -135,7 +138,7 @@ function SettingsForm({ initial }: { initial: SettingsValues }) {
   }
 
   async function save(values: SettingsValues) {
-    if (!form.formState.isDirty) {
+    if (!isDirty) {
       toast.info(t('toasts.noChanges'));
       return;
     }
@@ -157,8 +160,8 @@ function SettingsForm({ initial }: { initial: SettingsValues }) {
           description={t('description')}
           actions={
             canEdit && (
-              <Button type="submit" disabled={form.formState.isSubmitting} className={primaryBtn}>
-                {form.formState.isSubmitting && <Loader2 className="size-4 animate-spin" />}
+              <Button type="submit" disabled={isSubmitting} className={primaryBtn}>
+                {isSubmitting && <Loader2 className="size-4 animate-spin" />}
                 {t('actions.save')}
               </Button>
             )

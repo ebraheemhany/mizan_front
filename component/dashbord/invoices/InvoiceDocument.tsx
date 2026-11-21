@@ -21,6 +21,8 @@ function PartyBlock({
   logoUrl?: string;
 }) {
   const t = useTranslations('InvoiceDetail');
+  // Only what is there (no empty "Tax number:" when there's none).
+  const details = [taxNumber && t('taxNumber', { number: taxNumber }), location].filter(Boolean);
 
   return (
     <div>
@@ -31,9 +33,7 @@ function PartyBlock({
       )}
       <p className="text-muted text-xs font-semibold">{label}</p>
       <p className="text-ink mt-1 text-base font-extrabold">{name}</p>
-      <p className="text-muted mt-1 text-xs">
-        {t('taxNumber', { number: taxNumber })} · {location}
-      </p>
+      {details.length > 0 && <p className="text-muted mt-1 text-xs">{details.join(' · ')}</p>}
     </div>
   );
 }
