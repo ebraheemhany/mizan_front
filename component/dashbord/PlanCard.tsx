@@ -3,11 +3,11 @@
 
 import { useState } from 'react';
 import { useFormatter, useTranslations } from 'next-intl';
-import { ArrowUpRight, Sparkles } from 'lucide-react';
+import { AlertTriangle, ArrowUpRight, Sparkles } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
-import { useDashboard } from '@/lib/payments/hooks';
-import { PLANS } from '@/lib/mock/plan';
+import { Link } from '@/i18n/navigation';
+import { useBilling } from '@/lib/billing/hooks';
 import { cn } from '@/lib/utils';
 import { UpgradePlanDialog } from './settings/UpgradePlanDialog';
 
@@ -15,14 +15,30 @@ export default function PlanCard() {
   const t = useTranslations('PlanCard');
   const format = useFormatter();
   const [upgradeOpen, setUpgradeOpen] = useState(false);
-  const { data } = useDashboard();
+  const { data } = useBilling();
+  if (!data) return null;
 
-  const freePlan = PLANS.find((plan) => plan.id === 'free');
-  if (!freePlan || freePlan.invoicesLimit === null) return null;
+  // A renewal that wasn't paid: say so until it is (or the plan ends).
+  if (data.subscription?.status === 'pastDue') {
+    return (
+      <Link
+        href="/settings#subscription"
+        className="flex items-start gap-3 rounded-[24px] border border-amber-200 bg-amber-50 p-4 text-amber-900 shadow-[0_12px_30px_rgba(35,55,45,0.06)]"
+      >
+        <AlertTriangle className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
+        <span className="text-xs leading-5">
+          <span className="block font-extrabold">{t('pastDue')}</span>
+          {t('pastDueHint')}
+        </span>
+      </Link>
+    );
+  }
+  // Paid plans have no monthly limit to show.
+  if (data.usage.invoicesLimit === null) return null;
 
-  // Invoices created this month (any status), counted by the server.
-  const invoicesUsed = data?.invoicesThisMonth ?? 0;
-  const invoicesLimit = freePlan.invoicesLimit;
+  // Invoices made this month (any status), counted by the server as the limit counts them.
+  const invoicesUsed = data.usage.invoicesThisMonth;
+  const invoicesLimit = data.usage.invoicesLimit;
   const ratio = Math.min(invoicesUsed / invoicesLimit, 1);
   const nearLimit = ratio >= 0.9;
 
@@ -69,11 +85,7 @@ export default function PlanCard() {
         {t('upgrade')}
       </Button>
 
-      <UpgradePlanDialog
-        open={upgradeOpen}
-        onClose={() => setUpgradeOpen(false)}
-        currentPlan="free"
-      />
+      <UpgradePlanDialog open={upgradeOpen} onClose={() => setUpgradeOpen(false)} />
     </div>
   );
 }

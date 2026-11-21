@@ -100,6 +100,13 @@ export const queryKeys = {
   publicQuote: (token: string) => ['public-quote', token] as const,
   /** Company settings (currency, numbering, details...). */
   settings: ['settings'] as const,
+  /** The plan, its limits and the subscription's payments. */
+  billing: {
+    all: ['billing'] as const,
+    summary: ['billing', 'summary'] as const,
+    payments: ['billing', 'payments'] as const,
+    payment: (id: string) => ['billing', 'payment', id] as const,
+  },
   products: {
     all: ['products'] as const,
     list: (params: object) => ['products', 'list', params] as const,

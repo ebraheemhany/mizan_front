@@ -72,6 +72,7 @@ function useAuditText() {
   const tSections = useTranslations('AuditLog.sections');
   const tStages = useTranslations('Deals.stages');
   const tReasons = useTranslations('Deals.lost.reasons');
+  const tPlans = useTranslations('Settings.subscription.plans');
 
   // A value from the log, through the app's words for it when there are some.
   type Words = { has: (key: string) => boolean; (key: string): string };
@@ -120,6 +121,9 @@ function useAuditText() {
       fromStage: word(tStages, v['from']),
       toStage: word(tStages, v['stage']),
       reason: word(tReasons, v['reason']),
+      plan: word(tPlans, v['plan']),
+      // Why a subscription ended (unpaid / canceled).
+      why: String(v['why'] ?? ''),
     };
     return t.has(`events.${line.event}`) ? t(`events.${line.event}`, values) : line.event;
   };

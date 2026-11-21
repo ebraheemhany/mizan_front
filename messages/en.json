@@ -1,4 +1,19 @@
 {
+    "BillingReturn": {
+      "unknownTitle": "We can't find this payment",
+      "unknownBody": "Go back to the subscription and try again.",
+      "toSubscription": "Subscription",
+      "waitingTitle": "Confirming the payment…",
+      "waitingBody": "Paymob is sending us the confirmation; a few seconds.",
+      "slowBody": "The confirmation is taking longer than usual. You can close this page; the plan starts as soon as it arrives.",
+      "paidTitle": "{plan} plan is on",
+      "paidBody": "Payment {number} is recorded; the plan runs until {date}.",
+      "paidBodyShort": "Payment {number} is recorded.",
+      "toDashboard": "Dashboard",
+      "failedTitle": "The payment didn't go through",
+      "failedBody": "Nothing was charged and your plan is unchanged. Try again or use another card.",
+      "tryAgain": "Try again"
+    },
     "VerifyBanner": {
       "text": "Confirm your email <b>{email}</b> to send invoices and quotes to customers by email. We sent you a link.",
       "resend": "Send the link again",
@@ -1844,6 +1859,8 @@
 },
 
 "PlanCard": {
+  "pastDue": "Renewal not paid",
+  "pastDueHint": "Pay in settings before the plan goes back to free.",
   "title": "Free plan",
   "usage": "{used} of {limit} invoices this month",
   "upgrade": "Upgrade plan",
@@ -2263,6 +2280,37 @@
   }
 },
 "subscription": {
+  "loadError": "We couldn't load the subscription",
+  "retry": "Try again",
+  "endsOn": "Ends on",
+  "changesOn": "Plan changes on",
+  "backToFree": "then back to the free plan",
+  "switchesTo": "then switches to {plan}",
+  "card": "Automatic payment",
+  "noCard": "No saved card: you'll pay by hand at renewal",
+  "invoicesThisMonth": "This month's invoices",
+  "testMode": "Test mode: payments go to a test page and nothing is charged, until the Paymob keys are set.",
+  "resume": "Keep the subscription",
+  "cancel": "Cancel subscription",
+  "changePlan": "Change plan",
+  "ownerOnly": "Only the company owner can change the plan or pay.",
+  "pastDue": {
+    "title": "We couldn't renew the subscription",
+    "body": "Pay before {date} so the plan doesn’t go back to free.",
+    "pay": "Pay now"
+  },
+  "toasts": {
+    "cancelled": "Renewal cancelled. The plan works until {date}, then it goes back to free.",
+    "ended": "Subscription cancelled; you are back on the free plan.",
+    "resumed": "The subscription continues and renews as usual.",
+    "downgraded": "You will move to {plan} on {date}."
+  },
+  "cancelDialog": {
+    "title": "Cancel the subscription?",
+    "description": "The plan keeps working until {date}, then goes back to free (10 invoices a month, one user) and recurring invoices pause.",
+    "keep": "Keep it",
+    "confirm": "Cancel renewal"
+  },
   "title": "Subscription",
   "currentPlan": "Current plan",
   "nextRenewal": "Next renewal",
@@ -2274,6 +2322,11 @@
   "business": "Business"
 },
 "upgradeDialog": {
+  "backToFreeOn": "Back to free on {date}",
+  "payFor": "Pay and subscribe to {plan}",
+  "prorated": "You pay only the difference for the days left this month.",
+  "downgradeOn": "Switch to {plan} on {date}",
+  "scheduled": "Switching on {date}",
   "title": "Upgrade plan",
   "description": "Pick the plan that fits your company size. You can change it anytime.",
   "close": "Close",
@@ -2302,6 +2355,12 @@
   "billingHistory": "Billing history",
   "comingSoon": "This section is coming soon",
   "history": {
+  "items": {
+    "subscribe": "{plan} plan (monthly)",
+    "upgrade": "Upgrade to {plan} (difference for the days left)",
+    "renewal": "{plan} plan renewal"
+  },
+  "period": "{from} to {to}",
   "title": "Billing history",
   "description": "Your subscription invoices.",
   "item": "{plan} plan subscription (monthly)",
@@ -2368,6 +2427,7 @@
     "books": "Books"
   },
   "items": {
+    "subscription": "Subscription {ref}",
     "invoice": "Invoice {ref}",
     "quote": "Quote {ref}",
     "customer": "{ref}",
@@ -2383,6 +2443,7 @@
     "deal": "Deal: {ref}"
   },
   "itemTypes": {
+    "subscription": "Subscription",
     "company": "Company",
     "customer": "Customers",
     "product": "Items",
@@ -2391,6 +2452,15 @@
     "expense": "Expense"
   },
   "events": {
+    "subscriptionStarted": "Subscribed to {plan} for {amount} until {through}",
+    "planUpgraded": "Upgraded to {plan} (paid the difference, {amount})",
+    "subscriptionRenewed": "Renewed {plan} for {amount} until {through}",
+    "renewalFailed": "Renewing {plan} failed (attempt {count})",
+    "renewalDue": "Renewal due with no saved card: must be paid before {through}",
+    "planChangeScheduled": "Switching to {plan} from {through}",
+    "subscriptionCanceled": "Cancelled renewal: {plan} works until {through}",
+    "subscriptionResumed": "Kept the {plan} subscription",
+    "subscriptionEnded": "Back to the free plan ({why, select, unpaid {renewal not paid} other {cancelled}}){count, plural, =0 {} one {; paused a recurring template} other {; paused # recurring templates}}",
     "passwordResetRequested": "Asked for a password reset link",
     "passwordReset": "Changed the password with a reset link (signed out everywhere)",
     "emailVerified": "Confirmed the email address",
@@ -2760,6 +2830,15 @@
   }
 },
   "ApiErrors": {
+    "PLAN_LIMIT_INVOICES": "Your plan's invoices for this month are used up. Upgrade in settings to make more",
+    "PLAN_LIMIT_USERS": "Your team has reached the plan's limit. Upgrade in settings to add members",
+    "PLAN_FEATURE": "This feature is in the paid plans. Upgrade in settings",
+    "ALREADY_ON_PLAN": "This is already your plan",
+    "DOWNGRADE_AT_PERIOD_END": "A lower plan starts at the end of the current period",
+    "NOT_A_DOWNGRADE": "Choose a plan lower than yours",
+    "NO_SUBSCRIPTION": "Your company is on the free plan",
+    "BILLING_UNAVAILABLE": "Payments aren't available right now",
+    "PAYMENT_GATEWAY_ERROR": "The payment service isn't answering. Try again in a few minutes",
     "INVALID_RESET_TOKEN": "This reset link no longer works. Ask for a new one",
     "INVALID_VERIFICATION_TOKEN": "This confirmation link no longer works. Send a new one",
     "ALREADY_VERIFIED": "Your email is already confirmed",

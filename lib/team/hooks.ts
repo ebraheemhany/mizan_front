@@ -63,7 +63,11 @@ export function useInviteMutation() {
         method: 'POST',
         body: input,
       }),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: queryKeys.team.invitations }),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.team.invitations });
+      // Pending invitations take a seat of the plan.
+      void queryClient.invalidateQueries({ queryKey: queryKeys.billing.all });
+    },
   });
 }
 

@@ -259,6 +259,8 @@ function useAfterInvoiceChange() {
     void queryClient.invalidateQueries({ queryKey: queryKeys.quotes.all });
     // A recurring template shows its last invoice.
     void queryClient.invalidateQueries({ queryKey: queryKeys.recurring.all });
+    // The free plan counts invoices made this month.
+    void queryClient.invalidateQueries({ queryKey: queryKeys.billing.all });
   };
 }
 
