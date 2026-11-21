@@ -17,6 +17,7 @@ import { Label } from '@/components/ui/label';
 import { Link, useRouter } from '@/i18n/navigation';
 import { ApiError } from '@/lib/api/client';
 import { useApiErrorMessage } from '@/lib/api/use-api-error';
+import { useMailLocale } from '@/lib/auth/account';
 import { useAcceptInvitationMutation, useInvitationPreview, type InvitationPreview } from '@/lib/team/hooks';
 import PasswordField from './PasswordField';
 
@@ -91,6 +92,7 @@ function AcceptForm({
   const router = useRouter();
   const errorMessage = useApiErrorMessage();
   const accept = useAcceptInvitationMutation();
+  const locale = useMailLocale();
   const [serverError, setServerError] = useState<string | null>(null);
 
   const schema = useMemo(
@@ -123,7 +125,7 @@ function AcceptForm({
   async function onSubmit(values: Values) {
     setServerError(null);
     try {
-      await accept.mutateAsync({ token, password: values.password, fullName: values.fullName });
+      await accept.mutateAsync({ token, password: values.password, fullName: values.fullName, locale });
       toast.success(t('success'));
       router.push('/login');
     } catch (error) {

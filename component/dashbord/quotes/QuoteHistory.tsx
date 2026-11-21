@@ -17,6 +17,8 @@ export default function QuoteHistory({ events, customer }: { events: QuoteEvent[
         return t('created');
       case 'sent':
         return t('sent', { customer });
+      case 'emailed':
+        return t('emailed', { to: String(e.values.to ?? '') });
       // From the customer's link, or recorded by someone in the company.
       case 'accepted':
         return e.values.by === 'customer' ? t('accepted') : t('acceptedByUser');

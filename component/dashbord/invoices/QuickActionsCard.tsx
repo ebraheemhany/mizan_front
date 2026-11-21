@@ -10,7 +10,9 @@ const outline =
 export default function QuickActionsCard({
   canPay,
   canShare,
+  canEmail,
   onRecordPayment,
+  onEmail,
   onSendReminder,
   onCopyLink,
   onPreview,
@@ -18,7 +20,10 @@ export default function QuickActionsCard({
 }: {
   canPay: boolean;
   canShare: boolean;
+  /** Issued, not cancelled, and this user may issue invoices. */
+  canEmail: boolean;
   onRecordPayment: () => void;
+  onEmail: () => void;
   onSendReminder: () => void;
   onCopyLink: () => void;
   onPreview: () => void;
@@ -37,6 +42,9 @@ export default function QuickActionsCard({
           className="rounded-btn bg-brand hover:bg-brand/90 h-11 w-full text-sm font-bold text-white"
         >
           {t('recordPayment')}
+        </Button>
+        <Button variant="outline" disabled={!canEmail} onClick={onEmail} className={outline}>
+          {t('sendEmail')}
         </Button>
         <Button
           variant="outline"

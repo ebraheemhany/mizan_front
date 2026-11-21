@@ -1,4 +1,24 @@
 {
+    "VerifyBanner": {
+      "text": "Confirm your email <b>{email}</b> to send invoices and quotes to customers by email. We sent you a link.",
+      "resend": "Send the link again",
+      "resent": "Sent",
+      "sent": "A new link is on its way to {email}"
+    },
+    "SendEmail": {
+      "to": "To",
+      "message": "Message",
+      "optional": "optional",
+      "messagePlaceholder": "Leave it empty for a ready-made message with the details.",
+      "cancel": "Cancel",
+      "submit": "Send",
+      "unverified": "Confirm your email ({email}) first, so customer replies reach you. Use “Send the link again” in the strip at the top.",
+      "errors": {
+        "toRequired": "Enter the address to send to",
+        "toInvalid": "That email isn't valid",
+        "max": "The message is over 2000 characters"
+      }
+    },
     "Header": {
     "logo": "Mizan",
     "features": "Features",
@@ -173,6 +193,52 @@
   }
 },
 "Auth": {
+  "verify": {
+    "loading": "Confirming your email…",
+    "invalidTitle": "This link no longer works",
+    "invalidBody": "It may have expired. Open Mizan and send a new one from the strip at the top of the page.",
+    "errorTitle": "We couldn't confirm the email",
+    "retry": "Try again",
+    "doneTitle": "Email confirmed",
+    "doneBody": "<b>{email}</b> is confirmed. You can now email invoices and quotes to your customers.",
+    "continue": "Continue to Mizan"
+  },
+  "reset": {
+    "loading": "Checking the link…",
+    "invalidTitle": "This link no longer works",
+    "invalidBody": "It may have expired, been used already, or a newer link was requested. Ask for a new one.",
+    "newLink": "Get a new link",
+    "retry": "Try again",
+    "title": "Choose a new password",
+    "subtitle": "Pick a strong password you don't use anywhere else.",
+    "email": "Account",
+    "password": "New password",
+    "confirmPassword": "Confirm password",
+    "submit": "Save password",
+    "signsOut": "You'll be signed out on every device; log in again with the new password.",
+    "success": "Password changed. Log in with the new one.",
+    "errors": {
+      "passwordMin": "Use at least 8 characters",
+      "confirmRequired": "Confirm the password",
+      "passwordMismatch": "The passwords don't match"
+    }
+  },
+  "forgot": {
+    "title": "Forgot your password?",
+    "subtitle": "Enter the email you log in with and we'll send you a link to choose a new password.",
+    "email": "Email",
+    "submit": "Send the link",
+    "remembered": "Remembered it?",
+    "backToLogin": "Back to log in",
+    "sentTitle": "Check your inbox",
+    "sentBody": "If there's a Mizan account for <b>{email}</b>, a link to choose a new password is on its way.",
+    "sentHint": "The link works for one hour, and only once. Can't find it? Check your spam folder.",
+    "tryAnother": "Try another email",
+    "errors": {
+      "emailRequired": "Enter your email",
+      "emailInvalid": "That email isn't valid"
+    }
+  },
   "login": {
     "title": "Welcome back",
     "subtitle": "Sign in to keep track of your customers and invoices.",
@@ -505,6 +571,11 @@
 }
 },
 "InvoiceDetail": {
+  "emailDialog": {
+    "title": "Email the invoice",
+    "description": "Invoice {number} — {customer}",
+    "hint": "The customer gets an email in your company's name with the invoice details and a link to open it; replies come to your email."
+  },
   "title": "Invoice",
   "back": "Back to invoices",
   "downloadPdf": "Download PDF",
@@ -531,6 +602,7 @@
   },
   "note": "Notes",
   "quickActions": {
+    "sendEmail": "Send by email",
     "title": "Quick actions",
     "recordPayment": "Record payment",
     "sendReminder": "Send payment reminder",
@@ -553,6 +625,10 @@
   "history": {
     "title": "History",
     "events": {
+      "emailed": {
+        "title": "Emailed",
+        "detail": "To {to}"
+      },
       "created": {
         "title": "Invoice created",
         "detail": "by {name}"
@@ -580,7 +656,7 @@
       },
       "reminderSent": {
         "title": "Payment reminder sent",
-        "detail": "via {channel}"
+        "detail": "Via {channel}{to, select, none {} other { to {to}}}"
       },
       "chequeBounced": {
         "title": "Cheque bounced",
@@ -679,6 +755,9 @@
     "footer": "This invoice was issued with Mizan"
   },
   "toasts": {
+    "emailed": "Invoice sent to {to}",
+    "reminderEmailed": "Reminder emailed to {recipient}",
+    "noPhone": "{customer} has no phone number. Add it to the customer first.",
     "linkCopied": "Link copied",
     "linkFailed": "Could not copy the link",
     "reminderSent": "Reminder sent to {recipient}"
@@ -1185,6 +1264,7 @@
     "expired": "Expired"
   },
   "actions": {
+    "sendEmail": "Send by email",
     "open": "Actions",
     "statusActions": "Update quote status",
     "send": "Send to customer",
@@ -1285,6 +1365,7 @@
   "unavailable": "This quote does not exist or is no longer available.",
   "validity": "This quote is valid until {date}.",
   "history": {
+    "emailed": "Emailed to {to}",
     "title": "History",
     "created": "Quote created",
     "sent": "Quote sent to {customer}",
@@ -2310,6 +2391,11 @@
     "expense": "Expense"
   },
   "events": {
+    "passwordResetRequested": "Asked for a password reset link",
+    "passwordReset": "Changed the password with a reset link (signed out everywhere)",
+    "emailVerified": "Confirmed the email address",
+    "invoiceEmailed": "Emailed the invoice to {to}",
+    "quoteEmailed": "Emailed the quote to {to}",
     "logoChanged": "Changed the company logo",
     "logoRemoved": "Removed the company logo",
     "receiptAttached": "Attached a receipt{name, select, none {} other { “{name}”}}",
@@ -2342,7 +2428,7 @@
     "paymentRemoved": "Payment {payment} of {amount} removed",
     "invoiceCancelled": "Invoice of {amount} cancelled — {customer}",
     "draftCancelled": "Draft of {amount} cancelled",
-    "reminderSent": "Reminder recorded by {channel}",
+    "reminderSent": "Payment reminder by {channel}{to, select, none {} other { to {to}}}",
     "expenseAdded": "{category} expense of {amount}",
     "expenseAddedDue": "Due expense ({category}) of {amount}",
     "expensePaid": "Due expense of {amount} paid",
@@ -2674,6 +2760,14 @@
   }
 },
   "ApiErrors": {
+    "INVALID_RESET_TOKEN": "This reset link no longer works. Ask for a new one",
+    "INVALID_VERIFICATION_TOKEN": "This confirmation link no longer works. Send a new one",
+    "ALREADY_VERIFIED": "Your email is already confirmed",
+    "EMAIL_FAILED": "The email couldn't be sent right now. Try again in a few minutes",
+    "EMAIL_NOT_VERIFIED": "Confirm your email first to email customers",
+    "NO_CUSTOMER_EMAIL": "This customer has no email. Enter the address to send to",
+    "INVOICE_NOT_EMAILABLE": "Only an issued invoice that isn’t cancelled can be emailed",
+    "QUOTE_NOT_EMAILABLE": "This quote can't be answered now (a draft, expired, or already answered)",
     "FILE_EMPTY": "No file was sent; pick a file and try again",
     "FILE_TOO_LARGE": "The file is larger than allowed",
     "FILE_TYPE": "This kind of file isn't accepted here",
@@ -2746,7 +2840,7 @@
     "ACCOUNT_IN_USE": "This account is used in entries, so it can't be deleted."
   },
   "Session": {
-    "registered": "Account created. Log in to get started",
+    "registered": "Account created. Log in; we've also emailed you a link to confirm your address.",
     "loading": "Loading…",
     "unreachable": "We can't reach the server right now. Check your connection and try again",
     "retry": "Try again"
@@ -2773,12 +2867,14 @@
       "cancel": "Back"
     },
     "toasts": {
+      "inviteNotEmailed": "The invitation is ready, but the email to {email} didn't go. Copy the link and send it yourself.",
       "invited": "Invite created for {email}",
       "roleChanged": "{name} is now {role}",
       "removed": "{name} was removed from the team",
       "revoked": "Invite revoked"
     },
     "invite": {
+      "emailedHint": "We emailed the invitation to {name} at {email}. You can also send this link yourself: it works for 7 days, once.",
       "description": "You'll get a link to send to the person yourself (WhatsApp, email...).",
       "sending": "Creating…",
       "linkTitle": "Invite link ready",
@@ -2975,6 +3071,12 @@
     "noMatches": "No matching customers"
   },
   "QuotesApi": {
+    "emailed": "Quote sent to {to}",
+    "emailDialog": {
+      "title": "Email the quote",
+      "description": "Quote {number} — {customer}",
+      "hint": "The customer gets an email in your company's name with a link to view the quote and accept or decline it; replies come to your email."
+    },
     "retry": "Try again",
     "loadError": "We couldn't load the quote.",
     "notFoundTitle": "This quote doesn't exist",

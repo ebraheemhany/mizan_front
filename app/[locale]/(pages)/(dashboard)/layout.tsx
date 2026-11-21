@@ -3,6 +3,7 @@ import { setRequestLocale } from 'next-intl/server';
 import AppSidebar from '@/component/dashbord/AppSidebar';
 import MobileHeader from '@/component/dashbord/MobileHeader';
 import TopBar from '@/component/dashbord/TopBar';
+import VerifyEmailBanner from '@/component/dashbord/VerifyEmailBanner';
 import { SessionProvider } from '@/lib/auth/session';
 
 export default async function DashboardLayout({
@@ -22,6 +23,7 @@ export default async function DashboardLayout({
         <div className="min-w-0 flex-1">
           <MobileHeader />
           <TopBar />
+          <VerifyEmailBanner />
           <main className="p-4 sm:p-6 lg:p-8">{children}</main>
         </div>
       </div>

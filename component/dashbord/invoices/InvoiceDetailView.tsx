@@ -16,6 +16,7 @@ import { toUiDetail, useInvoice, useInvoiceAction } from '@/lib/invoices/hooks';
 import { printWithTitle } from '@/lib/print';
 import { cn } from '@/lib/utils';
 import PageHeader from '@/component/PageHeader';
+import SendEmailDialog, { type SendEmailInput } from '../SendEmailDialog';
 import AttachmentsCard from './AttachmentsCard';
 import CancelInvoiceDialog from './CancelInvoiceDialog';
 import HistoryTimeline from './HistoryTimeline';
@@ -28,6 +29,7 @@ import PreviewDialog from './PreviewDialog';
 import QuickActionsCard from './QuickActionsCard';
 import ReminderDialog, { type ReminderInput } from './ReminderDialog';
 import StatusBadge from './StatusBadge';
+import { useSendReminder } from './useSendReminder';
 import { canCancel, canRecordPayment, canSendReminder } from './utils';
 
 const outlineBtn =
@@ -84,9 +86,15 @@ function InvoiceDetailContent({ data }: { data: NonNullable<ReturnType<typeof us
   const mayPay = can(user.role, 'recordPayments') && canRecordPayment(invoice);
   const mayRemind = mayIssue && canSendReminder(invoice);
   const mayCancel = mayIssue && canCancel(invoice);
+  // Issued and owed or paid (a draft has no page yet; a cancelled one isn't owed).
+  const mayEmail =
+    mayIssue && Boolean(data.publicToken) && invoice.status !== 'draft' && invoice.status !== 'cancelled';
+  const mailLocale: 'ar' | 'en' = locale === 'en' ? 'en' : 'ar';
+  const sendReminderTo = useSendReminder();
 
   const [paymentOpen, setPaymentOpen] = useState(false);
   const [reminderOpen, setReminderOpen] = useState(false);
+  const [emailOpen, setEmailOpen] = useState(false);
   const [previewOpen, setPreviewOpen] = useState(false);
   const [ledgerOpen, setLedgerOpen] = useState(false);
   const [cancelOpen, setCancelOpen] = useState(false);
@@ -114,13 +122,19 @@ function InvoiceDetailContent({ data }: { data: NonNullable<ReturnType<typeof us
     if (ok) setPaymentOpen(false);
   }
 
-  // Recorded in the history; actual email/WhatsApp delivery comes later.
   async function sendReminder(input: ReminderInput) {
-    const ok = await run(
-      action.mutateAsync({ kind: 'reminder', ref: invoice.id, body: input }),
-      t('toasts.reminderSent', { recipient: input.recipient }),
+    if (await sendReminderTo(invoice, input)) setReminderOpen(false);
+  }
+
+  function emailInvoice(input: SendEmailInput) {
+    return run(
+      action.mutateAsync({
+        kind: 'email',
+        ref: invoice.id,
+        body: { to: input.to, message: input.message || undefined, locale: mailLocale },
+      }),
+      t('toasts.emailed', { to: input.to }),
     );
-    if (ok) setReminderOpen(false);
   }
 
   function issue() {
@@ -227,6 +241,8 @@ function InvoiceDetailContent({ data }: { data: NonNullable<ReturnType<typeof us
           <QuickActionsCard
             canPay={mayPay}
             canShare={Boolean(data.publicToken)}
+            canEmail={mayEmail}
+            onEmail={() => setEmailOpen(true)}
             onRecordPayment={() => setPaymentOpen(true)}
             onSendReminder={() => (mayRemind ? setReminderOpen(true) : undefined)}
             onCopyLink={copyLink}
@@ -248,6 +264,16 @@ function InvoiceDetailContent({ data }: { data: NonNullable<ReturnType<typeof us
       />
 
       <ReminderDialog open={reminderOpen} onOpenChange={setReminderOpen} invoice={invoice} onSend={sendReminder} />
+
+      <SendEmailDialog
+        open={emailOpen}
+        onOpenChange={setEmailOpen}
+        title={t('emailDialog.title')}
+        description={t('emailDialog.description', { number: data.displayNumber, customer: invoice.customer })}
+        defaultTo={invoice.client.email ?? ''}
+        hint={t('emailDialog.hint')}
+        onSend={emailInvoice}
+      />
 
       <PreviewDialog open={previewOpen} onOpenChange={setPreviewOpen} invoice={invoice} />
 

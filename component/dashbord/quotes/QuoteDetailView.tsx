@@ -9,6 +9,7 @@ import {
   FileText,
   Link2,
   Loader2,
+  Mail,
   Pencil,
   Receipt,
   Send,
@@ -16,15 +17,17 @@ import {
   X,
   type LucideIcon,
 } from 'lucide-react';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
+import { toast } from 'sonner';
 import ConfirmDialog from '@/component/ConfirmDialog';
 import PageHeader from '@/component/PageHeader';
 import { Button, buttonVariants } from '@/components/ui/button';
 import { Link, useRouter } from '@/i18n/navigation';
 import { ApiError } from '@/lib/api/client';
 import { useDate } from '@/lib/data';
-import { toUiQuoteDetail, useQuote, type ApiQuoteDetail } from '@/lib/quotes/hooks';
+import { toUiQuoteDetail, useEmailQuote, useQuote, type ApiQuoteDetail } from '@/lib/quotes/hooks';
 import { cn } from '@/lib/utils';
+import SendEmailDialog, { type SendEmailInput } from '../SendEmailDialog';
 import QuoteDocument from './QuoteDocument';
 import QuoteHistory from './QuoteHistory';
 import QuoteStatusBadge from './QuoteStatusBadge';
@@ -87,10 +90,28 @@ function QuoteDetailContent({ data }: { data: ApiQuoteDetail }) {
   const router = useRouter();
   const date = useDate();
   const actions = useQuoteActions();
+  const locale = useLocale();
+  const errorMessage = useQuoteErrorMessage();
+  const emailQuote = useEmailQuote();
   const [deleteOpen, setDeleteOpen] = useState(false);
+  const [emailOpen, setEmailOpen] = useState(false);
 
   const quote = toUiQuoteDetail(data);
   const { allowed } = actions;
+
+  async function sendEmail(input: SendEmailInput) {
+    try {
+      await emailQuote.mutateAsync({
+        ref: quote.id,
+        body: { to: input.to, message: input.message || undefined, locale: locale === 'en' ? 'en' : 'ar' },
+      });
+      toast.success(tApi('emailed', { to: input.to }));
+      return true;
+    } catch (error) {
+      toast.error(errorMessage(error));
+      return false;
+    }
+  }
 
   async function remove() {
     setDeleteOpen(false);
@@ -104,6 +125,9 @@ function QuoteDetailContent({ data }: { data: ApiQuoteDetail }) {
   }
   if (allowed.send(quote)) {
     list.push({ key: 'send', label: tq('actions.send'), icon: Send, run: () => void actions.send(quote), primary: true });
+  }
+  if (allowed.email(quote)) {
+    list.push({ key: 'email', label: tq('actions.sendEmail'), icon: Mail, run: () => setEmailOpen(true) });
   }
   if (allowed.decide(quote)) {
     list.push({ key: 'accept', label: tq('actions.accept'), icon: Check, run: () => void actions.accept(quote), primary: true });
@@ -216,6 +240,16 @@ function QuoteDetailContent({ data }: { data: ApiQuoteDetail }) {
           <QuoteHistory events={quote.history} customer={quote.customer} />
         </aside>
       </div>
+
+      <SendEmailDialog
+        open={emailOpen}
+        onOpenChange={setEmailOpen}
+        title={tApi('emailDialog.title')}
+        description={tApi('emailDialog.description', { number: quote.displayNumber, customer: quote.customer })}
+        defaultTo={quote.client.email ?? ''}
+        hint={tApi('emailDialog.hint')}
+        onSend={sendEmail}
+      />
 
       <ConfirmDialog
         open={deleteOpen}

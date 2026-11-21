@@ -26,7 +26,7 @@ export default function HistoryTimeline({
             e.type === 'payment' || e.type === 'paymentRemoved' || e.type === 'chequeBounced'
               ? { ...e.values, amount: money(Number(e.values?.amount ?? 0)) }
               : e.type === 'reminderSent'
-                ? { channel: tChannels(String(e.values?.channel ?? 'email')) }
+                ? { channel: tChannels(String(e.values?.channel ?? 'email')), to: String(e.values?.to ?? 'none') }
                 : e.values;
           const hasDetail = t.has(`events.${e.type}.detail`);
 

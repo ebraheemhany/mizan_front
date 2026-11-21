@@ -14,6 +14,8 @@ export type SessionUser = {
   fullName: string;
   role: Role;
   createdAt: string;
+  /** null until the user opens the confirmation link emailed to them. */
+  emailVerifiedAt: string | null;
   company: { id: string; name: string };
 };
 

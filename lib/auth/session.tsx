@@ -106,6 +106,8 @@ export type RegisterInput = {
   companyName: string;
   email: string;
   password: string;
+  /** The language of the "confirm your email" email. */
+  locale: 'ar' | 'en';
 };
 
 export function useRegisterMutation() {

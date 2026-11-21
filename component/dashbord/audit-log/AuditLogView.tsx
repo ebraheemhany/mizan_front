@@ -103,6 +103,8 @@ function useAuditText() {
       role: word(tRoles, v['role']),
       from: line.event === 'roleChanged' ? word(tRoles, v['from']) : String(v['from'] ?? ''),
       email: String(v['email'] ?? ''),
+      // Who an email went to (reminders by WhatsApp have none).
+      to: v['to'] == null ? 'none' : String(v['to']),
       name: v['name'] == null ? 'none' : String(v['name']),
       count: Number(v['count'] ?? 0),
       fields: list(v['fields'], tFields),

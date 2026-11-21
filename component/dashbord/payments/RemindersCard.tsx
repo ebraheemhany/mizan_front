@@ -10,18 +10,7 @@ import { Button } from '@/components/ui/button';
 import { useMoney } from '@/lib/money';
 import type { OpenInvoice } from '@/lib/mock/payments';
 import type { OpenInvoiceRow } from '@/lib/payments/hooks';
-
-/**
- * WhatsApp needs the number in international form without "+":
- * an Egyptian "010 1234 5678" becomes "201012345678".
- */
-export function toWhatsAppNumber(phone: string | null) {
-  if (!phone) return null;
-  const digits = phone.replace(/D/g, '');
-  if (digits.startsWith('00')) return digits.slice(2);
-  if (digits.startsWith('0')) return `20${digits.slice(1)}`;
-  return digits || null;
-}
+import { openWhatsApp, toWhatsAppNumber } from '@/lib/whatsapp';
 
 export default function RemindersCard({
   invoices,
@@ -59,11 +48,7 @@ export default function RemindersCard({
       days: num(daysLate),
     });
 
-    window.open(
-      `https://wa.me/${phone}?text=${encodeURIComponent(text)}`,
-      '_blank',
-      'noopener,noreferrer',
-    );
+    openWhatsApp(phone, text);
   }
 
   return (

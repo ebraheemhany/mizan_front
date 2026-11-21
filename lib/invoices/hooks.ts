@@ -273,7 +273,7 @@ export function useCreateInvoice() {
   });
 }
 
-/** Actions on one invoice: send (issue a draft), cancel, payment, reminder. */
+/** Actions on one invoice: send (issue a draft), cancel, payment, reminder, email it to the customer. */
 export function useInvoiceAction() {
   const after = useAfterInvoiceChange();
   return useMutation({
@@ -282,13 +282,19 @@ export function useInvoiceAction() {
         | { kind: 'send'; ref: string | number }
         | { kind: 'cancel'; ref: string | number }
         | { kind: 'payment'; ref: string | number; body: { amount: string; date: string; method: string; note: string } }
-        | { kind: 'reminder'; ref: string | number; body: { channel: string; recipient: string; message: string } },
+        | {
+            kind: 'reminder';
+            ref: string | number;
+            body: { channel: 'email' | 'whatsapp'; recipient?: string; to?: string; message: string; locale: 'ar' | 'en' };
+          }
+        | { kind: 'email'; ref: string | number; body: { to: string; message?: string; locale: 'ar' | 'en' } },
     ) => {
       const path = {
         send: 'send',
         cancel: 'cancel',
         payment: 'payments',
         reminder: 'reminders',
+        email: 'email',
       }[action.kind];
       const body = 'body' in action ? action.body : undefined;
       return (await api<InvoiceResponse>(`/api/invoices/${action.ref}/${path}`, { method: 'POST', body })).invoice;

@@ -38,6 +38,7 @@ import InvoicesTable from './InvoicesTable';
 import InvoicesToolbar from './InvoicesToolbar';
 import PaymentDialog, { type PaymentInput } from './PaymentDialog';
 import ReminderDialog, { type ReminderInput } from './ReminderDialog';
+import { useSendReminder } from './useSendReminder';
 import { useExportInvoices } from './useExportInvoices';
 import { usePrintInvoice } from './usePrintInvoice';
 import {
@@ -70,10 +71,10 @@ const EMPTY_STATS = {
 
 export default function InvoicesView() {
   const t = useTranslations('Invoices');
-  const tDetail = useTranslations('InvoiceDetail');
   const tApi = useTranslations('InvoicesApi');
   const money = useMoney();
   const errorMessage = useApiErrorMessage();
+  const sendReminderTo = useSendReminder();
   const user = useSession();
   const canIssue = can(user.role, 'issueInvoices');
   const canPay = can(user.role, 'recordPayments');
@@ -205,12 +206,8 @@ export default function InvoicesView() {
   async function sendReminder(input: ReminderInput) {
     const current = reminderQueue?.[0];
     if (!current) return;
-    try {
-      await action.mutateAsync({ kind: 'reminder', ref: current.id, body: input });
-      toast.success(tDetail('toasts.reminderSent', { recipient: input.recipient }));
+    if (await sendReminderTo(current, input)) {
       setReminderQueue((prev) => (!prev || prev.length <= 1 ? null : prev.slice(1)));
-    } catch (error) {
-      toast.error(errorMessage(error));
     }
   }
 

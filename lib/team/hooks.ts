@@ -57,8 +57,9 @@ export function usePendingInvitations(enabled = true) {
 export function useInviteMutation() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (input: { name: string; email: string; role: InvitableRole }) =>
-      api<{ invitation: PendingInvitation; inviteUrl: string }>('/api/invitations', {
+    mutationFn: (input: { name: string; email: string; role: InvitableRole; locale: 'ar' | 'en' }) =>
+      // emailSent: false when the invitation email couldn't go (the link can still be copied).
+      api<{ invitation: PendingInvitation; inviteUrl: string; emailSent: boolean }>('/api/invitations', {
         method: 'POST',
         body: input,
       }),
@@ -121,7 +122,7 @@ export function useInvitationPreview(token: string) {
 
 export function useAcceptInvitationMutation() {
   return useMutation({
-    mutationFn: (input: { token: string; password: string; fullName?: string }) =>
+    mutationFn: (input: { token: string; password: string; fullName?: string; locale: 'ar' | 'en' }) =>
       api('/api/invitations/accept', { method: 'POST', auth: false, body: input }),
   });
 }

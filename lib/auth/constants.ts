@@ -13,6 +13,8 @@ export const PUBLIC_SECTIONS = new Set([
   'login',
   'register',
   'forgot-password',
+  'reset-password', // the link in the "forgot password" email
+  'verify-email', // the link in the "confirm your email" email
   'terms',
   'privacy',
   'invite', // accept an invitation

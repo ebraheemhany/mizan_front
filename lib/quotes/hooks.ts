@@ -50,7 +50,7 @@ type ApiParty = {
   logoId?: string | null;
 };
 
-export type QuoteEventType = 'created' | 'sent' | 'accepted' | 'rejected' | 'converted';
+export type QuoteEventType = 'created' | 'sent' | 'emailed' | 'accepted' | 'rejected' | 'converted';
 
 type ApiQuoteEvent = {
   id: string;
@@ -370,6 +370,16 @@ export function useQuoteAction() {
   return useMutation({
     mutationFn: async ({ kind, ref }: { kind: 'send' | 'accept' | 'reject' | 'duplicate'; ref: string | number }) =>
       (await api<QuoteResponse>(`/api/quotes/${ref}/${kind}`, { method: 'POST' })).quote,
+    onSuccess: after,
+  });
+}
+
+/** Emails a sent quote (its answer link) to the customer. */
+export function useEmailQuote() {
+  const after = useAfterQuoteChange();
+  return useMutation({
+    mutationFn: async ({ ref, body }: { ref: string | number; body: { to: string; message?: string; locale: 'ar' | 'en' } }) =>
+      (await api<QuoteResponse>(`/api/quotes/${ref}/email`, { method: 'POST', body })).quote,
     onSuccess: after,
   });
 }

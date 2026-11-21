@@ -36,7 +36,7 @@ export default function InviteSheet({
   const invite = useInviteMutation();
 
   // After a successful invite the sheet shows the link instead of the form.
-  const [created, setCreated] = useState<{ name: string; url: string } | null>(null);
+  const [created, setCreated] = useState<{ name: string; email: string; url: string; emailSent: boolean } | null>(null);
   const [copied, setCopied] = useState(false);
 
   const {
@@ -69,9 +69,11 @@ export default function InviteSheet({
 
   async function submit(values: InviteValues) {
     try {
-      const result = await invite.mutateAsync(values);
-      setCreated({ name: values.name, url: result.inviteUrl });
-      toast.success(tTeam('toasts.invited', { email: result.invitation.email }));
+      const result = await invite.mutateAsync({ ...values, locale: locale === 'en' ? 'en' : 'ar' });
+      const { email } = result.invitation;
+      setCreated({ name: values.name, email, url: result.inviteUrl, emailSent: result.emailSent });
+      if (result.emailSent) toast.success(tTeam('toasts.invited', { email }));
+      else toast.warning(tTeam('toasts.inviteNotEmailed', { email }));
     } catch (err) {
       if (err instanceof ApiError && err.code === 'EMAIL_TAKEN') {
         setError('email', { message: 'emailTaken' });
@@ -99,7 +101,9 @@ export default function InviteSheet({
             {created ? tTeam('invite.linkTitle') : t('title')}
           </SheetTitle>
           <SheetDescription className="text-muted text-xs">
-            {created ? tTeam('invite.linkHint', { name: created.name }) : tTeam('invite.description')}
+            {created
+              ? tTeam(created.emailSent ? 'invite.emailedHint' : 'invite.linkHint', { name: created.name, email: created.email })
+              : tTeam('invite.description')}
           </SheetDescription>
         </SheetHeader>
 

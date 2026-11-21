@@ -11,6 +11,7 @@ import { Link, useRouter } from '@/i18n/navigation';
 import { ApiError } from '@/lib/api/client';
 import { useApiErrorMessage } from '@/lib/api/use-api-error';
 import { useRegisterMutation } from '@/lib/auth/session';
+import { useMailLocale } from '@/lib/auth/account';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
@@ -38,6 +39,7 @@ export default function RegisterForm() {
   const tSession = useTranslations('Session');
   const router = useRouter();
   const registerMutation = useRegisterMutation();
+  const locale = useMailLocale();
   const errorMessage = useApiErrorMessage();
 
   const schema = useMemo(
@@ -86,6 +88,7 @@ export default function RegisterForm() {
         companyName: values.companyName,
         email: values.email,
         password: values.password,
+        locale,
       });
       toast.success(tSession('registered'));
       router.push('/login');

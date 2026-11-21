@@ -47,6 +47,8 @@ export function useQuoteActions() {
   const allowed = {
     edit: (q: QuoteRef) => mayManage && q.status === 'draft',
     send: (q: QuoteRef) => mayManage && q.status === 'draft',
+    /** By email while the customer can still answer it. */
+    email: (q: QuoteRef) => mayManage && q.status === 'sent',
     decide: (q: QuoteRef) => mayManage && (q.status === 'sent' || q.status === 'expired'),
     convert: (q: QuoteRef) => mayConvert && q.status === 'accepted' && !q.invoice,
     duplicate: () => mayManage,
