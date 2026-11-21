@@ -19,8 +19,7 @@ import {
 } from '@dnd-kit/core';
 import { TrendingDown } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import type { Owner } from '@/lib/mock/customers';
-import { STAGES, type Deal, type DealStage } from '@/lib/mock/deals';
+import { STAGES, type Deal, type DealStage } from '@/lib/deals/model';
 import { cn } from '@/lib/utils';
 import DealCard from './DealCard';
 import DealColumn from './DealColumn';
@@ -58,14 +57,12 @@ function LostZone() {
 
 export default function DealsBoard({
   deals,
-  owners,
   onMove,
   onEdit,
   onDelete,
   onLose,
 }: {
   deals: Deal[];
-  owners: Owner[];
   onMove: (id: string, stage: DealStage) => void;
   onEdit: (deal: Deal) => void;
   onDelete: (deal: Deal) => void;
@@ -141,7 +138,6 @@ export default function DealsBoard({
                 stage={s.key}
                 dot={s.dot}
                 deals={deals.filter((d) => d.stage === s.key)}
-                owners={owners}
                 onMove={onMove}
                 onEdit={onEdit}
                 onDelete={onDelete}
@@ -155,7 +151,7 @@ export default function DealsBoard({
       {active && <LostZone />}
 
       <DragOverlay dropAnimation={null}>
-        {active ? <DealCard deal={active} owners={owners} overlay /> : null}
+        {active ? <DealCard deal={active} overlay /> : null}
       </DragOverlay>
     </DndContext>
   );

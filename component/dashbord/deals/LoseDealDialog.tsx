@@ -16,7 +16,7 @@ import {
 } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { LOSS_REASONS, type Deal, type LossReason } from '@/lib/mock/deals';
+import { LOSS_REASONS, type Deal, type LossReason } from '@/lib/deals/model';
 import { useMoney } from '@/lib/money';
 
 function LoseForm({

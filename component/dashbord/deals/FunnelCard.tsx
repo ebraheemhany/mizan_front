@@ -4,7 +4,7 @@
 import { useMemo } from 'react';
 import { Funnel, TrendingDown } from 'lucide-react';
 import { useFormatter, useTranslations } from 'next-intl';
-import { STAGES, type Deal } from '@/lib/mock/deals';
+import { STAGES, type Deal } from '@/lib/deals/model';
 import { cn } from '@/lib/utils';
 import { buildFunnel, previousStage } from './funnel';
 

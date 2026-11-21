@@ -118,11 +118,16 @@ function SummaryRow({
   );
 }
 
+/** A new invoice started from somewhere else (a won deal): its customer and one line. */
+export type InvoicePrefill = { customerId: string; customerName: string; description: string; unitPrice: string };
+
 export default function NewInvoiceView({
   sourceQuote,
+  prefill,
 }: {
   /** The accepted quote (its number) to convert: the form is pre-filled from it. */
   sourceQuote?: number;
+  prefill?: InvoicePrefill;
 }) {
   const t = useTranslations('InvoiceForm');
   const tApiErrors = useTranslations('ApiErrors');
@@ -178,11 +183,15 @@ export default function NewInvoiceView({
   if (quote?.customerId && !options.some((c) => c.id === quote.customerId)) {
     options.push({ id: quote.customerId, name: quote.customer, city: '' });
   }
+  if (prefill && prefill.customerName && !options.some((c) => c.id === prefill.customerId)) {
+    options.push({ id: prefill.customerId, name: prefill.customerName, city: '' });
+  }
 
   return (
     <InvoiceForm
       key={sourceQuote ?? 'blank'}
       sourceQuote={quote}
+      prefill={prefill}
       onQuoteGone={quoteGone}
       customers={options}
       vatRate={vatEnabled ? VAT_RATE : 0}
@@ -243,6 +252,7 @@ function QuoteNotConvertible({
 
 function InvoiceForm({
   sourceQuote,
+  prefill,
   onQuoteGone,
   customers,
   vatRate,
@@ -250,6 +260,7 @@ function InvoiceForm({
 }: {
   /** The accepted quote this invoice converts (pre-fills the form; sent as `fromQuote`). */
   sourceQuote?: QuoteDetail;
+  prefill?: InvoicePrefill;
   /** The server refused the conversion (already converted, no longer accepted, or gone). */
   onQuoteGone: () => Promise<void>;
   customers: CustomerOption[];
@@ -289,7 +300,15 @@ function InvoiceForm({
           : [EMPTY_ITEM],
         notes: sourceQuote.note.trim() || t('fromQuote.note', { number: sourceQuote.displayNumber }),
       }
-    : undefined;
+    : prefill
+      ? {
+          customerId: prefill.customerId,
+          issueDate: todayIso,
+          terms: defaultTerms,
+          items: [{ description: prefill.description, quantity: '1', unitPrice: prefill.unitPrice }],
+          notes: '',
+        }
+      : undefined;
 
   const schema = useMemo(
     () =>

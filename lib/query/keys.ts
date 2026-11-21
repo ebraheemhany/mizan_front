@@ -84,6 +84,11 @@ export const queryKeys = {
     trial: (month: string) => ['ledger', 'trial', month] as const,
     periods: ['ledger', 'periods'] as const,
   },
+  /** The sales pipeline: one list for the whole board (and the sidebar count). */
+  deals: {
+    all: ['deals'] as const,
+    list: ['deals', 'list'] as const,
+  },
   /** The audit log (owner only). */
   audit: {
     all: ['audit'] as const,

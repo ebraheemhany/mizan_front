@@ -5,6 +5,7 @@ import { useFormatter, useTranslations } from 'next-intl';
 import { Link, usePathname } from '@/i18n/navigation';
 import { useInvoiceStats } from '@/lib/invoices/hooks';
 import { useTasks } from '@/lib/tasks/hooks';
+import { useDeals } from '@/lib/deals/hooks';
 import { cn } from '@/lib/utils';
 import { NAV_GROUPS, type NavItem, type NavKey } from './nav-config';
 
@@ -25,10 +26,13 @@ export default function SidebarNav({
   const openTasks = tasks.filter((task) => !task.done).length;
   // Overdue invoices, from the same stats as the invoices page (every role may read them).
   const overdueInvoices = useInvoiceStats().data?.overdueCount ?? 0;
+  // Open deals on the pipeline (every role may read them).
+  const openDeals = (useDeals().data?.deals ?? []).filter((d) => d.stage !== 'won' && !d.lost).length;
 
   const liveBadge = (key: NavKey, staticBadge: NavItem['badge']): NavItem['badge'] => {
     if (key === 'tasks') return openTasks > 0 ? { count: openTasks, tone: 'brand' } : undefined;
     if (key === 'invoices') return overdueInvoices > 0 ? { count: overdueInvoices, tone: 'danger' } : undefined;
+    if (key === 'deals') return openDeals > 0 ? { count: openDeals, tone: 'brand' } : undefined;
     return staticBadge;
   };
 

@@ -33,6 +33,8 @@ export const PERMISSIONS = [
    * see them). Converting one needs 'issueInvoices'; deleting a sent one, 'deleteData'.
    */
   { key: 'quotes', roles: ['owner', 'accountant', 'sales'] },
+  /** Work on the sales pipeline (everyone can see it); deleting a won deal needs deleteData. */
+  { key: 'deals', roles: ['owner', 'accountant', 'sales'] },
   { key: 'settings', roles: ['owner'] },
   { key: 'deleteData', roles: ['owner'] },
 ] as const satisfies readonly { key: string; roles: readonly Role[] }[];

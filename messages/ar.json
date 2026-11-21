@@ -885,7 +885,7 @@
     "title": "يحتاج إلى انتباه",
     "empty": "كل شيء على ما يرام، لا توجد عناصر تحتاج إلى متابعة.",
     "invoiceOverdue": "فاتورة #{number} متأخرة",
-    "staleDeal": "صفقة بلا متابعة",
+    "staleDeal": "«{title}» بلا متابعة",
     "pendingQuote": "عرض سعر ينتظر الرد",
     "item": "{customer} · {amount}",
     "days": "{count, plural, one {يوم واحد} two {يومان} few {# أيام} many {# يوماً} other {# يوم}}"
@@ -962,7 +962,8 @@
     "owner": "المسؤول",
     "ownerAll": "الكل",
     "attention": "تحتاج متابعة",
-    "clear": "مسح الفلاتر"
+    "clear": "مسح الفلاتر",
+    "ownerNone": "بدون مسؤول"
   },
   "stages": {
     "lead": "عميل محتمل",
@@ -978,6 +979,7 @@
   "card": {
     "owner": "المسؤول: {name}",
     "followUpToday": "متابعة اليوم",
+    "awaitingNew": "بانتظار الرد",
     "awaiting": "بانتظار الرد منذ {days}",
     "stale": "بلا متابعة منذ {days}",
     "days": "{count, plural, one {يوم} two {يومين} few {# أيام} many {# يوماً} other {# يوم}}"
@@ -989,7 +991,9 @@
     "createInvoice": "إنشاء فاتورة",
     "added": "تمت إضافة صفقة «{title}»",
     "updated": "تم حفظ تعديلات «{title}»",
-"deleted": "تم حذف «{title}»"
+    "deleted": "تم حذف «{title}»",
+    "followedUp": "اتسجلت متابعة «{title}»",
+    "awaiting": "اتسجلت المتابعة، و«{title}» مستنية رد العميل"
   },
   "a11y": {
     "instructions": "اضغط المسافة لحمل الصفقة، ثم استخدم الأسهم لنقلها بين المراحل، واضغط المسافة مرة أخرى للإفلات أو Esc للإلغاء.",
@@ -999,103 +1003,109 @@
     "cancel": "تم إلغاء النقل."
   },
   "addSheet": {
-  "title": "صفقة جديدة",
-  "description": "أضف صفقة إلى المسار وستظهر في المرحلة التي تختارها.",
-  "close": "إغلاق",
-  "dealTitle": "عنوان الصفقة",
-  "dealTitlePlaceholder": "مثال: عقد صيانة سنوي",
-  "value": "قيمة الصفقة",
-  "stage": "المرحلة",
-  "owner": "المسؤول",
-  "ownerSearch": "ابحث عن مسؤول",
-  "ownerEmpty": "لا يوجد مسؤول بهذا الاسم",
-  "addOwner": "إضافة مسؤول جديد",
-  "ownerName": "اسم المسؤول",
-  "ownerNamePlaceholder": "مثال: أحمد محمد",
-  "createOwner": "إضافة المسؤول",
-  "closeDate": "الإغلاق المتوقع",
-  "pickDate": "اختر التاريخ",
-  "notes": "ملاحظات",
-  "notesPlaceholder": "أي تفاصيل تفيد فريقك عن هذه الصفقة",
-  "expectedHint": "احتمال الإغلاق {percent} · المتوقع {amount}",
-  "submit": "إضافة الصفقة",
-  "cancel": "إلغاء",
-  "editTitle": "تعديل الصفقة",
-"editDescription": "عدّل بيانات الصفقة ثم احفظ التعديلات.",
-"saveChanges": "حفظ التعديلات",
-  "errors": {
-    "titleRequired": "عنوان الصفقة مطلوب",
-    "titleMax": "العنوان طويل جداً (الحد الأقصى 80 حرفاً)",
-    "valueInvalid": "أدخل قيمة صحيحة أكبر من صفر",
-    "dateRequired": "تاريخ الإغلاق المتوقع مطلوب",
-    "ownerNameRequired": "اسم المسؤول مطلوب",
-    "notesMax": "الملاحظات يجب ألا تزيد عن 500 حرف"
-  }
-},
-"funnel": {
-  "title": "قمع التحويل",
-  "subtitle": "كم صفقة وصلت لكل مرحلة، ونسبة الانتقال من المرحلة السابقة",
-  "reached": "{count, plural, one {صفقة واحدة} two {صفقتان} few {# صفقات} many {# صفقة} other {# صفقة}}",
-  "overallLabel": "التحويل الكلي",
-  "overallHint": "من «{from}» إلى «{to}»",
-  "weakestLabel": "أكبر نقطة فقد",
-  "weakestHint": "من «{from}» إلى «{to}»",
-  "empty": "لا توجد صفقات كافية لحساب القمع.",
-  "note": "تقديرية: محسوبة من مرحلة كل صفقة حالياً."
-},
-"lost": {
-  "action": "خسرنا الصفقة",
-  "reopen": "إعادة فتح",
-  "moveTo": "نقل إلى",
-  "menu": "إجراءات الصفقة",
-  "zone": "اسحب هنا لتسجيلها كصفقة خاسرة",
-  "zoneLabel": "صفقة خاسرة",
-  "dialog": {
-    "title": "تسجيل صفقة خاسرة",
-    "description": "«{title}» · {customer} · {amount}",
-    "reason": "ما سبب الخسارة؟",
-    "note": "ملاحظة (اختياري)",
-    "notePlaceholder": "أي تفاصيل تفيد فريقك في الصفقات القادمة",
-    "reasonRequired": "اختر سبب الخسارة",
-    "noteMax": "الملاحظة يجب ألا تزيد عن 300 حرف",
-    "confirm": "تأكيد الخسارة",
+    "title": "صفقة جديدة",
+    "description": "أضف صفقة إلى المسار وستظهر في المرحلة التي تختارها.",
+    "close": "إغلاق",
+    "dealTitle": "عنوان الصفقة",
+    "dealTitlePlaceholder": "مثال: عقد صيانة سنوي",
+    "value": "قيمة الصفقة",
+    "stage": "المرحلة",
+    "owner": "المسؤول",
+    "ownerSearch": "ابحث عن مسؤول",
+    "ownerEmpty": "لا يوجد مسؤول بهذا الاسم",
+    "closeDate": "الإغلاق المتوقع",
+    "pickDate": "اختر التاريخ",
+    "notes": "ملاحظات",
+    "notesPlaceholder": "أي تفاصيل تفيد فريقك عن هذه الصفقة",
+    "expectedHint": "احتمال الإغلاق {percent} · المتوقع {amount}",
+    "submit": "إضافة الصفقة",
     "cancel": "إلغاء",
-    "close": "إغلاق"
+    "editTitle": "تعديل الصفقة",
+    "editDescription": "عدّل بيانات الصفقة ثم احفظ التعديلات.",
+    "saveChanges": "حفظ التعديلات",
+    "errors": {
+      "titleRequired": "عنوان الصفقة مطلوب",
+      "titleMax": "العنوان طويل جداً (الحد الأقصى 80 حرفاً)",
+      "valueInvalid": "أدخل قيمة صحيحة أكبر من صفر",
+      "dateRequired": "تاريخ الإغلاق المتوقع مطلوب",
+      "notesMax": "الملاحظات يجب ألا تزيد عن 500 حرف"
+    },
+    "noOwner": "بدون مسؤول",
+    "wonDate": "تاريخ الإغلاق",
+    "followUpDate": "المتابعة القادمة",
+    "noFollowUp": "مفيش ميعاد",
+    "clearFollowUp": "إلغاء ميعاد المتابعة",
+    "awaitingReply": "مستنيين رد العميل"
   },
-  "reasons": {
-    "price": "السعر مرتفع",
-    "competitor": "اختار منافساً",
-    "postponed": "أجّل القرار",
-    "noResponse": "لم يعد يرد",
-    "noNeed": "لم يعد محتاجاً",
-    "other": "سبب آخر"
+  "funnel": {
+    "title": "قمع التحويل",
+    "subtitle": "كم صفقة وصلت لكل مرحلة، ونسبة الانتقال من المرحلة السابقة",
+    "reached": "{count, plural, one {صفقة واحدة} two {صفقتان} few {# صفقات} many {# صفقة} other {# صفقة}}",
+    "overallLabel": "التحويل الكلي",
+    "overallHint": "من «{from}» إلى «{to}»",
+    "weakestLabel": "أكبر نقطة فقد",
+    "weakestHint": "من «{from}» إلى «{to}»",
+    "empty": "لا توجد صفقات كافية لحساب القمع.",
+    "note": "تقديرية: محسوبة من مرحلة كل صفقة حالياً."
   },
-  "card": {
-    "title": "الصفقات الخاسرة",
-    "summary": "{count, plural, one {صفقة واحدة} two {صفقتان} few {# صفقات} many {# صفقة} other {# صفقة}} · بقيمة {amount}",
-    "reasonsTitle": "أسباب الخسارة",
-    "empty": "لا توجد صفقات خاسرة حتى الآن.",
-    "fromStage": "خسرناها في مرحلة {stage}"
+  "lost": {
+    "action": "خسرنا الصفقة",
+    "reopen": "إعادة فتح",
+    "moveTo": "نقل إلى",
+    "menu": "إجراءات الصفقة",
+    "zone": "اسحب هنا لتسجيلها كصفقة خاسرة",
+    "zoneLabel": "صفقة خاسرة",
+    "dialog": {
+      "title": "تسجيل صفقة خاسرة",
+      "description": "«{title}» · {customer} · {amount}",
+      "reason": "ما سبب الخسارة؟",
+      "note": "ملاحظة (اختياري)",
+      "notePlaceholder": "أي تفاصيل تفيد فريقك في الصفقات القادمة",
+      "reasonRequired": "اختر سبب الخسارة",
+      "noteMax": "الملاحظة يجب ألا تزيد عن 300 حرف",
+      "confirm": "تأكيد الخسارة",
+      "cancel": "إلغاء",
+      "close": "إغلاق"
+    },
+    "reasons": {
+      "price": "السعر مرتفع",
+      "competitor": "اختار منافساً",
+      "postponed": "أجّل القرار",
+      "noResponse": "لم يعد يرد",
+      "noNeed": "لم يعد محتاجاً",
+      "other": "سبب آخر"
+    },
+    "card": {
+      "title": "الصفقات الخاسرة",
+      "summary": "{count, plural, one {صفقة واحدة} two {صفقتان} few {# صفقات} many {# صفقة} other {# صفقة}} · بقيمة {amount}",
+      "reasonsTitle": "أسباب الخسارة",
+      "empty": "لا توجد صفقات خاسرة حتى الآن.",
+      "fromStage": "خسرناها في مرحلة {stage}"
+    },
+    "toasts": {
+      "lost": "تم تسجيل «{title}» كصفقة خاسرة",
+      "reopened": "أُعيد فتح «{title}»",
+      "undo": "تراجع"
+    }
   },
-  "toasts": {
-    "lost": "تم تسجيل «{title}» كصفقة خاسرة",
-    "reopened": "أُعيد فتح «{title}»",
-    "undo": "تراجع"
-  }
-},
-"menu": {
-  "open": "إجراءات الصفقة",
-  "edit": "تعديل الصفقة",
-  "moveTo": "نقل إلى",
-  "lose": "خسرنا الصفقة",
-  "delete": "حذف الصفقة"
-},
-"deleteDialog": {
-  "title": "حذف الصفقة «{title}»؟",
-  "description": "ستُحذف الصفقة نهائياً من المسار وتُحتسب خارج الأرقام والقمع. لا يمكن التراجع عن هذا الإجراء.",
-  "keep": "تراجع",
-  "confirm": "نعم، احذف الصفقة"
-}
+  "menu": {
+    "open": "إجراءات الصفقة",
+    "edit": "تعديل الصفقة",
+    "moveTo": "نقل إلى",
+    "lose": "خسرنا الصفقة",
+    "delete": "حذف الصفقة",
+    "invoice": "إنشاء فاتورة",
+    "followedUp": "تابعت النهارده",
+    "awaiting": "تابعت، ومستني رده"
+  },
+  "deleteDialog": {
+    "title": "حذف الصفقة «{title}»؟",
+    "description": "ستُحذف الصفقة نهائياً من المسار وتُحتسب خارج الأرقام والقمع. لا يمكن التراجع عن هذا الإجراء.",
+    "keep": "تراجع",
+    "confirm": "نعم، احذف الصفقة"
+  },
+  "subtitleReadOnly": "متابعة الصفقات من أول تواصل لحد الإغلاق (عرض فقط)",
+  "retry": "حاول تاني"
 },
 "Quotes": {
   "title": "عرض الأسعار",
@@ -2063,6 +2073,7 @@
       "reports": "التقارير المالية",
       "tasks": "إضافة وتعديل المهام",
       "quotes": "إنشاء وإرسال عروض الأسعار",
+      "deals": "العمل على الصفقات",
       "settings": "الإعدادات والمستخدمين",
       "deleteData": "حذف البيانات",
       "ledger": "الحسابات والقيود",
@@ -2259,7 +2270,8 @@
     "company": "{ref}",
     "entry": "قيد {ref}",
     "ledgerAccount": "حساب {ref}",
-    "period": "{ref}"
+    "period": "{ref}",
+    "deal": "صفقة: {ref}"
   },
   "itemTypes": {
     "customer": "العملاء",
@@ -2328,7 +2340,16 @@
     "draftsPosted": "ترحيل {count, plural, one {قيد مسودة واحد} two {قيدين مسودة} few {# قيود مسودة} many {# قيداً مسودة} other {# قيد مسودة}} في {month}",
     "entryDeleted": "حذف القيد: {memo}",
     "periodClosed": "إقفال الحسابات حتى {through}",
-    "periodReopened": "إعادة فتح الشهر (مقفول دلوقتي حتى {through})"
+    "periodReopened": "إعادة فتح الشهر (مقفول دلوقتي حتى {through})",
+    "dealCreated": "صفقة جديدة بقيمة {amount} — {customer}",
+    "dealUpdated": "تعديل: {fields}",
+    "dealMoved": "نقل من «{fromStage}» إلى «{toStage}»",
+    "dealWon": "إغلاق الصفقة بنجاح بقيمة {amount}",
+    "dealLost": "خسارة الصفقة ({reason})",
+    "dealReopened": "إعادة فتح الصفقة",
+    "dealFollowedUp": "تسجيل متابعة",
+    "dealAwaiting": "تسجيل متابعة، ومستنيين رد العميل",
+    "dealDeleted": "حذف صفقة بقيمة {amount} — {customer}"
   },
   "methods": {
     "cash": "نقدي",
@@ -2357,7 +2378,15 @@
     "category": "الفئة",
     "type": "النوع",
     "stock": "المخزون",
-    "lowStockAt": "حد التنبيه"
+    "lowStockAt": "حد التنبيه",
+    "title": "العنوان",
+    "value": "القيمة",
+    "stage": "المرحلة",
+    "closeDate": "الإغلاق المتوقع",
+    "followUpDate": "المتابعة",
+    "customerId": "العميل",
+    "ownerId": "المسؤول",
+    "awaitingReply": "انتظار الرد"
   },
   "sections": {
     "company": "بيانات الشركة",
@@ -2658,6 +2687,10 @@
     "RECURRING_CHANGED": "القالب عمل فاتورة وانت بتعدّله. افتحه تاني وعدّل من الأول.",
     "RECURRING_RUN_FAILED": "حصلت مشكلة وإحنا بنعمل الفاتورة. هنحاول تاني تلقائياً.",
     "RECURRING_SKIPPED_CLOSED": "فاتورة ميعادها في شهر اتقفل في الحسابات اتخطّت، والقالب كمّل على اللي بعدها.",
+    "DEAL_LOST": "الصفقة دي متسجلة خسرانة. افتحها تاني الأول.",
+    "DEAL_NOT_OPEN": "الصفقة دي مش مفتوحة.",
+    "DEAL_NOT_LOST": "الصفقة دي مش خسرانة.",
+    "DEAL_CHANGED": "حد عدّل الصفقة دي دلوقتي. حدّث الصفحة وحاول تاني.",
     "PERIOD_CLOSED": "التاريخ ده في فترة مقفولة في الحسابات. غيّر التاريخ، أو خلّي المالك يعيد فتح الفترة من صفحة الحسابات.",
     "PERIOD_NOT_ENDED": "مينفعش تقفل شهر لسه مخلصش.",
     "PERIOD_ALREADY_CLOSED": "الشهر ده مقفول بالفعل.",

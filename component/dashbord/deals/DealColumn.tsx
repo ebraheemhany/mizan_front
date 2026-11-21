@@ -3,8 +3,7 @@
 
 import { useDroppable } from '@dnd-kit/core';
 import { useFormatter, useTranslations } from 'next-intl';
-import type { Owner } from '@/lib/mock/customers';
-import { weightedValue, type Deal, type DealStage } from '@/lib/mock/deals';
+import { weightedValue, type Deal, type DealStage } from '@/lib/deals/model';
 import { useMoney } from '@/lib/money';
 import { cn } from '@/lib/utils';
 import DraggableDeal from './DraggableDeal';
@@ -13,7 +12,6 @@ export default function DealColumn({
   stage,
   dot,
   deals,
-  owners,
   onMove,
   onEdit,
   onDelete,
@@ -22,7 +20,6 @@ export default function DealColumn({
   stage: DealStage;
   dot: string;
   deals: Deal[];
-  owners: Owner[];
   onMove: (id: string, stage: DealStage) => void;
   onEdit: (deal: Deal) => void;
   onDelete: (deal: Deal) => void;
@@ -78,7 +75,6 @@ export default function DealColumn({
             <DraggableDeal
               key={d.id}
               deal={d}
-              owners={owners}
               onMove={onMove}
               onEdit={onEdit}
               onDelete={onDelete}

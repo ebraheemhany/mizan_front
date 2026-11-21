@@ -1,10 +1,10 @@
 // lib/validations/deal.ts
 import { z } from 'zod';
+import { OPEN_STAGES, type Deal } from '@/lib/deals/model';
 import { parseNumber } from './invoice';
-import { CUSTOMERS } from '@/lib/mock/customers';
-import type { Deal } from '@/lib/mock/deals';
-// الصفقة بتتقفل بالسحب بس، فمرحلة "تم الإغلاق" مش متاحة في النموذج
-export const OPEN_STAGES = ['lead', 'contacted', 'proposal', 'negotiation'] as const;
+
+// A deal is won by moving it on the board, so "won" isn't offered in the form.
+export { OPEN_STAGES };
 
 type DealMessages = {
   titleRequired: string;
@@ -19,56 +19,39 @@ export const createDealSchema = (m: DealMessages) =>
   z.object({
     title: z.string().trim().min(1, m.titleRequired).max(80, m.titleMax),
     customerId: z.string().min(1, m.customerRequired),
-    value: z.string().trim().refine((v) => {
-      const n = parseNumber(v);
-      return v !== '' && Number.isFinite(n) && n > 0;
-    }, m.valueInvalid),
+    value: z
+      .string()
+      .trim()
+      .refine((v) => {
+        const n = parseNumber(v);
+        return v !== '' && Number.isFinite(n) && n > 0 && /^\d{1,12}(\.\d{1,2})?$/.test(v.replace(/[,\s]/g, ''));
+      }, m.valueInvalid),
     stage: z.enum(OPEN_STAGES),
-    ownerId: z.string().min(1),
+    // '' = nobody yet.
+    ownerId: z.string(),
     closeDate: z.string().min(1, m.dateRequired),
+    // '' = no follow-up planned.
+    followUpDate: z.string(),
+    awaitingReply: z.boolean(),
     notes: z.string().max(500, m.notesMax),
   });
 
 export type DealFormValues = z.infer<ReturnType<typeof createDealSchema>>;
 
-
-
-
-export type DealSubmitValues = DealFormValues & { customerName: string };
-
-// بيحوّل الصفقة لقيم النموذج
+/** A deal's current values in the form. */
 export function dealToFormValues(d: Deal): DealFormValues {
   const stage = (OPEN_STAGES as readonly string[]).includes(d.stage)
     ? (d.stage as DealFormValues['stage'])
     : 'lead';
-
   return {
     title: d.title,
-    customerId: d.customerId ?? CUSTOMERS.find((c) => c.name === d.customer)?.id ?? '',
+    customerId: d.customerId,
     value: String(d.value),
     stage,
-    ownerId: d.ownerId,
+    ownerId: d.ownerId ?? '',
     closeDate: d.closeDate,
+    followUpDate: d.followUpDate ?? '',
+    awaitingReply: d.awaitingReply,
     notes: d.notes ?? '',
   };
 }
-
-// بيطبّق قيم النموذج على الصفقة ويسيب باقي بياناتها زي ما هي
-export function applyDealForm(d: Deal, v: DealSubmitValues): Deal {
-  const moved = v.stage !== d.stage;
-
-  return {
-    ...d,
-    title: v.title,
-    customer: v.customerName,
-    customerId: v.customerId,
-    value: parseNumber(v.value),
-    stage: v.stage,
-    ownerId: v.ownerId,
-    closeDate: v.closeDate,
-    notes: v.notes.trim() || undefined,
-    // تغيير المرحلة من النموذج بيتحسب نشاط زي السحب
-    ...(moved ? { lastActivityDaysAgo: 0, awaitingReply: false } : {}),
-  };
-}
-

@@ -8,9 +8,10 @@ import {
   isClosedThisMonth,
   isOpen,
   needsAttention,
+  useDealsClock,
   weightedValue,
   type Deal,
-} from '@/lib/mock/deals';
+} from '@/lib/deals/model';
 import { useMoney } from '@/lib/money';
 
 export default function DealsStats({ deals }: { deals: Deal[] }) {
@@ -25,10 +26,11 @@ export default function DealsStats({ deals }: { deals: Deal[] }) {
   );
   const average = open.length ? Math.round(pipeline / open.length) : 0;
 
-  const closed = deals.filter(isClosedThisMonth);
+  const clock = useDealsClock();
+  const closed = deals.filter((d) => isClosedThisMonth(d, clock));
   const closedValue = closed.reduce((sum, d) => sum + d.value, 0);
 
-  const attention = open.filter(needsAttention).length;
+  const attention = open.filter((d) => needsAttention(d, clock)).length;
 
   return (
     <div className="grid grid-cols-2 gap-3 xl:grid-cols-4">

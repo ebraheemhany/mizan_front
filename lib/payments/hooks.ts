@@ -248,10 +248,11 @@ export type DashboardData = {
     chart: { month: string; revenue: string; expenses: string }[];
   } | null;
   receivable: { outstanding: string; overdue: string };
+  /** Overdue invoices (by number), then deals with no follow-up for a while (displayNumber = the deal's title). */
   attention: {
-    type: 'invoiceOverdue';
+    type: 'invoiceOverdue' | 'staleDeal';
     id: string;
-    number: number;
+    number: number | null;
     displayNumber: string;
     customer: string;
     amount: string;

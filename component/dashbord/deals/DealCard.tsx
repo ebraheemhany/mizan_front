@@ -3,19 +3,16 @@
 
 import { Clock } from 'lucide-react';
 import { useFormatter, useTranslations } from 'next-intl';
-import { OWNERS, type Owner } from '@/lib/mock/customers';
-import { getDealTag, probabilityOf, type Deal } from '@/lib/mock/deals';
+import { getDealTag, probabilityOf, useDealsClock, type Deal } from '@/lib/deals/model';
 import { useMoney } from '@/lib/money';
 import { cn } from '@/lib/utils';
 
 export default function DealCard({
   deal,
-  owners = OWNERS,
   overlay,
   menu,
 }: {
   deal: Deal;
-  owners?: Owner[];
   overlay?: boolean;
   menu?: React.ReactNode;
 }) {
@@ -23,8 +20,9 @@ export default function DealCard({
   const format = useFormatter();
   const money = useMoney();
 
-  const owner = owners.find((o) => o.id === deal.ownerId);
-  const tag = getDealTag(deal);
+  // The responsible member's name comes with the deal.
+  const owner = deal.owner ? { name: deal.owner } : null;
+  const tag = getDealTag(deal, useDealsClock());
   const won = deal.stage === 'won';
 
   return (
@@ -90,7 +88,9 @@ export default function DealCard({
           ) : (
             <>
               <Clock className="size-3" />
-              {t(tag.kind, { days: t('days', { count: tag.days }) })}
+              {tag.kind === 'awaiting' && tag.days === 0
+                ? t('awaitingNew')
+                : t(tag.kind, { days: t('days', { count: tag.days }) })}
             </>
           )}
         </p>

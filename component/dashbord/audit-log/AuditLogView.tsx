@@ -51,6 +51,7 @@ function itemHref(line: AuditLine) {
   if (type === 'product') return '/products';
   if (type === 'entry' || type === 'ledgerAccount' || type === 'period') return '/accounts';
   if (type === 'user') return '/settings';
+  if (type === 'deal') return '/deals';
   return null;
 }
 
@@ -69,6 +70,8 @@ function useAuditText() {
   const tChannels = useTranslations('AuditLog.channels');
   const tFields = useTranslations('AuditLog.fields');
   const tSections = useTranslations('AuditLog.sections');
+  const tStages = useTranslations('Deals.stages');
+  const tReasons = useTranslations('Deals.lost.reasons');
 
   // A value from the log, through the app's words for it when there are some.
   type Words = { has: (key: string) => boolean; (key: string): string };
@@ -112,6 +115,9 @@ function useAuditText() {
       month: typeof v['month'] === 'string' ? monthLabel(v['month']) : '',
       through: day(v['through']),
       channel: word(tChannels, v['channel']),
+      fromStage: word(tStages, v['from']),
+      toStage: word(tStages, v['stage']),
+      reason: word(tReasons, v['reason']),
     };
     return t.has(`events.${line.event}`) ? t(`events.${line.event}`, values) : line.event;
   };

@@ -19,15 +19,16 @@ export default function AttentionList() {
   const t = useTranslations('Dashboard.attention');
   const money = useMoney();
   const { data } = useDashboard();
-  // Overdue invoices for now; stale deals and waiting quotes come with those modules.
+  // Overdue invoices, then deals that went quiet.
   const items = (data?.attention ?? []).map((a) => ({
     id: a.id,
     type: a.type as AttentionType,
     number: a.number,
+    title: a.displayNumber,
     customer: a.customer,
     amount: Number(a.amount),
     days: a.days,
-    href: `/invoices/${a.number}`,
+    href: a.type === 'staleDeal' ? '/deals' : `/invoices/${a.number}`,
   }));
 
   return (
@@ -53,7 +54,7 @@ export default function AttentionList() {
 
                   <span className="min-w-0 flex-1">
                     <span className="text-ink block truncate text-sm font-bold">
-                      {t(item.type, { number: String(item.number ?? '') })}
+                      {t(item.type, { number: String(item.number ?? ''), title: item.title ?? '' })}
                     </span>
                     <span className="text-muted block truncate text-xs">
                       {t('item', { customer: item.customer, amount: money(item.amount) })}

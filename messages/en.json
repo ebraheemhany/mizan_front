@@ -884,7 +884,7 @@
     "title": "Needs attention",
     "empty": "Everything looks good. Nothing needs follow-up.",
     "invoiceOverdue": "Invoice #{number} is overdue",
-    "staleDeal": "Deal with no follow-up",
+    "staleDeal": "“{title}” needs a follow-up",
     "pendingQuote": "Quote awaiting a reply",
     "item": "{customer} · {amount}",
     "days": "{count, plural, one {# day} other {# days}}"
@@ -961,7 +961,8 @@
     "owner": "Owner",
     "ownerAll": "All",
     "attention": "Needs follow-up",
-    "clear": "Clear filters"
+    "clear": "Clear filters",
+    "ownerNone": "No owner"
   },
   "stages": {
     "lead": "Lead",
@@ -977,6 +978,7 @@
   "card": {
     "owner": "Owner: {name}",
     "followUpToday": "Follow up today",
+    "awaitingNew": "Waiting for a reply",
     "awaiting": "Awaiting reply for {days}",
     "stale": "No follow-up for {days}",
     "days": "{count, plural, one {# day} other {# days}}"
@@ -988,7 +990,9 @@
     "createInvoice": "Create invoice",
     "added": "Deal “{title}” added",
     "updated": "Changes to “{title}” saved",
-    "deleted": "“{title}” deleted"
+    "deleted": "“{title}” deleted",
+    "followedUp": "Follow-up logged for “{title}”",
+    "awaiting": "Follow-up logged; “{title}” is waiting for the customer"
   },
   "a11y": {
     "instructions": "Press space to pick up the deal, use the arrow keys to move it between stages, then press space again to drop it, or Esc to cancel.",
@@ -998,105 +1002,111 @@
     "cancel": "Move cancelled."
   },
   "addSheet": {
-  "title": "New deal",
-  "description": "Add a deal to the pipeline and it will appear in the stage you choose.",
-  "close": "Close",
-  "dealTitle": "Deal title",
-  "dealTitlePlaceholder": "e.g. Annual maintenance contract",
-  "value": "Deal value",
-  "stage": "Stage",
-  "owner": "Owner",
-  "ownerSearch": "Search for an owner",
-  "ownerEmpty": "No owner found",
-  "addOwner": "Add a new owner",
-  "ownerName": "Owner name",
-  "ownerNamePlaceholder": "e.g. Alex Morgan",
-  "createOwner": "Add owner",
-  "closeDate": "Expected close date",
-  "pickDate": "Pick a date",
-  "notes": "Notes",
-  "notesPlaceholder": "Anything that helps your team with this deal",
-  "expectedHint": "Close probability {percent} · Expected {amount}",
-  "submit": "Add deal",
-  "cancel": "Cancel",
-  "editTitle": "Edit deal",
-"editDescription": "Update the deal's details, then save your changes.",
-"saveChanges": "Save changes",
-  "errors": {
-    "titleRequired": "Deal title is required",
-    "titleMax": "Title is too long (80 characters max)",
-    "valueInvalid": "Enter a valid value greater than zero",
-    "dateRequired": "Expected close date is required",
-    "ownerNameRequired": "Owner name is required",
-    "notesMax": "Notes must be 500 characters or fewer"
-  }
-},
-"funnel": {
-  "title": "Conversion funnel",
-  "subtitle": "How many deals reached each stage, and the rate from the previous stage",
-  "reached": "{count, plural, one {# deal} other {# deals}}",
-  "overallLabel": "Overall conversion",
-  "overallHint": "From “{from}” to “{to}”",
-  "weakestLabel": "Biggest drop-off",
-  "weakestHint": "From “{from}” to “{to}”",
-  "empty": "Not enough deals to build the funnel.",
-  "note": "Estimated from each deal's current stage."
-},
-"lost": {
-  "action": "Mark as lost",
-  "reopen": "Reopen",
-  "moveTo": "Move to",
-  "menu": "Deal actions",
-  "zone": "Drop here to mark as lost",
-  "zoneLabel": "Lost deal",
-  "dialog": {
-    "title": "Mark deal as lost",
-    "description": "“{title}” · {customer} · {amount}",
-    "reason": "Why was it lost?",
-    "note": "Note (optional)",
-    "notePlaceholder": "Anything that helps your team on future deals",
-    "reasonRequired": "Choose a reason",
-    "noteMax": "Note must be 300 characters or fewer",
-    "confirm": "Confirm as lost",
+    "title": "New deal",
+    "description": "Add a deal to the pipeline and it will appear in the stage you choose.",
+    "close": "Close",
+    "dealTitle": "Deal title",
+    "dealTitlePlaceholder": "e.g. Annual maintenance contract",
+    "value": "Deal value",
+    "stage": "Stage",
+    "owner": "Owner",
+    "ownerSearch": "Search for an owner",
+    "ownerEmpty": "No owner found",
+    "closeDate": "Expected close date",
+    "pickDate": "Pick a date",
+    "notes": "Notes",
+    "notesPlaceholder": "Anything that helps your team with this deal",
+    "expectedHint": "Close probability {percent} · Expected {amount}",
+    "submit": "Add deal",
     "cancel": "Cancel",
-    "close": "Close"
+    "editTitle": "Edit deal",
+    "editDescription": "Update the deal's details, then save your changes.",
+    "saveChanges": "Save changes",
+    "errors": {
+      "titleRequired": "Deal title is required",
+      "titleMax": "Title is too long (80 characters max)",
+      "valueInvalid": "Enter a valid value greater than zero",
+      "dateRequired": "Expected close date is required",
+      "notesMax": "Notes must be 500 characters or fewer"
+    },
+    "noOwner": "No owner yet",
+    "wonDate": "Closed on",
+    "followUpDate": "Next follow-up",
+    "noFollowUp": "Not set",
+    "clearFollowUp": "Clear the follow-up date",
+    "awaitingReply": "Waiting for the customer's reply"
   },
-  "reasons": {
-    "price": "Price too high",
-    "competitor": "Chose a competitor",
-    "postponed": "Postponed the decision",
-    "noResponse": "Stopped responding",
-    "noNeed": "No longer needs it",
-    "other": "Other"
+  "funnel": {
+    "title": "Conversion funnel",
+    "subtitle": "How many deals reached each stage, and the rate from the previous stage",
+    "reached": "{count, plural, one {# deal} other {# deals}}",
+    "overallLabel": "Overall conversion",
+    "overallHint": "From “{from}” to “{to}”",
+    "weakestLabel": "Biggest drop-off",
+    "weakestHint": "From “{from}” to “{to}”",
+    "empty": "Not enough deals to build the funnel.",
+    "note": "Estimated from each deal's current stage."
   },
-  "card": {
-    "title": "Lost deals",
-    "summary": "{count, plural, one {# deal} other {# deals}} · Worth {amount}",
-    "reasonsTitle": "Loss reasons",
-    "empty": "No lost deals yet.",
-    "fromStage": "Lost at {stage}"
+  "lost": {
+    "action": "Mark as lost",
+    "reopen": "Reopen",
+    "moveTo": "Move to",
+    "menu": "Deal actions",
+    "zone": "Drop here to mark as lost",
+    "zoneLabel": "Lost deal",
+    "dialog": {
+      "title": "Mark deal as lost",
+      "description": "“{title}” · {customer} · {amount}",
+      "reason": "Why was it lost?",
+      "note": "Note (optional)",
+      "notePlaceholder": "Anything that helps your team on future deals",
+      "reasonRequired": "Choose a reason",
+      "noteMax": "Note must be 300 characters or fewer",
+      "confirm": "Confirm as lost",
+      "cancel": "Cancel",
+      "close": "Close"
+    },
+    "reasons": {
+      "price": "Price too high",
+      "competitor": "Chose a competitor",
+      "postponed": "Postponed the decision",
+      "noResponse": "Stopped responding",
+      "noNeed": "No longer needs it",
+      "other": "Other"
+    },
+    "card": {
+      "title": "Lost deals",
+      "summary": "{count, plural, one {# deal} other {# deals}} · Worth {amount}",
+      "reasonsTitle": "Loss reasons",
+      "empty": "No lost deals yet.",
+      "fromStage": "Lost at {stage}"
+    },
+    "toasts": {
+      "lost": "“{title}” marked as lost",
+      "reopened": "“{title}” reopened",
+      "undo": "Undo",
+      "updated": "Changes to “{title}” saved",
+      "deleted": "“{title}” deleted"
+    }
   },
-  "toasts": {
-    "lost": "“{title}” marked as lost",
-    "reopened": "“{title}” reopened",
-    "undo": "Undo",
-    "updated": "Changes to “{title}” saved",
-"deleted": "“{title}” deleted"
-  }
-},
-"menu": {
-  "open": "Deal actions",
-  "edit": "Edit deal",
-  "moveTo": "Move to",
-  "lose": "Mark as lost",
-  "delete": "Delete deal"
-},
-"deleteDialog": {
-  "title": "Delete deal “{title}”?",
-  "description": "The deal will be permanently removed from the pipeline and left out of the numbers and funnel. This cannot be undone.",
-  "keep": "Keep deal",
-  "confirm": "Yes, delete deal"
-}
+  "menu": {
+    "open": "Deal actions",
+    "edit": "Edit deal",
+    "moveTo": "Move to",
+    "lose": "Mark as lost",
+    "delete": "Delete deal",
+    "invoice": "Create invoice",
+    "followedUp": "Followed up today",
+    "awaiting": "Followed up, waiting for a reply"
+  },
+  "deleteDialog": {
+    "title": "Delete deal “{title}”?",
+    "description": "The deal will be permanently removed from the pipeline and left out of the numbers and funnel. This cannot be undone.",
+    "keep": "Keep deal",
+    "confirm": "Yes, delete deal"
+  },
+  "subtitleReadOnly": "Deals from first contact to close (view only)",
+  "retry": "Try again"
 },
 "Quotes": {
   "title": "Quotes",
@@ -2058,6 +2068,7 @@
       "reports": "Financial reports",
       "tasks": "Add and edit tasks",
       "quotes": "Create and send quotes",
+      "deals": "Work on deals",
       "settings": "Settings and users",
       "deleteData": "Delete data",
       "ledger": "Accounts and journal",
@@ -2254,7 +2265,8 @@
     "company": "{ref}",
     "entry": "Entry {ref}",
     "ledgerAccount": "Account {ref}",
-    "period": "{ref}"
+    "period": "{ref}",
+    "deal": "Deal: {ref}"
   },
   "itemTypes": {
     "customer": "Customers",
@@ -2323,7 +2335,16 @@
     "draftsPosted": "{count, plural, one {# draft entry} other {# draft entries}} posted in {month}",
     "entryDeleted": "Entry deleted: {memo}",
     "periodClosed": "Books closed through {through}",
-    "periodReopened": "Month reopened (now closed through {through})"
+    "periodReopened": "Month reopened (now closed through {through})",
+    "dealCreated": "New deal of {amount} — {customer}",
+    "dealUpdated": "Changed: {fields}",
+    "dealMoved": "Moved from “{fromStage}” to “{toStage}”",
+    "dealWon": "Deal won for {amount}",
+    "dealLost": "Deal lost ({reason})",
+    "dealReopened": "Deal reopened",
+    "dealFollowedUp": "Follow-up logged",
+    "dealAwaiting": "Follow-up logged, waiting for the customer",
+    "dealDeleted": "Deal of {amount} deleted — {customer}"
   },
   "methods": {
     "cash": "cash",
@@ -2352,7 +2373,15 @@
     "category": "category",
     "type": "type",
     "stock": "stock",
-    "lowStockAt": "low-stock alert"
+    "lowStockAt": "low-stock alert",
+    "title": "title",
+    "value": "value",
+    "stage": "stage",
+    "closeDate": "expected close",
+    "followUpDate": "follow-up",
+    "customerId": "customer",
+    "ownerId": "owner",
+    "awaitingReply": "awaiting reply"
   },
   "sections": {
     "company": "company details",
@@ -2653,6 +2682,10 @@
     "RECURRING_CHANGED": "The template made an invoice while you were editing it. Open it again and redo your changes.",
     "RECURRING_RUN_FAILED": "Something went wrong while making the invoice. It will be retried automatically.",
     "RECURRING_SKIPPED_CLOSED": "An invoice dated in a month closed in the books was skipped; the template went on to the next one.",
+    "DEAL_LOST": "This deal was marked as lost. Reopen it first.",
+    "DEAL_NOT_OPEN": "This deal isn't open.",
+    "DEAL_NOT_LOST": "This deal isn't lost.",
+    "DEAL_CHANGED": "Someone just changed this deal. Reload and try again.",
     "PERIOD_CLOSED": "This date is in a closed period. Change the date, or have the owner reopen the period from the accounts page.",
     "PERIOD_NOT_ENDED": "A month can't be closed before it ends.",
     "PERIOD_ALREADY_CLOSED": "This month is already closed.",

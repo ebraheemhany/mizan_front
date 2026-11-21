@@ -1,15 +1,17 @@
 // components/deals/AddDealSheet.tsx
 'use client';
 
-import { useMemo, useState, type FormEvent } from 'react';
+import { useMemo, useState } from 'react';
 import { Controller, useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useFormatter, useLocale, useTranslations } from 'next-intl';
-import { Check, ChevronDown, Kanban, Plus, UserRoundPlus, X } from 'lucide-react';
+import { Check, ChevronDown, Kanban, Loader2, X } from 'lucide-react';
+import { toast } from 'sonner';
 import DateField from '@/component/DateField';
 import { ChipGroup, FieldError } from '@/component/form-parts';
 
 import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
 import {
   Command,
   CommandEmpty,
@@ -21,203 +23,83 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-} from '@/components/ui/sheet';
+import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { Textarea } from '@/components/ui/textarea';
 import { rtlLocales } from '@/i18n/routing';
+import { ApiError } from '@/lib/api/client';
+import { useApiErrorMessage } from '@/lib/api/use-api-error';
+import { can } from '@/lib/auth/permissions';
+import { useSession } from '@/lib/auth/session';
+import { useCreateCustomer, useCustomers, useTeamDirectory } from '@/lib/customers/hooks';
+import { probabilityOf, useDealsClock, type Deal, type Owner } from '@/lib/deals/model';
 import { addDaysIso } from '@/lib/iso-date';
-import { CUSTOMERS, type Owner } from '@/lib/mock/customers';
-import { probabilityOf, TODAY } from '@/lib/mock/deals';
 import { useMoney, useMoneyParts } from '@/lib/money';
 import { parseNumber } from '@/lib/validations/invoice';
-import {
-  createDealSchema,
-  dealToFormValues,
-  OPEN_STAGES,
-  type DealFormValues,
-} from '@/lib/validations/deal';
+import { createDealSchema, dealToFormValues, OPEN_STAGES, type DealFormValues } from '@/lib/validations/deal';
 import { cn } from '@/lib/utils';
-import CustomerCombobox from '../invoices/CustomerCombobox';
-import type { Deal } from '@/lib/mock/deals';
+import CustomerCombobox, { type CustomerOption } from '../invoices/CustomerCombobox';
 
-export type DealSubmit = DealFormValues & { customerName: string };
+export type DealSubmit = DealFormValues;
 
 const fieldClass =
   'rounded-btn border-line-strong bg-surface text-ink placeholder:text-muted hover:border-brand/50 focus-visible:border-brand focus-visible:ring-2 focus-visible:ring-brand/15 h-11';
 const labelClass = 'text-ink mb-2 text-sm font-bold';
 
-const INITIAL_CUSTOMER_OPTIONS = CUSTOMERS.map(({ id, name, city }) => ({ id, name, city }));
-
+/** The responsible team member; "nobody yet" is a choice too. */
 function OwnerCombobox({
   id,
   value,
   owners,
-  invalid,
   labels,
   onChange,
-  onAddOwner,
 }: {
   id: string;
   value: string;
   owners: Owner[];
-  invalid?: boolean;
-  labels: {
-    placeholder: string;
-    search: string;
-    empty: string;
-    add: string;
-    name: string;
-    namePlaceholder: string;
-    nameRequired: string;
-    create: string;
-    cancel: string;
-  };
+  labels: { search: string; empty: string; none: string };
   onChange: (id: string) => void;
-  onAddOwner: (name: string) => Owner;
 }) {
   const [open, setOpen] = useState(false);
-  const [addingOwner, setAddingOwner] = useState(false);
-  const [name, setName] = useState('');
-  const [nameError, setNameError] = useState('');
   const current = owners.find((owner) => owner.id === value);
-
-  function addOwner(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    const trimmedName = name.trim();
-    if (!trimmedName) {
-      setNameError(labels.nameRequired);
-      return;
-    }
-
-    const owner = onAddOwner(trimmedName);
-    onChange(owner.id);
-    setName('');
-    setNameError('');
-    setAddingOwner(false);
-    setOpen(false);
-  }
-
-  function handleOpenChange(nextOpen: boolean) {
-    setOpen(nextOpen);
-    if (!nextOpen) {
-      setAddingOwner(false);
-      setName('');
-      setNameError('');
-    }
-  }
+  const options = [{ id: '', name: labels.none }, ...owners];
 
   return (
-    <Popover open={open} onOpenChange={handleOpenChange}>
+    <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger
         id={id}
-        aria-invalid={invalid}
-        className={cn(
-          'rounded-btn bg-surface flex h-11 w-full items-center gap-3 border px-3 text-start text-sm font-semibold transition-colors outline-none focus-visible:ring-2',
-          invalid
-            ? 'border-danger focus-visible:border-danger focus-visible:ring-danger/15'
-            : 'border-line-strong hover:border-brand/50 hover:bg-canvas focus-visible:border-brand focus-visible:ring-brand/15',
-        )}
+        className="rounded-btn bg-surface border-line-strong hover:border-brand/50 hover:bg-canvas focus-visible:border-brand focus-visible:ring-brand/15 flex h-11 w-full items-center gap-3 border px-3 text-start text-sm font-semibold transition-colors outline-none focus-visible:ring-2"
       >
         <span className={cn('min-w-0 flex-1 truncate', current ? 'text-ink' : 'text-muted')}>
-          {current ? current.name : labels.placeholder}
+          {current ? current.name : labels.none}
         </span>
         <ChevronDown className="size-4 shrink-0 opacity-60" />
       </PopoverTrigger>
 
       <PopoverContent
         align="start"
-        className="border-line w-[min(24rem,calc(100vw-2rem))] gap-0 overflow-hidden rounded-xl border bg-surface p-0 shadow-lg"
+        className="border-line bg-surface w-[min(24rem,calc(100vw-2rem))] gap-0 overflow-hidden rounded-xl border p-0 shadow-lg"
       >
-        <Command className="rounded-xl bg-surface p-1.5">
-          {addingOwner ? (
-            <form onSubmit={addOwner} className="space-y-3 p-2">
-              <div className="flex items-center gap-2 pb-1">
-                <UserRoundPlus className="text-brand size-4" />
-                <h3 className="text-ink text-sm font-bold">{labels.add}</h3>
-              </div>
-              <label className="text-ink-2 block text-xs font-semibold">
-                {labels.name}
-                <Input
-                  autoFocus
-                  value={name}
-                  onChange={(event) => {
-                    setName(event.target.value);
-                    if (event.target.value.trim()) setNameError('');
+        <Command className="bg-surface rounded-xl p-1.5">
+          <CommandInput placeholder={labels.search} className="text-ink placeholder:text-muted" />
+          <CommandList className="max-h-64 py-1">
+            <CommandEmpty className="text-muted py-5">{labels.empty}</CommandEmpty>
+            <CommandGroup>
+              {options.map((owner) => (
+                <CommandItem
+                  key={owner.id || 'none'}
+                  value={owner.name}
+                  onSelect={() => {
+                    onChange(owner.id);
+                    setOpen(false);
                   }}
-                  placeholder={labels.namePlaceholder}
-                  aria-invalid={!!nameError}
-                  className="rounded-btn border-line-strong bg-surface focus-visible:border-brand focus-visible:ring-2 focus-visible:ring-brand/15 mt-1.5 h-10 text-sm"
-                />
-              </label>
-              {nameError && (
-                <p role="alert" className="text-danger text-xs font-semibold">
-                  {nameError}
-                </p>
-              )}
-              <div className="flex justify-end gap-2 pt-1">
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => {
-                    setAddingOwner(false);
-                    setName('');
-                    setNameError('');
-                  }}
-                  className="rounded-btn border-line-strong h-9 px-3 text-xs"
+                  className={cn('cursor-pointer', owner.id ? 'text-ink' : 'text-muted')}
                 >
-                  {labels.cancel}
-                </Button>
-                <Button
-                  type="submit"
-                  className="rounded-btn bg-brand hover:bg-brand/90 h-9 px-3 text-xs font-bold text-white"
-                >
-                  {labels.create}
-                </Button>
-              </div>
-            </form>
-          ) : (
-            <>
-              <CommandInput
-                placeholder={labels.search}
-                className="text-ink placeholder:text-muted"
-              />
-              <CommandList className="max-h-64 py-1">
-                <CommandEmpty className="text-muted py-5">{labels.empty}</CommandEmpty>
-                <CommandGroup>
-                  {owners.map((owner) => (
-                    <CommandItem
-                      key={owner.id}
-                      value={owner.name}
-                      onSelect={() => {
-                        onChange(owner.id);
-                        setOpen(false);
-                      }}
-                      className="text-ink cursor-pointer"
-                    >
-                      <span className="min-w-0 flex-1 truncate">{owner.name}</span>
-                      {owner.id === value && <Check className="text-brand size-4" />}
-                    </CommandItem>
-                  ))}
-                </CommandGroup>
-              </CommandList>
-              <div className="border-line border-t p-1.5">
-                <Button
-                  type="button"
-                  variant="ghost"
-                  onClick={() => setAddingOwner(true)}
-                  className="text-brand hover:bg-brand-soft h-9 w-full justify-start gap-2 px-2 text-xs font-bold"
-                >
-                  <Plus className="size-4" />
-                  {labels.add}
-                </Button>
-              </div>
-            </>
-          )}
+                  <span className="min-w-0 flex-1 truncate">{owner.name}</span>
+                  {owner.id === value && <Check className="text-brand size-4" />}
+                </CommandItem>
+              ))}
+            </CommandGroup>
+          </CommandList>
         </Command>
       </PopoverContent>
     </Popover>
@@ -226,16 +108,16 @@ function OwnerCombobox({
 
 function DealForm({
   deal,
+  customers,
+  owners,
   onSubmit,
   onCancel,
-  owners,
-  onAddOwner,
 }: {
   deal?: Deal;
-  onSubmit: (values: DealSubmit) => void;
-  onCancel: () => void;
+  customers: CustomerOption[];
   owners: Owner[];
-  onAddOwner: (name: string) => Owner;
+  onSubmit: (values: DealSubmit) => Promise<boolean>;
+  onCancel: () => void;
 }) {
   const t = useTranslations('Deals.addSheet');
   const tStages = useTranslations('Deals.stages');
@@ -244,17 +126,16 @@ function DealForm({
   const money = useMoney();
   const moneyParts = useMoneyParts();
   const { symbol } = moneyParts(0);
+  const { today } = useDealsClock();
+  const user = useSession();
+  const errorMessage = useApiErrorMessage();
+  const createCustomer = useCreateCustomer();
 
-  const existingCustomer = INITIAL_CUSTOMER_OPTIONS.find(
-    (customer) => customer.id === deal?.customerId || customer.name === deal?.customer,
-  );
-  const customCustomer = deal && !existingCustomer
-    ? { id: `deal-${deal.id}`, name: deal.customer, city: '' }
-    : null;
-  const [customerOptions, setCustomerOptions] = useState(() =>
-    customCustomer
-      ? [...INITIAL_CUSTOMER_OPTIONS, customCustomer]
-      : INITIAL_CUSTOMER_OPTIONS,
+  // Customers added from this sheet join the list too.
+  const [customerOptions, setCustomerOptions] = useState<CustomerOption[]>(() =>
+    deal && !customers.some((c) => c.id === deal.customerId)
+      ? [...customers, { id: deal.customerId, name: deal.customer, city: '' }]
+      : customers,
   );
 
   const schema = useMemo(
@@ -274,41 +155,60 @@ function DealForm({
     register,
     control,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, isSubmitting },
   } = useForm<DealFormValues>({
     resolver: zodResolver(schema),
     defaultValues: deal
-      ? {
-          ...dealToFormValues(deal),
-          customerId: existingCustomer?.id ?? customCustomer?.id ?? '',
-        }
+      ? dealToFormValues(deal)
       : {
           title: '',
           customerId: '',
           value: '',
           stage: 'lead',
-          ownerId: owners[0].id,
-          closeDate: addDaysIso(TODAY, 30),
+          // Whoever adds it is responsible, if they are on the list.
+          ownerId: owners.some((o) => o.id === user.id) ? user.id : '',
+          closeDate: addDaysIso(today, 30),
+          followUpDate: '',
+          awaitingReply: false,
           notes: '',
         },
   });
 
   const value = useWatch({ control, name: 'value' }) ?? '';
   const stage = useWatch({ control, name: 'stage' });
-
   const amount = parseNumber(value);
   const validAmount = value.trim() !== '' && Number.isFinite(amount) && amount > 0;
   const probability = probabilityOf(stage);
+  const won = deal?.stage === 'won';
 
-  function addCustomer(customer: { name: string; city: string }) {
-    const id = `new-${crypto.randomUUID()}`;
-    setCustomerOptions((options) => [...options, { id, ...customer }]);
-    return id;
+  /** "Add customer" in the picker creates a real customer (same as the customers page). */
+  async function addCustomer(customer: { name: string; city: string }) {
+    if (!can(user.role, 'editCustomers')) {
+      toast.error(errorMessage(new ApiError(403, 'FORBIDDEN', '')));
+      return null;
+    }
+    try {
+      const { customer: created } = await createCustomer.mutateAsync({
+        name: customer.name,
+        city: customer.city,
+        contactName: '',
+        phone: '',
+        email: '',
+        taxNumber: '',
+        notes: '',
+        assignedToId: user.id,
+      });
+      setCustomerOptions((options) => [...options, { id: created.id, name: created.name, city: created.city ?? '' }]);
+      return created.id;
+    } catch (error) {
+      toast.error(errorMessage(error));
+      return null;
+    }
   }
 
-  const submit = handleSubmit((v) =>
-    onSubmit({ ...v, customerName: customerOptions.find((c) => c.id === v.customerId)?.name ?? '' }),
-  );
+  const submit = handleSubmit(async (v) => {
+    await onSubmit(v);
+  });
 
   return (
     <form onSubmit={submit} noValidate className="flex min-h-0 flex-1 flex-col">
@@ -387,7 +287,7 @@ function DealForm({
         </div>
 
         {/* المرحلة */}
-        {deal?.stage !== 'won' && (
+        {!won && (
           <div>
             <p id="d-stage-label" className={labelClass}>
               {t('stage')}
@@ -426,35 +326,21 @@ function DealForm({
             <Controller
               name="ownerId"
               control={control}
-              render={({ field }) => {
-                return (
-                  <OwnerCombobox
-                    id="d-owner"
-                    value={field.value}
-                    owners={owners}
-                    invalid={!!errors.ownerId}
-                    labels={{
-                      placeholder: t('owner'),
-                      search: t('ownerSearch'),
-                      empty: t('ownerEmpty'),
-                      add: t('addOwner'),
-                      name: t('ownerName'),
-                      namePlaceholder: t('ownerNamePlaceholder'),
-                      nameRequired: t('errors.ownerNameRequired'),
-                      create: t('createOwner'),
-                      cancel: t('cancel'),
-                    }}
-                    onChange={field.onChange}
-                    onAddOwner={onAddOwner}
-                  />
-                );
-              }}
+              render={({ field }) => (
+                <OwnerCombobox
+                  id="d-owner"
+                  value={field.value}
+                  owners={owners}
+                  labels={{ search: t('ownerSearch'), empty: t('ownerEmpty'), none: t('noOwner') }}
+                  onChange={field.onChange}
+                />
+              )}
             />
           </div>
 
           <div>
             <Label htmlFor="d-close" className={labelClass}>
-              {t('closeDate')}
+              {won ? t('wonDate') : t('closeDate')}
             </Label>
             <Controller
               name="closeDate"
@@ -466,13 +352,61 @@ function DealForm({
                   onChange={field.onChange}
                   placeholder={t('pickDate')}
                   invalid={!!errors.closeDate}
-                  minDate={deal?.stage === 'won' ? undefined : TODAY}
+                  minDate={won || deal ? undefined : today}
                 />
               )}
             />
             <FieldError message={errors.closeDate?.message} />
           </div>
         </div>
+
+        {/* المتابعة */}
+        {!won && (
+          <div className="grid items-end gap-5 sm:grid-cols-2">
+            <div>
+              <Label htmlFor="d-follow" className={labelClass}>
+                {t('followUpDate')}
+              </Label>
+              <Controller
+                name="followUpDate"
+                control={control}
+                render={({ field }) => (
+                  <div className="flex items-center gap-2">
+                    <div className="min-w-0 flex-1">
+                      <DateField
+                        id="d-follow"
+                        value={field.value}
+                        onChange={field.onChange}
+                        placeholder={t('noFollowUp')}
+                        minDate={today}
+                      />
+                    </div>
+                    {field.value && (
+                      <button
+                        type="button"
+                        onClick={() => field.onChange('')}
+                        aria-label={t('clearFollowUp')}
+                        className="text-muted hover:text-ink hover:bg-canvas rounded-md p-2"
+                      >
+                        <X className="size-4" />
+                      </button>
+                    )}
+                  </div>
+                )}
+              />
+            </div>
+            <Controller
+              name="awaitingReply"
+              control={control}
+              render={({ field }) => (
+                <label className="border-line-strong rounded-btn flex h-11 cursor-pointer items-center gap-2.5 border px-3 text-sm font-semibold">
+                  <Checkbox checked={field.value} onCheckedChange={(checked) => field.onChange(checked === true)} />
+                  <span className="text-ink">{t('awaitingReply')}</span>
+                </label>
+              )}
+            />
+          </div>
+        )}
 
         {/* ملاحظات */}
         <div>
@@ -502,6 +436,7 @@ function DealForm({
         </Button>
         <Button
           type="submit"
+          disabled={isSubmitting}
           className="rounded-btn bg-brand hover:bg-brand/90 h-11 px-8 font-bold text-white"
         >
           {deal ? t('saveChanges') : t('submit')}
@@ -516,18 +451,22 @@ export default function AddDealSheet({
   open,
   onOpenChange,
   onSubmit,
-  owners,
-  onAddOwner,
 }: {
   deal?: Deal;
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onSubmit: (values: DealSubmit, deal?: Deal) => void;
-  owners: Owner[];
-  onAddOwner: (name: string) => Owner;
+  /** Saves; resolves true when it worked (the parent closes the sheet then). */
+  onSubmit: (values: DealSubmit, deal?: Deal) => Promise<boolean>;
 }) {
   const t = useTranslations('Deals.addSheet');
   const locale = useLocale();
+  // Customers to choose from (first 100 by name) and the team.
+  const customers = useCustomers(
+    { status: 'all', balance: 'all', sort: 'name', page: 1, pageSize: 100 },
+    { enabled: open },
+  );
+  const team = useTeamDirectory();
+  const ready = !customers.isPending && !team.isPending;
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
@@ -535,7 +474,7 @@ export default function AddDealSheet({
         // بيفتح من جهة نهاية الصفحة: شمال في العربي ويمين في الإنجليزي
         side={rtlLocales.includes(locale) ? 'left' : 'right'}
         showCloseButton={false}
-        className="w-full gap-0 border-0 bg-surface p-0 sm:max-w-xl"
+        className="bg-surface w-full gap-0 border-0 p-0 sm:max-w-xl"
       >
         <SheetHeader className="border-line relative flex-row items-center gap-3.5 border-b px-6 py-5 text-start">
           <span className="bg-brand-soft text-brand flex size-11 shrink-0 items-center justify-center rounded-xl">
@@ -543,9 +482,7 @@ export default function AddDealSheet({
           </span>
 
           <div className="min-w-0 pe-8">
-            <SheetTitle className="text-ink text-lg font-extrabold">
-              {deal ? t('editTitle') : t('title')}
-            </SheetTitle>
+            <SheetTitle className="text-ink text-lg font-extrabold">{deal ? t('editTitle') : t('title')}</SheetTitle>
             <SheetDescription className="mt-0.5 text-xs leading-5">
               {deal ? t('editDescription') : t('description')}
             </SheetDescription>
@@ -561,14 +498,20 @@ export default function AddDealSheet({
           </button>
         </SheetHeader>
 
-        <DealForm
-          key={`${deal?.id ?? 'new'}-${open}`}
-          deal={deal}
-          onSubmit={(values) => onSubmit(values, deal)}
-          onCancel={() => onOpenChange(false)}
-          owners={owners}
-          onAddOwner={onAddOwner}
-        />
+        {open && !ready ? (
+          <div className="text-muted flex flex-1 items-center justify-center">
+            <Loader2 className="size-5 animate-spin" />
+          </div>
+        ) : open ? (
+          <DealForm
+            key={deal?.id ?? 'new'}
+            deal={deal}
+            customers={customers.data?.items.map((c) => ({ id: c.id, name: c.name, city: c.city ?? '' })) ?? []}
+            owners={(team.data ?? []).map((m) => ({ id: m.id, name: m.name }))}
+            onSubmit={(values) => onSubmit(values, deal)}
+            onCancel={() => onOpenChange(false)}
+          />
+        ) : null}
       </SheetContent>
     </Sheet>
   );

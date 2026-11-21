@@ -2,28 +2,28 @@
 'use client';
 
 import { useDraggable } from '@dnd-kit/core';
-import type { Owner } from '@/lib/mock/customers';
-import type { Deal, DealStage } from '@/lib/mock/deals';
+import type { Deal, DealStage } from '@/lib/deals/model';
 import { cn } from '@/lib/utils';
 import DealCard from './DealCard';
 import DealMenu from './DealMenu';
+import { useDealBoardActions } from './deal-actions';
 
 export default function DraggableDeal({
   deal,
-  owners,
   onMove,
   onEdit,
   onDelete,
   onLose,
 }: {
   deal: Deal;
-  owners: Owner[];
   onMove: (id: string, stage: DealStage) => void;
   onEdit: (deal: Deal) => void;
   onDelete: (deal: Deal) => void;
   onLose: (deal: Deal) => void;
 }) {
-  const locked = deal.stage === 'won'; // الصفقة المغلقة ما تتسحبش ولا تتنقل
+  const { readOnly, onTouch, onInvoice } = useDealBoardActions();
+  // A won deal doesn't move by dragging (only by "undo"); viewers can't move any.
+  const locked = deal.stage === 'won' || readOnly;
   const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
     id: deal.id,
     disabled: locked,
@@ -40,15 +40,18 @@ export default function DraggableDeal({
     >
       <DealCard
         deal={deal}
-        owners={owners}
         menu={
-          <DealMenu
-            deal={deal}
-            onMove={onMove}
-            onEdit={onEdit}
-            onDelete={onDelete}
-            onLose={onLose}
-          />
+          readOnly ? null : (
+            <DealMenu
+              deal={deal}
+              onMove={onMove}
+              onEdit={onEdit}
+              onDelete={onDelete}
+              onLose={onLose}
+              onTouch={onTouch}
+              onInvoice={onInvoice}
+            />
+          )
         }
       />
     </div>

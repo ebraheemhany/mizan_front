@@ -1,5 +1,5 @@
 // components/deals/funnel.ts
-import { STAGES, type Deal, type DealStage } from '@/lib/mock/deals';
+import { STAGES, type Deal, type DealStage } from '@/lib/deals/model';
 
 export type FunnelStep = {
   stage: DealStage;

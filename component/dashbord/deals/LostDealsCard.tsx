@@ -5,8 +5,9 @@ import { RotateCcw } from 'lucide-react';
 import { useFormatter, useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/button';
 import { useDate } from '@/lib/data';
-import { isLost, LOSS_REASONS, type Deal } from '@/lib/mock/deals';
+import { isLost, LOSS_REASONS, type Deal } from '@/lib/deals/model';
 import { useMoney } from '@/lib/money';
+import { useDealBoardActions } from './deal-actions';
 
 export default function LostDealsCard({
   deals,
@@ -21,6 +22,7 @@ export default function LostDealsCard({
   const format = useFormatter();
   const money = useMoney();
   const date = useDate();
+  const { readOnly } = useDealBoardActions();
 
   const lost = deals.filter(isLost).sort((a, b) => b.lost.date.localeCompare(a.lost.date));
   const totalValue = lost.reduce((sum, d) => sum + d.value, 0);
@@ -98,14 +100,16 @@ export default function LostDealsCard({
                   {money(d.value)}
                 </span>
 
-                <Button
-                  variant="ghost"
-                  onClick={() => onReopen(d)}
-                  className="text-brand hover:bg-brand-soft hover:text-brand h-8 gap-1.5 px-2.5 text-xs font-bold"
-                >
-                  <RotateCcw className="size-3.5" />
-                  {t('reopen')}
-                </Button>
+                {!readOnly && (
+                  <Button
+                    variant="ghost"
+                    onClick={() => onReopen(d)}
+                    className="text-brand hover:bg-brand-soft hover:text-brand h-8 gap-1.5 px-2.5 text-xs font-bold"
+                  >
+                    <RotateCcw className="size-3.5" />
+                    {t('reopen')}
+                  </Button>
+                )}
               </li>
             ))}
           </ul>
