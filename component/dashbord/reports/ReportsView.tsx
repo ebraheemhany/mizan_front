@@ -544,10 +544,13 @@ function ReportsContent() {
           </div>
         )}
 
-        {/* The company's own P&L cards belong to the P&L only: a printed customer
-            statement must not show the company's revenue and profit. */}
-        {tab === 'pnl' && statCards}
-        {reportContent}
+        {/* A new tab's report comes in softly (keyed, so it mounts again). */}
+        <div key={tab} className="animate-tab-in space-y-5">
+          {/* The company's own P&L cards belong to the P&L only: a printed customer
+              statement must not show the company's revenue and profit. */}
+          {tab === 'pnl' && statCards}
+          {reportContent}
+        </div>
       </div>
 
       <ReportsPrintSheet

@@ -7,9 +7,10 @@ export default function CtaSection() {
   return (
     <section className="mx-auto my-12 max-w-7xl px-4 sm:px-6 lg:px-8">
       {/* تم إضافة min-h-[350px] أو ارتفاع مناسب لضمان ظهور الصورة بالكامل */}
-      <div className="relative flex min-h-[350px] w-full items-center justify-center overflow-hidden rounded-3xl border border-emerald-100/50 px-6 py-16 text-center shadow-sm sm:px-12">
+      <div data-reveal="rise" className="relative flex min-h-[350px] w-full items-center justify-center overflow-hidden rounded-3xl border border-emerald-100/50 px-6 py-16 text-center shadow-sm sm:px-12">
         {/* صورة الخلفية */}
         <div
+          data-reveal="zoom"
           className="absolute inset-0 h-full w-full bg-cover bg-center bg-no-repeat"
           style={{ backgroundImage: `url('/image/cat_image.jfif')` }}
         />

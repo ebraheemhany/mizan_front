@@ -29,6 +29,7 @@ import JournalTab from './JournalTab';
 import { ManualEntrySheet } from './ManualEntrySheet';
 import PeriodsCard from './PeriodsCard';
 import TrialTab from './TrialTab';
+import { useSlidingIndicator } from '@/lib/motion/useSlidingIndicator';
 import {
   card,
   cardTitle,
@@ -92,6 +93,9 @@ function Books({ canReopen }: { canReopen: boolean }) {
   const deleteAccount = useDeleteAccount();
 
   const [tab, setTab] = useState<Tab>('tree');
+  // The underline slides to the chosen tab.
+  const { containerRef: tabBarRef, indicatorRef: tabMarkRef } =
+    useSlidingIndicator(tab, 'underline');
   const [confirmClose, setConfirmClose] = useState(false);
   // The manual entry sheet: open for a new entry (null) or an existing one.
   const [sheet, setSheet] = useState<{ entry: JournalEntry | null } | null>(
@@ -203,10 +207,16 @@ function Books({ canReopen }: { canReopen: boolean }) {
       />
 
       <div
+        ref={tabBarRef}
         role="tablist"
         // الخط اللي تحت التابات shadow مش border، علشان -mb-px كان بيعمل overflow رأسي ويطلّع scrollbar
-        className="flex gap-6 overflow-x-auto overflow-y-hidden shadow-[inset_0_-1px_0_var(--color-line)]"
+        className="group/ind relative flex gap-6 overflow-x-auto overflow-y-hidden shadow-[inset_0_-1px_0_var(--color-line)]"
       >
+        <span
+          ref={tabMarkRef}
+          aria-hidden="true"
+          className="bg-brand ease-settle pointer-events-none absolute bottom-0 left-0 h-0.5 opacity-0 transition-[transform,width] duration-300 motion-reduce:transition-none"
+        />
         {TABS.map((id) => (
           <button
             key={id}
@@ -217,7 +227,7 @@ function Books({ canReopen }: { canReopen: boolean }) {
             className={cn(
               'border-b-2 px-1 pb-3 text-sm font-bold whitespace-nowrap transition-colors',
               tab === id
-                ? 'border-brand text-brand'
+                ? 'border-brand text-brand group-data-[indicator=on]/ind:border-transparent'
                 : 'text-muted hover:text-ink border-transparent',
             )}
           >
@@ -226,246 +236,254 @@ function Books({ canReopen }: { canReopen: boolean }) {
         ))}
       </div>
 
-      {tab === 'journal' ? (
-        <JournalTab
-          months={allTrial.data?.months ?? []}
-          closedThrough={books.closedThrough}
-          canWrite
-          onEdit={(entry) => setSheet({ entry })}
-        />
-      ) : tab === 'trial' ? (
-        <TrialTab currentMonth={currentMonth} />
-      ) : tab === 'close' ? (
-        <div className="grid items-start gap-6 lg:grid-cols-2">
-          <ClosePeriodChecklist
-            periods={books}
-            onRequestClose={requestClose}
+      {/* A new tab's content comes in softly (keyed, so it mounts again). */}
+      <div key={tab} className="animate-tab-in">
+        {tab === 'journal' ? (
+          <JournalTab
+            months={allTrial.data?.months ?? []}
+            closedThrough={books.closedThrough}
+            canWrite
+            onEdit={(entry) => setSheet({ entry })}
           />
-          {periodsCard}
-        </div>
-      ) : (
-        <div className="grid items-start gap-6 lg:grid-cols-2">
-          {/* شجرة الحسابات */}
-          <section className={card}>
-            <div className="flex items-center justify-between gap-3 pe-5">
-              <h2 className={cardTitle}>{t('tree.title')}</h2>
-              <button
-                type="button"
-                onClick={() => setAccountDialog({ account: null })}
-                className={cn(outlineBtn, 'h-9 px-3')}
-              >
-                <Plus className="size-4" />
-                {t('tree.add')}
-              </button>
-            </div>
-            <div className="overflow-x-auto">
-              <table className="w-full min-w-[460px] border-collapse">
-                <thead>
-                  <tr>
-                    <th className={th}>{t('tree.code')}</th>
-                    <th className={th}>{t('tree.name')}</th>
-                    <th className={th}>{t('tree.type')}</th>
-                    <th className={th}>{t('tree.balance')}</th>
-                    <th className={cn(th, 'w-16')} />
-                  </tr>
-                </thead>
-                <tbody>
-                  {chart.map((a) => (
-                    <tr key={a.id} className="border-line border-t">
-                      <td className={cn(td, 'text-ink-2 tabular-nums')}>
-                        {a.code}
-                      </td>
-                      <td className={cn(td, 'text-ink text-sm font-extrabold')}>
-                        {accountName(a)}
-                      </td>
-                      <td className={cn(td, 'text-ink-2')}>
-                        {t(`types.${a.type}`)}
-                      </td>
-                      <td
-                        className={cn(
-                          td,
-                          'whitespace-nowrap tabular-nums',
-                          a.balance < 0
-                            ? 'text-danger'
-                            : a.balance === 0
-                              ? 'text-muted'
-                              : 'text-ink-2',
-                        )}
-                      >
-                        {money(a.balance)}
-                      </td>
-                      <td className="pe-3">
-                        {!a.system && (
-                          <div className="flex items-center justify-end gap-0.5">
-                            <button
-                              type="button"
-                              aria-label={t('tree.edit')}
-                              title={t('tree.edit')}
-                              onClick={() => setAccountDialog({ account: a })}
-                              className="text-muted hover:bg-neutral-soft hover:text-ink rounded-lg p-1.5 transition-colors"
-                            >
-                              <Pencil className="size-3.5" />
-                            </button>
-                            {!a.used && (
-                              <button
-                                type="button"
-                                aria-label={t('tree.remove')}
-                                title={t('tree.remove')}
-                                onClick={() => setRemoving(a)}
-                                className="text-muted hover:bg-danger-soft hover:text-danger rounded-lg p-1.5 transition-colors"
-                              >
-                                <Trash2 className="size-3.5" />
-                              </button>
-                            )}
-                          </div>
-                        )}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </section>
-
-          {/* The other cards stack in one column (the chart is much taller). */}
-          <div className="min-w-0 space-y-6">
-            {/* آخر القيود */}
-            <section className={card}>
-              <h2 className={cardTitle}>{t('entries.title')}</h2>
-              <div className="overflow-x-auto">
-                <table className="w-full min-w-[480px] border-collapse">
-                  <thead>
-                    <tr>
-                      <th className={th}>{t('entries.number')}</th>
-                      <th className={th}>{t('entries.date')}</th>
-                      <th className={th}>{t('entries.description')}</th>
-                      <th className={th}>{t('entries.amount')}</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {(latest.data?.items ?? []).length === 0 ? (
-                      <tr>
-                        <td
-                          colSpan={4}
-                          className="text-muted py-10 text-center text-xs"
-                        >
-                          {latest.isPending ? (
-                            <Loader2 className="mx-auto size-4 animate-spin" />
-                          ) : (
-                            t('entries.empty')
-                          )}
-                        </td>
-                      </tr>
-                    ) : (
-                      latest.data!.items.map((e) => (
-                        <tr
-                          key={`${e.source}:${e.id}`}
-                          className="border-line border-t"
-                        >
-                          <td className={cn(td, 'text-brand font-bold')}>
-                            <span dir="ltr" className="inline-block">
-                              {e.ref ?? '—'}
-                            </span>
-                          </td>
-                          <td
-                            className={cn(td, 'text-ink-2 whitespace-nowrap')}
-                          >
-                            {day(e.date)}
-                          </td>
-                          <td className={cn(td, 'text-ink-2')}>
-                            {entryText(e)}
-                          </td>
-                          <td className={cn(td, 'text-ink-2 tabular-nums')}>
-                            {num(e.amount)}
-                          </td>
-                        </tr>
-                      ))
-                    )}
-                  </tbody>
-                </table>
-              </div>
-            </section>
-
-            {/* ميزان المراجعة للشهر الحالي */}
-            <section className={card}>
-              <h2 className={cardTitle}>
-                {t('trial.title', {
-                  month: currentMonth ? monthLabel(currentMonth, false) : '',
-                })}
-              </h2>
-              <div className="overflow-x-auto">
-                <table className="w-full min-w-[360px] border-collapse">
-                  <thead>
-                    <tr>
-                      <th className={th}>{t('trial.account')}</th>
-                      <th className={th}>{t('trial.debit')}</th>
-                      <th className={th}>{t('trial.credit')}</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {(monthTrial.data?.rows ?? []).length === 0 ? (
-                      <tr>
-                        <td
-                          colSpan={3}
-                          className="text-muted py-10 text-center text-xs"
-                        >
-                          {monthTrial.isPending ? (
-                            <Loader2 className="mx-auto size-4 animate-spin" />
-                          ) : (
-                            t('trialTab.empty')
-                          )}
-                        </td>
-                      </tr>
-                    ) : (
-                      monthTrial.data!.rows.map((r) => (
-                        <tr key={r.account.id} className="border-line border-t">
-                          <td className={cn(td, 'text-ink')}>
-                            {accountName(r.account)}
-                          </td>
-                          <td className={cn(td, 'text-ink-2 tabular-nums')}>
-                            {r.debit ? num(r.debit) : '—'}
-                          </td>
-                          <td className={cn(td, 'text-ink-2 tabular-nums')}>
-                            {r.credit ? num(r.credit) : '—'}
-                          </td>
-                        </tr>
-                      ))
-                    )}
-                  </tbody>
-                  {monthTrial.data && monthTrial.data.rows.length > 0 && (
-                    <tfoot>
-                      <tr className="border-line bg-canvas border-t-2">
-                        <td className={cn(td, 'text-ink font-extrabold')}>
-                          {t('trial.total')}
-                        </td>
-                        <td
-                          className={cn(
-                            td,
-                            'text-ink font-extrabold tabular-nums',
-                          )}
-                        >
-                          {num(monthTrial.data.totalDebit)}
-                        </td>
-                        <td
-                          className={cn(
-                            td,
-                            'text-ink font-extrabold tabular-nums',
-                          )}
-                        >
-                          {num(monthTrial.data.totalCredit)}
-                        </td>
-                      </tr>
-                    </tfoot>
-                  )}
-                </table>
-              </div>
-            </section>
-
-            {/* إقفال الفترات */}
+        ) : tab === 'trial' ? (
+          <TrialTab currentMonth={currentMonth} />
+        ) : tab === 'close' ? (
+          <div className="grid items-start gap-6 lg:grid-cols-2">
+            <ClosePeriodChecklist
+              periods={books}
+              onRequestClose={requestClose}
+            />
             {periodsCard}
           </div>
-        </div>
-      )}
+        ) : (
+          <div className="grid items-start gap-6 lg:grid-cols-2">
+            {/* شجرة الحسابات */}
+            <section className={card}>
+              <div className="flex items-center justify-between gap-3 pe-5">
+                <h2 className={cardTitle}>{t('tree.title')}</h2>
+                <button
+                  type="button"
+                  onClick={() => setAccountDialog({ account: null })}
+                  className={cn(outlineBtn, 'h-9 px-3')}
+                >
+                  <Plus className="size-4" />
+                  {t('tree.add')}
+                </button>
+              </div>
+              <div className="overflow-x-auto">
+                <table className="w-full min-w-[460px] border-collapse">
+                  <thead>
+                    <tr>
+                      <th className={th}>{t('tree.code')}</th>
+                      <th className={th}>{t('tree.name')}</th>
+                      <th className={th}>{t('tree.type')}</th>
+                      <th className={th}>{t('tree.balance')}</th>
+                      <th className={cn(th, 'w-16')} />
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {chart.map((a) => (
+                      <tr key={a.id} className="border-line border-t">
+                        <td className={cn(td, 'text-ink-2 tabular-nums')}>
+                          {a.code}
+                        </td>
+                        <td
+                          className={cn(td, 'text-ink text-sm font-extrabold')}
+                        >
+                          {accountName(a)}
+                        </td>
+                        <td className={cn(td, 'text-ink-2')}>
+                          {t(`types.${a.type}`)}
+                        </td>
+                        <td
+                          className={cn(
+                            td,
+                            'whitespace-nowrap tabular-nums',
+                            a.balance < 0
+                              ? 'text-danger'
+                              : a.balance === 0
+                                ? 'text-muted'
+                                : 'text-ink-2',
+                          )}
+                        >
+                          {money(a.balance)}
+                        </td>
+                        <td className="pe-3">
+                          {!a.system && (
+                            <div className="flex items-center justify-end gap-0.5">
+                              <button
+                                type="button"
+                                aria-label={t('tree.edit')}
+                                title={t('tree.edit')}
+                                onClick={() => setAccountDialog({ account: a })}
+                                className="text-muted hover:bg-neutral-soft hover:text-ink rounded-lg p-1.5 transition-colors"
+                              >
+                                <Pencil className="size-3.5" />
+                              </button>
+                              {!a.used && (
+                                <button
+                                  type="button"
+                                  aria-label={t('tree.remove')}
+                                  title={t('tree.remove')}
+                                  onClick={() => setRemoving(a)}
+                                  className="text-muted hover:bg-danger-soft hover:text-danger rounded-lg p-1.5 transition-colors"
+                                >
+                                  <Trash2 className="size-3.5" />
+                                </button>
+                              )}
+                            </div>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </section>
+
+            {/* The other cards stack in one column (the chart is much taller). */}
+            <div className="min-w-0 space-y-6">
+              {/* آخر القيود */}
+              <section className={card}>
+                <h2 className={cardTitle}>{t('entries.title')}</h2>
+                <div className="overflow-x-auto">
+                  <table className="w-full min-w-[480px] border-collapse">
+                    <thead>
+                      <tr>
+                        <th className={th}>{t('entries.number')}</th>
+                        <th className={th}>{t('entries.date')}</th>
+                        <th className={th}>{t('entries.description')}</th>
+                        <th className={th}>{t('entries.amount')}</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {(latest.data?.items ?? []).length === 0 ? (
+                        <tr>
+                          <td
+                            colSpan={4}
+                            className="text-muted py-10 text-center text-xs"
+                          >
+                            {latest.isPending ? (
+                              <Loader2 className="mx-auto size-4 animate-spin" />
+                            ) : (
+                              t('entries.empty')
+                            )}
+                          </td>
+                        </tr>
+                      ) : (
+                        latest.data!.items.map((e) => (
+                          <tr
+                            key={`${e.source}:${e.id}`}
+                            className="border-line border-t"
+                          >
+                            <td className={cn(td, 'text-brand font-bold')}>
+                              <span dir="ltr" className="inline-block">
+                                {e.ref ?? '—'}
+                              </span>
+                            </td>
+                            <td
+                              className={cn(td, 'text-ink-2 whitespace-nowrap')}
+                            >
+                              {day(e.date)}
+                            </td>
+                            <td className={cn(td, 'text-ink-2')}>
+                              {entryText(e)}
+                            </td>
+                            <td className={cn(td, 'text-ink-2 tabular-nums')}>
+                              {num(e.amount)}
+                            </td>
+                          </tr>
+                        ))
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </section>
+
+              {/* ميزان المراجعة للشهر الحالي */}
+              <section className={card}>
+                <h2 className={cardTitle}>
+                  {t('trial.title', {
+                    month: currentMonth ? monthLabel(currentMonth, false) : '',
+                  })}
+                </h2>
+                <div className="overflow-x-auto">
+                  <table className="w-full min-w-[360px] border-collapse">
+                    <thead>
+                      <tr>
+                        <th className={th}>{t('trial.account')}</th>
+                        <th className={th}>{t('trial.debit')}</th>
+                        <th className={th}>{t('trial.credit')}</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {(monthTrial.data?.rows ?? []).length === 0 ? (
+                        <tr>
+                          <td
+                            colSpan={3}
+                            className="text-muted py-10 text-center text-xs"
+                          >
+                            {monthTrial.isPending ? (
+                              <Loader2 className="mx-auto size-4 animate-spin" />
+                            ) : (
+                              t('trialTab.empty')
+                            )}
+                          </td>
+                        </tr>
+                      ) : (
+                        monthTrial.data!.rows.map((r) => (
+                          <tr
+                            key={r.account.id}
+                            className="border-line border-t"
+                          >
+                            <td className={cn(td, 'text-ink')}>
+                              {accountName(r.account)}
+                            </td>
+                            <td className={cn(td, 'text-ink-2 tabular-nums')}>
+                              {r.debit ? num(r.debit) : '—'}
+                            </td>
+                            <td className={cn(td, 'text-ink-2 tabular-nums')}>
+                              {r.credit ? num(r.credit) : '—'}
+                            </td>
+                          </tr>
+                        ))
+                      )}
+                    </tbody>
+                    {monthTrial.data && monthTrial.data.rows.length > 0 && (
+                      <tfoot>
+                        <tr className="border-line bg-canvas border-t-2">
+                          <td className={cn(td, 'text-ink font-extrabold')}>
+                            {t('trial.total')}
+                          </td>
+                          <td
+                            className={cn(
+                              td,
+                              'text-ink font-extrabold tabular-nums',
+                            )}
+                          >
+                            {num(monthTrial.data.totalDebit)}
+                          </td>
+                          <td
+                            className={cn(
+                              td,
+                              'text-ink font-extrabold tabular-nums',
+                            )}
+                          >
+                            {num(monthTrial.data.totalCredit)}
+                          </td>
+                        </tr>
+                      </tfoot>
+                    )}
+                  </table>
+                </div>
+              </section>
+
+              {/* إقفال الفترات */}
+              {periodsCard}
+            </div>
+          </div>
+        )}
+      </div>
 
       {books.toClose && (
         <ConfirmDialog

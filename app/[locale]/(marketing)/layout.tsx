@@ -2,6 +2,7 @@
 import { setRequestLocale } from 'next-intl/server';
 import Header from '@/component/Header';
 import Footer from '@/component/Footer';
+import ScrollReveal from '@/component/ScrollReveal';
 
 export default async function MarketingLayout({
   children,
@@ -17,6 +18,8 @@ export default async function MarketingLayout({
       <Header />
       {children}
       <Footer />
+      {/* Brings the sections in as they scroll into view. */}
+      <ScrollReveal />
     </>
   );
 }

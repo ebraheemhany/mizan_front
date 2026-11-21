@@ -47,7 +47,14 @@ html[lang='en'] { --font-app: var(--font-inter), var(--font-cairo); }
   --shadow-float: 0 20px 40px -20px rgb(0 0 0 / 0.4);
 
 
-  --animate-fade-up: fade-up 0.7s ease-out both;
+  /* الحركة: وصول واثق بيهدى في الآخر (exponential ease-out) */
+  --ease-settle: cubic-bezier(0.16, 1, 0.3, 1);
+
+  --animate-fade-up: fade-up 0.7s var(--ease-settle) both;
+  /* دخول صفحة في اللوحة: سريع، ما يأخرش اللي بيشتغل */
+  --animate-page-in: page-in 0.28s var(--ease-settle) both;
+  /* تبديل محتوى تبويب */
+  --animate-tab-in: tab-in 0.22s var(--ease-settle) both;
 
   @keyframes fade-up {
     from {
@@ -56,10 +63,154 @@ html[lang='en'] { --font-app: var(--font-inter), var(--font-cairo); }
     }
     to {
       opacity: 1;
-      transform: translateY(0);
+      transform: none;
     }
   }
 
+}
+
+:root {
+  /* نفس منحنى ease-settle، للـ CSS العادي */
+  --motion-settle: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* النهاية transform: none (مش translateY(0)) علشان ما يفضلش containing block للعناصر الـ fixed */
+@keyframes page-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes tab-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes soft-in {
+  from {
+    opacity: 0;
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* الظهور وقت الـ scroll (الصفحة التسويقية)                            */
+/* المحتوى ظاهر عادي؛ ScrollReveal بيحط reveal-on على html بس لما يقدر  */
+/* يتابع الصفحة، فلو الجافاسكريبت ما اشتغلش ما فيش حاجة بتستخبى.        */
+/* ------------------------------------------------------------------ */
+
+.reveal-on [data-reveal]:not([data-revealed]) {
+  opacity: 0;
+}
+
+/* الكروت: بتطلع وتستقر */
+.reveal-on [data-reveal='rise']:not([data-revealed]) {
+  transform: translateY(28px) scale(0.985);
+}
+
+/* العناوين: بتتكشف في اتجاه القراية (من اليمين في العربي، من الشمال في الإنجليزي).
+   القص على اللي جوه العنوان مش عليه هو: عنصر مقصوص بالكامل المتصفح بيعتبره مش ظاهر
+   فالـ IntersectionObserver ما بيحسش بيه. */
+.reveal-on [data-reveal='wipe']:not([data-revealed]) {
+  transform: translateY(10px);
+}
+.reveal-on [data-reveal='wipe']:not([data-revealed]) > * {
+  clip-path: inset(-0.2em 0 -0.2em 100%);
+}
+html[dir='ltr'].reveal-on [data-reveal='wipe']:not([data-revealed]) > * {
+  clip-path: inset(-0.2em 100% -0.2em 0);
+}
+
+/* خط خطوات "إزاي بيشتغل": بيترسم من أول السطر */
+.reveal-on [data-reveal='line']:not([data-revealed]) {
+  opacity: 1;
+  transform: scaleX(0);
+}
+[data-reveal='line'] {
+  transform-origin: right center;
+}
+html[dir='ltr'] [data-reveal='line'] {
+  transform-origin: left center;
+}
+
+/* صورة خلفية: الكاميرا بتقرّب لحد ما تستقر */
+.reveal-on [data-reveal='zoom']:not([data-revealed]) {
+  opacity: 1;
+  transform: scale(1.12);
+}
+
+.reveal-on [data-reveal][data-revealed='in'] {
+  transition:
+    opacity 0.7s var(--motion-settle),
+    transform 0.9s var(--motion-settle),
+    clip-path 0.9s var(--motion-settle);
+  transition-delay: var(--reveal-delay, 0ms);
+}
+/* inset → none ما بيتحركش: النهاية لازم تكون inset برضه طول الحركة */
+.reveal-on [data-reveal='wipe'][data-revealed='in'] > * {
+  clip-path: inset(-0.2em 0 -0.2em 0);
+  transition: clip-path 0.9s var(--motion-settle);
+  transition-delay: var(--reveal-delay, 0ms);
+}
+/* السطر التاني (العنوان بعد السطر الصغير اللي فوقه) بيكمل بعده بشوية */
+.reveal-on [data-reveal='wipe'][data-revealed='in'] > :nth-child(2) {
+  transition-delay: calc(var(--reveal-delay, 0ms) + 120ms);
+}
+.reveal-on [data-reveal='line'][data-revealed='in'] {
+  transition-duration: 1.1s;
+  transition-delay: calc(var(--reveal-delay, 0ms) + 250ms);
+}
+.reveal-on [data-reveal='zoom'][data-revealed='in'] {
+  transition-duration: 1.6s;
+}
+
+/* ------------------------------------------------------------------ */
+/* اللوحة: كل صفحة بتدخل، والمحتوى اللي بييجي بعد التحميل بيدخل برضه   */
+/* (أي عنصر جديد مباشر جوه page-shell بيعمل الحركة أول ما يتحط)        */
+/* ------------------------------------------------------------------ */
+
+.page-shell > * {
+  animation: page-in 0.28s var(--motion-settle) both;
+}
+
+/* الرئيسية: الأقسام بتيجي ورا بعض بسرعة */
+.page-shell [data-stagger] > * {
+  animation: page-in 0.36s var(--motion-settle) both;
+}
+.page-shell [data-stagger] > :nth-child(2) {
+  animation-delay: 50ms;
+}
+.page-shell [data-stagger] > :nth-child(3) {
+  animation-delay: 100ms;
+}
+.page-shell [data-stagger] > :nth-child(n + 4) {
+  animation-delay: 150ms;
+}
+
+/* تقليل الحركة: من غير تحريك ولا تكبير؛ الظهور بالشفافية بس */
+@media (prefers-reduced-motion: reduce) {
+  .reveal-on [data-reveal]:not([data-revealed]),
+  .reveal-on [data-reveal]:not([data-revealed]) > * {
+    transform: none;
+    clip-path: none;
+  }
+  .reveal-on [data-reveal][data-revealed='in'] {
+    transition: opacity 0.3s linear;
+  }
+  .page-shell > *,
+  .page-shell [data-stagger] > * {
+    animation: soft-in 0.15s linear both;
+  }
 }
 
 @layer base {

@@ -58,7 +58,8 @@ export default function DashboardView() {
   });
 
   return (
-    <div className="space-y-5">
+    // Its blocks arrive one after another, quickly (globals.css: [data-stagger]).
+    <div data-stagger className="space-y-5">
       <PageHeader
         title={t('greeting', { name: firstName })}
         description={t('subtitle', { date: today })}

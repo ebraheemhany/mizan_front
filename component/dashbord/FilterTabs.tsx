@@ -2,6 +2,7 @@
 'use client';
 
 import { useFormatter } from 'next-intl';
+import { useSlidingIndicator } from '@/lib/motion/useSlidingIndicator';
 import { cn } from '@/lib/utils';
 
 export type FilterTab<T extends string> = {
@@ -21,12 +22,20 @@ export default function FilterTabs<T extends string>({
   onChange: (value: T) => void;
 }) {
   const format = useFormatter();
+  // The white segment slides to the chosen filter.
+  const { containerRef, indicatorRef } = useSlidingIndicator(value);
 
   return (
     <div
+      ref={containerRef}
       role="tablist"
-      className="border-line bg-canvas/70 flex w-full gap-1 overflow-x-auto rounded-xl border p-1.5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+      className="group/ind border-line bg-canvas/70 relative flex w-full [scrollbar-width:none] gap-1 overflow-x-auto rounded-xl border p-1.5 [&::-webkit-scrollbar]:hidden"
     >
+      <span
+        ref={indicatorRef}
+        aria-hidden="true"
+        className="bg-surface ease-settle pointer-events-none absolute top-0 left-0 rounded-lg opacity-0 shadow-sm ring-1 ring-black/5 transition-[transform,width,height] duration-300 motion-reduce:transition-none"
+      />
       {tabs.map((tab) => {
         const selected = value === tab.value;
         return (
@@ -37,9 +46,9 @@ export default function FilterTabs<T extends string>({
             aria-selected={selected}
             onClick={() => onChange(tab.value)}
             className={cn(
-              'focus-visible:ring-brand/30 inline-flex min-h-9 shrink-0 items-center gap-2 rounded-lg px-3.5 py-1.5 text-xs font-bold transition-all outline-none focus-visible:ring-2',
+              'focus-visible:ring-brand/30 relative inline-flex min-h-9 shrink-0 items-center gap-2 rounded-lg px-3.5 py-1.5 text-xs font-bold transition-all outline-none focus-visible:ring-2',
               selected
-                ? 'bg-surface text-brand-deep shadow-sm ring-1 ring-black/5'
+                ? 'bg-surface text-brand-deep shadow-sm ring-1 ring-black/5 group-data-[indicator=on]/ind:bg-transparent group-data-[indicator=on]/ind:shadow-none group-data-[indicator=on]/ind:ring-0'
                 : 'text-ink-2 hover:bg-surface/70 hover:text-ink',
             )}
           >

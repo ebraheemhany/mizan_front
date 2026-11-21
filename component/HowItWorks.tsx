@@ -29,7 +29,7 @@ export default function HowItWorks() {
       <div className="absolute inset-0 bg-[#0b251d]/65" />
 
       <div className="relative z-10 px-6 py-20 text-center text-white sm:px-10 lg:px-12">
-        <div className="mb-16">
+        <div data-reveal="wipe" className="mb-16">
           <span className="mb-3 block text-sm font-semibold text-emerald-400 ltr:tracking-[0.2em] ltr:uppercase">
             {t('sectionSubtitle')}
           </span>
@@ -45,6 +45,7 @@ export default function HowItWorks() {
           {steps.map((step, index) => (
             <div
               key={index}
+              data-reveal="rise"
               className="group relative rounded-[28px] border border-white/10 bg-white/5 p-6 shadow-[0_20px_40px_rgba(5,18,14,0.25)] backdrop-blur-sm transition-transform duration-200 hover:-translate-y-1"
             >
               <div className="mb-6 flex items-center justify-center">
@@ -53,7 +54,7 @@ export default function HowItWorks() {
                 </div>
               </div>
 
-              <div className="mb-4 h-px w-full bg-gradient-to-r from-transparent via-emerald-300/80 to-transparent" />
+              <div data-reveal="line" className="mb-4 h-px w-full bg-gradient-to-r from-transparent via-emerald-300/80 to-transparent" />
 
               <h3 className="mb-3 text-xl font-bold text-white sm:text-2xl">
                 {step.title}

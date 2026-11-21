@@ -30,7 +30,7 @@ export default function WhyMizan() {
       dir={isArabic ? 'rtl' : 'ltr'}
     >
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="mx-auto mb-10 max-w-3xl text-center sm:mb-12">
+        <div data-reveal="wipe" className="mx-auto mb-10 max-w-3xl text-center sm:mb-12">
           <span className="mb-4 inline-flex items-center gap-2 text-sm font-bold text-[#00704a]">
             <span className="h-2 w-2 rounded-full bg-[#00704a] ring-4 ring-[#00704a]/10" />
             {t('sectionSubtitle')}
@@ -46,6 +46,7 @@ export default function WhyMizan() {
             return (
               <article
                 key={item.title}
+                data-reveal="rise"
                 className="group rounded-card flex min-h-56 flex-col border border-[#dfe9e5] bg-white p-6 shadow-[0_8px_24px_rgba(11,37,29,0.04)] transition duration-200 hover:-translate-y-1 hover:border-[#9dd4bd] hover:shadow-[0_16px_35px_rgba(11,37,29,0.08)] sm:p-7"
               >
                 <div className="mb-8 flex items-center justify-between">

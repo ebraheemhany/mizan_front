@@ -29,7 +29,7 @@ export default function PricingCard() {
       className="mx-auto my-12 max-w-[1200px] scroll-mt-24 px-4 sm:px-6 lg:px-8"
       dir={isArabic ? 'rtl' : 'ltr'}
     >
-      <div className="mb-10 text-center">
+      <div data-reveal="wipe" className="mb-10 text-center">
         <p className="mb-4 text-sm font-bold text-[#00704a] sm:text-base">
           {t('label')}
         </p>
@@ -40,6 +40,7 @@ export default function PricingCard() {
 
       <div className="grid gap-6 lg:grid-cols-2">
         <article
+          data-reveal="rise"
           dir={isArabic ? 'rtl' : 'ltr'}
           className="flex flex-col rounded-[28px] border-2 border-[#0a7b5a] bg-[#0a7b5a] p-5 text-white shadow-[0_20px_50px_rgba(10,123,90,0.18)] sm:p-6"
         >
@@ -92,6 +93,7 @@ export default function PricingCard() {
         </article>
 
         <article
+          data-reveal="rise"
           dir={isArabic ? 'rtl' : 'ltr'}
           className="flex flex-col rounded-[28px] border border-[#dfe9e5] bg-white p-5 text-[#0b251d] shadow-[0_16px_40px_rgba(35,55,45,0.06)] sm:p-6"
         >
@@ -138,7 +140,7 @@ export default function PricingCard() {
         </article>
       </div>
 
-      <div className="relative mt-8 overflow-hidden rounded-[28px] border border-emerald-100/60 bg-white px-6 py-10 shadow-[0_18px_50px_rgba(30,80,60,0.08)] sm:px-8 lg:px-10">
+      <div data-reveal="rise" className="relative mt-8 overflow-hidden rounded-[28px] border border-emerald-100/60 bg-white px-6 py-10 shadow-[0_18px_50px_rgba(30,80,60,0.08)] sm:px-8 lg:px-10">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(0,131,99,0.08),_transparent_45%)]" />
 
         <div className="relative z-10 flex flex-col gap-8 lg:flex-row lg:items-center lg:justify-between">

@@ -1,7 +1,7 @@
 // src/components/landing/DashboardPreview.tsx
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useSyncExternalStore } from 'react';
 import { useFormatter, useTranslations } from 'next-intl';
 import {
   BarChart3,
@@ -50,6 +50,21 @@ function useInView<T extends Element>(threshold = 0.1) {
   return { ref, inView };
 }
 
+const REDUCED_MOTION = '(prefers-reduced-motion: reduce)';
+
+/** The visitor's "reduce motion" setting, kept up to date (false while rendering on the server). */
+function usePrefersReducedMotion() {
+  return useSyncExternalStore(
+    (onChange) => {
+      const query = window.matchMedia(REDUCED_MOTION);
+      query.addEventListener('change', onChange);
+      return () => query.removeEventListener('change', onChange);
+    },
+    () => window.matchMedia(REDUCED_MOTION).matches,
+    () => false,
+  );
+}
+
 function CountUp({
   to,
   start,
@@ -60,14 +75,12 @@ function CountUp({
   duration?: number;
 }) {
   const format = useFormatter();
+  const reduced = usePrefersReducedMotion();
   const [value, setValue] = useState(0);
 
   useEffect(() => {
-    if (!start) return;
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-      setValue(to);
-      return;
-    }
+    // Reduced motion: the final number straight away (no counting).
+    if (!start || reduced) return;
     let raf = 0;
     const t0 = performance.now();
     const tick = (now: number) => {
@@ -78,12 +91,12 @@ function CountUp({
     };
     raf = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(raf);
-  }, [start, to, duration]);
+  }, [start, reduced, to, duration]);
 
   // numberingSystem: 'latn' يخلي الأرقام 123 حتى في العربي
   return (
     <span className="tabular-nums">
-      {format.number(value, { numberingSystem: 'latn' })}
+      {format.number(reduced && start ? to : value, { numberingSystem: 'latn' })}
     </span>
   );
 }
@@ -96,8 +109,12 @@ export default function DashboardPreview() {
   return (
     <div
       ref={ref}
-      className={`rounded-card border-line bg-surface flex w-full max-w-6xl overflow-hidden border text-start shadow-sm transition-all duration-700 motion-reduce:transition-none ${
-        inView ? 'translate-y-0 opacity-100' : 'translate-y-6 opacity-0'
+      // The focal moment: leaning back, it settles flat from its bottom edge, like a
+      // pan of the scale coming to rest (after the headline has arrived).
+      className={`rounded-card border-line bg-surface flex w-full max-w-6xl origin-bottom overflow-hidden border text-start shadow-sm transition-[opacity,transform] delay-300 duration-[1200ms] ease-settle motion-reduce:transform-none motion-reduce:duration-300 ${
+        inView
+          ? 'opacity-100 [transform:none]'
+          : 'opacity-0 [transform:perspective(1600px)_rotateX(18deg)_translateY(56px)_scale(0.94)]'
       }`}
     >
       {/* Sidebar */}
