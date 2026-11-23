@@ -243,8 +243,9 @@ export function ManualEntrySheet({ open, onClose, entry, accounts, closedThrough
           className="flex min-h-0 flex-1 flex-col"
         >
           <div className="bg-canvas/40 flex-1 space-y-5 overflow-y-auto p-4 sm:p-6">
-            <div className="rounded-card border-line bg-surface grid gap-4 border p-4 sm:grid-cols-[9rem_1fr]">
-              <div>
+            {/* minmax(0,1fr) + min-w-0: the date field shrinks instead of pushing past the sheet. */}
+            <div className="rounded-card border-line bg-surface grid gap-4 border p-4 sm:grid-cols-[11rem_minmax(0,1fr)]">
+              <div className="min-w-0">
                 <label className="text-ink-2 mb-1.5 block text-xs font-bold">{t('number')}</label>
                 <Input
                   value={entry?.ref ?? t('autoNumber')}
@@ -253,7 +254,7 @@ export function ManualEntrySheet({ open, onClose, entry, accounts, closedThrough
                   className="border-line-strong bg-neutral-soft rounded-btn h-11 text-start"
                 />
               </div>
-              <div>
+              <div className="min-w-0">
                 <label htmlFor="entry-date" className="text-ink-2 mb-1.5 block text-xs font-bold">
                   {t('date')}
                 </label>
