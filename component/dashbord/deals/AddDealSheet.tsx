@@ -317,8 +317,8 @@ function DealForm({
           </div>
         )}
 
-        {/* المسؤول + الإغلاق */}
-        <div className="grid gap-5 sm:grid-cols-2">
+        {/* المسؤول + الإغلاق: تحت بعض، الشيت ضيق على تاريخ كامل في نص عرضه */}
+        <div className="grid gap-5">
           <div>
             <Label htmlFor="d-owner" className={labelClass}>
               {t('owner')}
@@ -360,9 +360,9 @@ function DealForm({
           </div>
         </div>
 
-        {/* المتابعة */}
+        {/* المتابعة: التاريخ بعرض الشيت، و"في انتظار الرد" سطر تحته (الشيت أضيق من إنهم يبقوا جنب بعض) */}
         {!won && (
-          <div className="grid items-end gap-5 sm:grid-cols-2">
+          <div className="space-y-3">
             <div>
               <Label htmlFor="d-follow" className={labelClass}>
                 {t('followUpDate')}
@@ -399,9 +399,9 @@ function DealForm({
               name="awaitingReply"
               control={control}
               render={({ field }) => (
-                <label className="border-line-strong rounded-btn flex h-11 cursor-pointer items-center gap-2.5 border px-3 text-sm font-semibold">
+                <label className="flex w-fit cursor-pointer items-center gap-2.5 text-sm font-semibold">
                   <Checkbox checked={field.value} onCheckedChange={(checked) => field.onChange(checked === true)} />
-                  <span className="text-ink">{t('awaitingReply')}</span>
+                  <span className="text-ink leading-5">{t('awaitingReply')}</span>
                 </label>
               )}
             />
