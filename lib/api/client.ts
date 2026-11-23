@@ -17,6 +17,8 @@ export type SessionUser = {
   /** null until the user opens the confirmation link emailed to them. */
   emailVerifiedAt: string | null;
   company: { id: string; name: string };
+  /** false: made with Google and never set a password (nothing to confirm when setting one). */
+  hasPassword?: boolean;
 };
 
 export class ApiError extends Error {
@@ -27,6 +29,9 @@ export class ApiError extends Error {
     public readonly details?: {
       fieldErrors?: Record<string, string[]>;
       retryAfterSeconds?: number;
+      /** GOOGLE_NO_ACCOUNT: who Google says this is; GOOGLE_EMAIL_MISMATCH: the invited address. */
+      email?: string;
+      fullName?: string;
     },
   ) {
     super(message);
@@ -104,6 +109,29 @@ export async function login(values: { email: string; password: string; remember:
   return data.user;
 }
 
+export type GoogleSignIn = {
+  /** The ID token Google Identity Services handed the page. */
+  credential: string;
+  remember: boolean;
+  /** For someone without an account: the company to create (they become its owner). */
+  companyName?: string;
+  /** Accepts this invitation with the Google account instead of a password. */
+  invitationToken?: string;
+};
+
+/** "Continue with Google": through the Next.js route, so the refresh token lands in the cookie. */
+export async function continueWithGoogle(values: GoogleSignIn) {
+  const res = await send('/api/auth/google', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(values),
+  });
+  if (!res.ok) throw await toApiError(res);
+  const data = (await res.json()) as { accessToken: string; user: SessionUser };
+  accessToken = data.accessToken;
+  return data.user;
+}
+
 export async function logout() {
   accessToken = null;
   await send('/api/auth/logout', { method: 'POST' }).catch(() => undefined);
@@ -114,7 +142,7 @@ export async function logout() {
  * backend) because the new refresh token must land in the httpOnly cookie.
  * Every other device is logged out; this one keeps going with new tokens.
  */
-export async function changePassword(values: { currentPassword: string; newPassword: string }) {
+export async function changePassword(values: { currentPassword?: string; newPassword: string }) {
   const call = () =>
     send('/api/auth/change-password', {
       method: 'POST',

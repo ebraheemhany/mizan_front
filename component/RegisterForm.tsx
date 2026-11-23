@@ -20,6 +20,7 @@ import {
   createRegisterSchema,
   type RegisterValues,
 } from '@/lib/validations/loginForm';
+import GoogleSignIn from './GoogleSignIn';
 import PasswordField from './PasswordField';
 
 const inputClass =
@@ -109,6 +110,7 @@ export default function RegisterForm() {
   }
 
   return (
+    <GoogleSignIn>
     <form onSubmit={handleSubmit(onSubmit)} className="mt-8 space-y-5" noValidate>
       {/* الاسم + الشركة */}
       <div className="grid gap-5 sm:grid-cols-2">
@@ -233,5 +235,6 @@ export default function RegisterForm() {
         </Link>
       </p>
     </form>
+    </GoogleSignIn>
   );
 }

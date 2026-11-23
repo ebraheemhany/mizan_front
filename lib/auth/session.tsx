@@ -6,7 +6,7 @@ import { Loader2 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from '@/i18n/navigation';
-import { api, login, logout, refreshSession, type SessionUser } from '@/lib/api/client';
+import { api, continueWithGoogle, login, logout, refreshSession, type SessionUser } from '@/lib/api/client';
 import { queryKeys } from '@/lib/query/keys';
 import { dropUserData } from '@/lib/query/reset';
 
@@ -94,6 +94,18 @@ export function useLoginMutation() {
     mutationFn: login,
     // Start from an empty cache (nothing left over from an earlier session on this tab),
     // then fill the session straight away so the dashboard opens without another request.
+    onSuccess: (user) => {
+      dropUserData(queryClient);
+      queryClient.setQueryData(queryKeys.session, user);
+    },
+  });
+}
+
+/** "Continue with Google": signs in (or joins, or creates the company) like a login does. */
+export function useGoogleSignInMutation() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: continueWithGoogle,
     onSuccess: (user) => {
       dropUserData(queryClient);
       queryClient.setQueryData(queryKeys.session, user);

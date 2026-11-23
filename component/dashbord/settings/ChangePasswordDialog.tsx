@@ -6,6 +6,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslations } from 'next-intl';
 import { ShieldCheck, X } from 'lucide-react';
 import { toast } from 'sonner';
+import { useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -14,19 +15,29 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { ApiError, changePassword } from '@/lib/api/client';
+import { ApiError, changePassword, type SessionUser } from '@/lib/api/client';
 import { useApiErrorMessage } from '@/lib/api/use-api-error';
+import { useSession } from '@/lib/auth/session';
+import { queryKeys } from '@/lib/query/keys';
 import {
   changePasswordSchema,
+  setPasswordSchema,
   type ChangePasswordValues,
 } from '@/lib/validations/password';
 import PasswordField from '@/component/PasswordField';
 
 type Props = { open: boolean; onClose: () => void };
 
-export function ChangePasswordDialog({ open, onClose }: Props) {
+export function ChangePasswordDialog(props: Props) {
+  // An account made with Google sets its first password: no "current password" field.
+  const setting = useSession().hasPassword === false;
+  return <PasswordDialog key={setting ? 'set' : 'change'} setting={setting} {...props} />;
+}
+
+function PasswordDialog({ open, onClose, setting }: Props & { setting: boolean }) {
   const t = useTranslations('Settings.security.password');
   const errorMessage = useApiErrorMessage();
+  const queryClient = useQueryClient();
   const {
     register,
     handleSubmit,
@@ -35,7 +46,7 @@ export function ChangePasswordDialog({ open, onClose }: Props) {
     setError,
     formState: { errors, isSubmitting },
   } = useForm<ChangePasswordValues>({
-    resolver: zodResolver(changePasswordSchema),
+    resolver: zodResolver(setting ? setPasswordSchema : changePasswordSchema),
     defaultValues: { current: '', next: '', confirm: '' },
   });
   const nextPassword = watch('next');
@@ -48,8 +59,11 @@ export function ChangePasswordDialog({ open, onClose }: Props) {
   const onSubmit = async (values: ChangePasswordValues) => {
     try {
       // Logs out every other device; this one gets new tokens and stays in.
-      await changePassword({ currentPassword: values.current, newPassword: values.next });
-      toast.success(t('success'));
+      await changePassword({ ...(setting ? {} : { currentPassword: values.current }), newPassword: values.next });
+      if (setting) {
+        queryClient.setQueryData<SessionUser | null>(queryKeys.session, (user) => user && { ...user, hasPassword: true });
+      }
+      toast.success(t(setting ? 'setSuccess' : 'success'));
       close();
     } catch (error) {
       if (error instanceof ApiError && error.code === 'INVALID_CURRENT_PASSWORD') {
@@ -80,10 +94,10 @@ export function ChangePasswordDialog({ open, onClose }: Props) {
             <ShieldCheck className="size-5" aria-hidden="true" />
           </span>
           <DialogTitle className="text-ink text-lg font-extrabold">
-            {t('title')}
+            {t(setting ? 'setTitle' : 'title')}
           </DialogTitle>
           <DialogDescription className="text-muted text-sm leading-6">
-            {t('description')}
+            {t(setting ? 'setDescription' : 'description')}
           </DialogDescription>
         </DialogHeader>
 
@@ -96,17 +110,19 @@ export function ChangePasswordDialog({ open, onClose }: Props) {
           className="space-y-4"
           noValidate
         >
-          <PasswordField
-            id="current-password"
-            label={t('current')}
-            error={
-              errors.current?.message
-                ? t(`errors.${errors.current.message}`)
-                : undefined
-            }
-            registration={register('current')}
-            autoComplete="current-password"
-          />
+          {!setting && (
+            <PasswordField
+              id="current-password"
+              label={t('current')}
+              error={
+                errors.current?.message
+                  ? t(`errors.${errors.current.message}`)
+                  : undefined
+              }
+              registration={register('current')}
+              autoComplete="current-password"
+            />
+          )}
           <PasswordField
             id="new-password"
             label={t('next')}

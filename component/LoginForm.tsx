@@ -2,7 +2,7 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import { Controller, useForm } from 'react-hook-form';
+import { Controller, useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslations } from 'next-intl';
 import { Eye, EyeOff, Loader2 } from 'lucide-react';
@@ -11,6 +11,7 @@ import { useApiErrorMessage } from '@/lib/api/use-api-error';
 import { safeNextPath } from '@/lib/auth/constants';
 import { useLoginMutation } from '@/lib/auth/session';
 import { Button } from '@/components/ui/button';
+import GoogleSignIn from './GoogleSignIn';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import {
@@ -50,6 +51,8 @@ export default function LoginForm() {
   });
 
   const { isSubmitting } = form.formState;
+  // "Remember me" counts for Google sign-in too.
+  const remember = useWatch({ control: form.control, name: 'remember' });
 
   async function onSubmit(values: LoginValues) {
     setServerError(null);
@@ -68,6 +71,7 @@ export default function LoginForm() {
     'h-12 rounded-btn border-line-strong bg-surface shadow-sm transition focus-visible:border-brand focus-visible:ring-4 focus-visible:ring-brand/10';
 
   return (
+    <GoogleSignIn remember={remember}>
     <form onSubmit={form.handleSubmit(onSubmit)} className="mt-8" noValidate>
       <FieldGroup className="gap-5">
         {/* Email */}
@@ -207,5 +211,6 @@ export default function LoginForm() {
         </p>
       </FieldGroup>
     </form>
+    </GoogleSignIn>
   );
 }

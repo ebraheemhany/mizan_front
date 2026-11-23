@@ -208,6 +208,17 @@
   }
 },
 "Auth": {
+  "google": {
+    "or": "or",
+    "signingIn": "Signing in...",
+    "welcome": "Welcome {name}, one last step",
+    "noAccount": "There's no Mizan account for <b>{email}</b>. Enter your company's name and we'll create its account, with you as the owner.",
+    "employeeHint": "If you work for a company that already uses Mizan, don't create a new account: ask its owner to send you an invitation.",
+    "create": "Create company account",
+    "creating": "Creating...",
+    "back": "Back",
+    "emailMismatch": "This invitation was sent to {email}. Choose the Google account with that address, or continue with a password below."
+  },
   "verify": {
     "loading": "Confirming your email…",
     "invalidTitle": "This link no longer works",
@@ -2258,6 +2269,11 @@
     "off": "Auto sign-out disabled"
   },
   "password": {
+    "set": "Set",
+    "googleHint": "You sign in with Google · no password yet",
+    "setTitle": "Set a password",
+    "setDescription": "You sign in with Google. With a password you can also sign in with your email.",
+    "setSuccess": "Password set",
     "label": "Password",
     "hint": "We recommend changing it regularly",
     "change": "Change",
@@ -2452,6 +2468,8 @@
     "expense": "Expense"
   },
   "events": {
+    "signedInWithGoogle": "Signed in with Google",
+    "googleLinked": "Linked the account to Google",
     "subscriptionStarted": "Subscribed to {plan} for {amount} until {through}",
     "planUpgraded": "Upgraded to {plan} (paid the difference, {amount})",
     "subscriptionRenewed": "Renewed {plan} for {amount} until {through}",
@@ -2830,6 +2848,12 @@
   }
 },
   "ApiErrors": {
+    "GOOGLE_TOKEN_INVALID": "Google sign-in didn't complete. Please try again",
+    "GOOGLE_EMAIL_UNVERIFIED": "Google hasn't verified this account's email. Use another account, or your email and password",
+    "GOOGLE_SIGNIN_UNAVAILABLE": "Sign-in with Google isn't available right now",
+    "GOOGLE_LINKED_ELSEWHERE": "This account is linked to a different Google account. Use that one, or your email and password",
+    "GOOGLE_EMAIL_MISMATCH": "This invitation is for a different email. Sign in with the Google account that matches it",
+    "GOOGLE_NO_ACCOUNT": "There's no account with this email",
     "PLAN_LIMIT_INVOICES": "Your plan's invoices for this month are used up. Upgrade in settings to make more",
     "PLAN_LIMIT_USERS": "Your team has reached the plan's limit. Upgrade in settings to add members",
     "PLAN_FEATURE": "This feature is in the paid plans. Upgrade in settings",
@@ -2851,7 +2875,7 @@
     "FILE_TOO_LARGE": "The file is larger than allowed",
     "FILE_TYPE": "This kind of file isn't accepted here",
     "EXPENSE_CHANGED": "The expense changed meanwhile; reload and try again",
-    "INVALID_CREDENTIALS": "Incorrect email or password",
+    "INVALID_CREDENTIALS": "Incorrect email or password (if you signed up with Google, use the Google button)",
     "EMAIL_TAKEN": "An account with this email already exists",
     "TOO_MANY_REQUESTS": "Too many attempts. Try again in {minutes} min",
     "VALIDATION_ERROR": "Please check the details you entered",

@@ -17,3 +17,15 @@ export const changePasswordSchema = z
   });
 
 export type ChangePasswordValues = z.infer<typeof changePasswordSchema>;
+
+/** An account made with Google setting its first password: there's no current one. */
+export const setPasswordSchema = z
+  .object({
+    current: z.string(),
+    next: newPasswordField,
+    confirm: z.string().min(1, 'confirmRequired'),
+  })
+  .refine((v) => v.next === v.confirm, {
+    message: 'passwordMismatch',
+    path: ['confirm'],
+  });

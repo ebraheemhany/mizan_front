@@ -6,11 +6,14 @@ import { useTranslations } from 'next-intl';
 import { toast } from 'sonner';
 import { KeyRound } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { useSession } from '@/lib/auth/session';
 import { ChangePasswordDialog } from './ChangePasswordDialog';
 import SwitchControl from './SwitchControl';
 
 export function SecuritySection() {
   const t = useTranslations('Settings.security');
+  // Made with Google and no password yet: the button sets one.
+  const noPassword = useSession().hasPassword === false;
   // TODO: القيم دي تيجي من الـ API
   const [twoFactor, setTwoFactor] = useState(true);
   const [autoLogout, setAutoLogout] = useState(true);
@@ -66,7 +69,7 @@ export function SecuritySection() {
                 {t('password.label')}
               </p>
               <p className="text-muted mt-0.5 text-xs">
-                {t('password.hint')}
+                {t(noPassword ? 'password.googleHint' : 'password.hint')}
               </p>
             </div>
           </div>
@@ -76,7 +79,7 @@ export function SecuritySection() {
             onClick={() => setPwOpen(true)}
             className="border-brand/25 bg-surface text-brand hover:bg-brand-soft h-10 shrink-0 text-xs font-bold"
           >
-            {t('password.change')}
+            {t(noPassword ? 'password.set' : 'password.change')}
           </Button>
         </div>
       </div>

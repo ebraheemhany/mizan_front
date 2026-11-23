@@ -19,6 +19,7 @@ import { ApiError } from '@/lib/api/client';
 import { useApiErrorMessage } from '@/lib/api/use-api-error';
 import { useMailLocale } from '@/lib/auth/account';
 import { useAcceptInvitationMutation, useInvitationPreview, type InvitationPreview } from '@/lib/team/hooks';
+import GoogleSignIn from './GoogleSignIn';
 import PasswordField from './PasswordField';
 
 const inputClass =
@@ -146,6 +147,8 @@ function AcceptForm({
         {t('subtitle', { role: tRoles(invitation.role) })}
       </p>
 
+      {/* With Google the invited address must be the Google account's own. */}
+      <GoogleSignIn invitationToken={token} onInvitationDead={onLinkDead}>
       <form onSubmit={handleSubmit(onSubmit)} className="mt-8 space-y-5" noValidate>
         <div>
           <Label htmlFor="email" className="text-ink mb-2 text-sm font-bold">
@@ -209,6 +212,7 @@ function AcceptForm({
           )}
         </Button>
       </form>
+      </GoogleSignIn>
     </>
   );
 }
