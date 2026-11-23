@@ -31,7 +31,10 @@ const columns: {
   },
   {
     title: 'legalTitle',
-    links: [{ label: 'privacyPolicy' }, { label: 'terms' }],
+    links: [
+      { label: 'privacyPolicy', href: '/privacy' },
+      { label: 'terms', href: '/terms' },
+    ],
   },
 ];
 
