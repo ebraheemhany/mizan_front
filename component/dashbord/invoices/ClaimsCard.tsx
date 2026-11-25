@@ -6,9 +6,22 @@
 
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { Check, Eye, Loader2, Receipt, X } from 'lucide-react';
+import { Check, CircleCheck, CircleX, Eye, Loader2, Receipt, X, type LucideIcon } from 'lucide-react';
 import { toast } from 'sonner';
 
+import {
+  dialogCancelButton,
+  dialogClose,
+  dialogConfirmButton,
+  dialogDescription,
+  dialogFooterBar,
+  dialogHeaderBar,
+  dialogHeading,
+  dialogIconTile,
+  dialogPopup,
+  dialogTitle,
+  type DialogTone,
+} from '@/component/dialog-chrome';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
@@ -171,42 +184,42 @@ function AcceptDialog({ claim, onClose }: { claim: PaymentClaim | null; onClose:
   }
 
   return (
-    <Dialog open={claim !== null} onOpenChange={(open) => !open && close()}>
-      <DialogContent className="rounded-card border-line bg-surface max-w-md border p-6">
-        <DialogHeader className="text-start">
-          <DialogTitle className="text-ink text-lg font-extrabold">{t('acceptTitle')}</DialogTitle>
-          <DialogDescription className="text-muted text-sm leading-6">
-            {claim ? t('acceptDescription', { amount: money(claim.amount) }) : ''}
-          </DialogDescription>
-        </DialogHeader>
-        <fieldset>
-          <legend className="text-ink mb-2 text-sm font-bold">{t('account')}</legend>
-          <div className="grid grid-cols-3 gap-2">
-            {(['bank', 'wallet', 'cashbox'] as const).map((a) => (
-              <label
-                key={a}
-                className={cn(
-                  'rounded-btn flex h-11 cursor-pointer items-center justify-center border text-xs font-bold transition-colors',
-                  chosen === a ? 'border-brand bg-brand-soft text-brand-deep' : 'border-line-strong text-ink-2 hover:bg-canvas',
-                )}
-              >
-                <input type="radio" name="claim-account" className="sr-only" checked={chosen === a} onChange={() => setAccount(a)} />
-                {tAccounts(a)}
-              </label>
-            ))}
-          </div>
-        </fieldset>
-        <DialogFooter className="gap-2 pt-2 sm:gap-2">
-          <Button type="button" variant="outline" onClick={close} className="border-line-strong h-10 text-xs font-bold">
+    <ReviewDialog
+      open={claim !== null}
+      onClose={close}
+      icon={CircleCheck}
+      title={t('acceptTitle')}
+      description={claim ? t('acceptDescription', { amount: money(claim.amount) }) : ''}
+      footer={
+        <>
+          <Button type="button" variant="outline" onClick={close} className={dialogCancelButton}>
             {t('cancel')}
           </Button>
-          <Button type="button" onClick={confirm} disabled={accept.isPending} className="bg-brand hover:bg-brand-deep h-10 text-xs font-bold text-white">
-            {accept.isPending && <Loader2 className="size-4 animate-spin" />}
+          <Button type="button" onClick={confirm} disabled={accept.isPending} className={cn(dialogConfirmButton, 'bg-brand hover:bg-brand/90')}>
+            {accept.isPending ? <Loader2 className="size-4 animate-spin" /> : <Check className="size-4" />}
             {t('acceptConfirm')}
           </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+        </>
+      }
+    >
+      <fieldset>
+        <legend className="text-ink mb-2 text-sm font-bold">{t('account')}</legend>
+        <div className="grid grid-cols-3 gap-2">
+          {(['bank', 'wallet', 'cashbox'] as const).map((a) => (
+            <label
+              key={a}
+              className={cn(
+                'rounded-btn flex h-11 cursor-pointer items-center justify-center border text-xs font-bold transition-colors',
+                chosen === a ? 'border-brand bg-brand-soft text-brand-deep' : 'border-line-strong text-ink-2 hover:bg-canvas',
+              )}
+            >
+              <input type="radio" name="claim-account" className="sr-only" checked={chosen === a} onChange={() => setAccount(a)} />
+              {tAccounts(a)}
+            </label>
+          ))}
+        </div>
+      </fieldset>
+    </ReviewDialog>
   );
 }
 
@@ -240,41 +253,92 @@ function RejectDialog({ claim, onClose }: { claim: PaymentClaim | null; onClose:
   }
 
   return (
-    <Dialog open={claim !== null} onOpenChange={(open) => !open && close()}>
-      <DialogContent className="rounded-card border-line bg-surface max-w-md border p-6">
-        <DialogHeader className="text-start">
-          <DialogTitle className="text-ink text-lg font-extrabold">{t('rejectTitle')}</DialogTitle>
-          <DialogDescription className="text-muted text-sm leading-6">{t('rejectDescription')}</DialogDescription>
-        </DialogHeader>
-        <div>
-          <Label htmlFor="reject-reason" className="text-ink mb-2 text-sm font-bold">
-            {t('reason')}
-          </Label>
-          <Textarea
-            id="reject-reason"
-            rows={3}
-            maxLength={300}
-            placeholder={t('reasonPlaceholder')}
-            value={reason}
-            onChange={(e) => setReason(e.target.value)}
-            aria-invalid={!!problem}
-            className="rounded-btn border-line-strong resize-none"
-          />
-          {problem && (
-            <p role="alert" className="text-danger mt-1.5 text-xs font-semibold">
-              {problem}
-            </p>
-          )}
-        </div>
-        <DialogFooter className="gap-2 pt-2 sm:gap-2">
-          <Button type="button" variant="outline" onClick={close} className="border-line-strong h-10 text-xs font-bold">
+    <ReviewDialog
+      open={claim !== null}
+      onClose={close}
+      tone="danger"
+      icon={CircleX}
+      title={t('rejectTitle')}
+      description={t('rejectDescription')}
+      footer={
+        <>
+          <Button type="button" variant="outline" onClick={close} className={dialogCancelButton}>
             {t('cancel')}
           </Button>
-          <Button type="button" onClick={confirm} disabled={reject.isPending} className="bg-danger hover:bg-danger/90 h-10 text-xs font-bold text-white">
-            {reject.isPending && <Loader2 className="size-4 animate-spin" />}
+          <Button type="button" onClick={confirm} disabled={reject.isPending} className={cn(dialogConfirmButton, 'bg-danger hover:bg-danger/90')}>
+            {reject.isPending ? <Loader2 className="size-4 animate-spin" /> : <X className="size-4" />}
             {t('rejectConfirm')}
           </Button>
-        </DialogFooter>
+        </>
+      }
+    >
+      <div>
+        <Label htmlFor="reject-reason" className="text-ink mb-2 text-sm font-bold">
+          {t('reason')}
+        </Label>
+        <Textarea
+          id="reject-reason"
+          rows={3}
+          maxLength={300}
+          placeholder={t('reasonPlaceholder')}
+          value={reason}
+          onChange={(e) => setReason(e.target.value)}
+          aria-invalid={!!problem}
+          className="rounded-btn border-line-strong resize-none"
+        />
+        {problem && (
+          <p role="alert" className="text-danger mt-1.5 text-xs font-semibold">
+            {problem}
+          </p>
+        )}
+      </div>
+    </ReviewDialog>
+  );
+}
+
+/** The site's dialog layout (dialog-chrome): tinted header with an icon and a close button, the body, the footer bar. */
+function ReviewDialog({
+  open,
+  onClose,
+  tone = 'brand',
+  icon: Icon,
+  title,
+  description,
+  footer,
+  children,
+}: {
+  open: boolean;
+  onClose: () => void;
+  tone?: DialogTone;
+  icon: LucideIcon;
+  title: string;
+  description: string;
+  footer: React.ReactNode;
+  children: React.ReactNode;
+}) {
+  const t = useTranslations('Claims');
+  return (
+    <Dialog open={open} onOpenChange={(next) => !next && onClose()}>
+      <DialogContent showCloseButton={false} className={cn(dialogPopup, 'sm:max-w-md')}>
+        <div className={dialogHeaderBar(tone)}>
+          <span className={dialogIconTile(tone)}>
+            <Icon className="size-5" />
+          </span>
+          <DialogHeader className={dialogHeading}>
+            <DialogTitle className={dialogTitle}>{title}</DialogTitle>
+            <DialogDescription className={dialogDescription}>{description}</DialogDescription>
+          </DialogHeader>
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label={t('close')}
+            className={dialogClose}
+          >
+            <X className="size-4" />
+          </button>
+        </div>
+        <div className="px-6 py-5">{children}</div>
+        <DialogFooter className={dialogFooterBar}>{footer}</DialogFooter>
       </DialogContent>
     </Dialog>
   );

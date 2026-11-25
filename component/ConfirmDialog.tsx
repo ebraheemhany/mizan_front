@@ -1,7 +1,7 @@
 // components/app/ConfirmDialog.tsx
 'use client';
 
-import { Trash2 } from 'lucide-react';
+import { Trash2, type LucideIcon } from 'lucide-react';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -21,6 +21,7 @@ export default function ConfirmDialog({
   confirmLabel,
   onConfirm,
   onClose,
+  icon: Icon = Trash2,
 }: {
   open: boolean;
   title: string;
@@ -29,6 +30,8 @@ export default function ConfirmDialog({
   confirmLabel: string;
   onConfirm: () => void;
   onClose: () => void;
+  /** Shown in the header and on the confirm button (a bin by default). */
+  icon?: LucideIcon;
 }) {
   return (
     <AlertDialog
@@ -40,11 +43,11 @@ export default function ConfirmDialog({
       <AlertDialogContent className="rounded-card border-line bg-surface text-ink shadow-float gap-0 overflow-hidden border p-0 sm:max-w-md">
         <div className="flex flex-col items-center px-7 pb-7 pt-8 text-center">
           <span className="bg-danger-soft text-danger ring-danger/10 flex size-14 items-center justify-center rounded-2xl ring-1">
-            <Trash2 className="size-6" />
+            <Icon className="size-6" />
           </span>
 
           <AlertDialogHeader className="mt-5 min-w-0 place-items-center gap-2.5 text-center sm:text-center">
-            <AlertDialogTitle className="text-ink max-w-full text-center text-xl leading-7 font-extrabold">
+            <AlertDialogTitle className="text-ink w-full text-center text-xl leading-7 font-extrabold">
               {title}
             </AlertDialogTitle>
             <AlertDialogDescription className="text-muted max-w-sm text-center text-sm leading-6">
@@ -53,7 +56,7 @@ export default function ConfirmDialog({
           </AlertDialogHeader>
         </div>
 
-        <AlertDialogFooter className="border-line bg-canvas/50 mx-0 mb-0 grid grid-cols-2 gap-3 border-t px-6 py-5 sm:gap-3">
+        <AlertDialogFooter className="border-line bg-canvas flex flex-col-reverse gap-3 border-t px-6 py-5 sm:grid sm:grid-cols-2 sm:gap-3">
           <AlertDialogCancel className="rounded-btn border-line-strong bg-surface text-ink hover:border-brand/40 hover:bg-brand-soft hover:text-brand-deep focus-visible:ring-brand/20 h-11 px-4 font-bold shadow-sm">
             {cancelLabel}
           </AlertDialogCancel>
@@ -61,7 +64,7 @@ export default function ConfirmDialog({
             onClick={onConfirm}
             className="rounded-btn bg-danger hover:bg-danger/90 focus-visible:ring-danger/30 h-11 gap-2 px-4 font-bold text-white shadow-sm"
           >
-            <Trash2 className="size-4" aria-hidden="true" />
+            <Icon className="size-4" aria-hidden="true" />
             {confirmLabel}
           </AlertDialogAction>
         </AlertDialogFooter>

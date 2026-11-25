@@ -5,14 +5,26 @@
 
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { Loader2, Mail, MailWarning } from 'lucide-react';
+import { Loader2, Mail, MailWarning, X } from 'lucide-react';
 
+import {
+  dialogCancelButton,
+  dialogClose,
+  dialogConfirmButton,
+  dialogFooterBar,
+  dialogHeaderBar,
+  dialogHeading,
+  dialogIconTile,
+  dialogPopup,
+  dialogTitle,
+} from '@/component/dialog-chrome';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { useSession } from '@/lib/auth/session';
+import { cn } from '@/lib/utils';
 
 const MAX = 2000;
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -93,7 +105,7 @@ function SendEmailForm({
           <Textarea
             id="send-email-message"
             rows={5}
-            dir="auto"
+            dir={message ? 'auto' : undefined}
             value={message}
             placeholder={t('messagePlaceholder')}
             onChange={(e) => {
@@ -113,19 +125,19 @@ function SendEmailForm({
         )}
       </div>
 
-      <DialogFooter className="border-line bg-canvas gap-2 border-t px-6 py-4 sm:gap-2">
+      <DialogFooter className={dialogFooterBar}>
         <Button
           type="button"
           variant="outline"
           onClick={onCancel}
-          className="rounded-btn border-line-strong bg-surface h-11 px-6 font-bold"
+          className={dialogCancelButton}
         >
           {t('cancel')}
         </Button>
         <Button
           type="submit"
           disabled={sending || unverified}
-          className="rounded-btn bg-brand hover:bg-brand/90 h-11 gap-2 px-8 font-bold text-white"
+          className={cn(dialogConfirmButton, 'bg-brand hover:bg-brand/90')}
         >
           {sending ? <Loader2 className="size-4 animate-spin" /> : <Mail className="size-4" />}
           {t('submit')}
@@ -153,20 +165,29 @@ export default function SendEmailDialog({
   hint: string;
   onSend: (input: SendEmailInput) => Promise<boolean>;
 }) {
+  const t = useTranslations('SendEmail');
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
         showCloseButton={false}
-        className="rounded-card border-line bg-surface text-ink shadow-float max-h-[90dvh] gap-0 overflow-y-auto border p-0 sm:max-w-lg"
+        className={cn(dialogPopup, 'sm:max-w-lg')}
       >
-        <div className="border-line bg-brand-soft/60 flex items-center gap-3.5 border-b px-6 py-5">
-          <span className="bg-surface text-brand ring-brand/10 flex size-11 shrink-0 items-center justify-center rounded-xl ring-1">
+        <div className={dialogHeaderBar()}>
+          <span className={dialogIconTile()}>
             <Mail className="size-5" />
           </span>
-          <DialogHeader className="min-w-0 gap-0.5 text-start">
-            <DialogTitle className="text-ink text-lg font-extrabold">{title}</DialogTitle>
+          <DialogHeader className={dialogHeading}>
+            <DialogTitle className={dialogTitle}>{title}</DialogTitle>
             <DialogDescription className="text-muted truncate text-xs">{description}</DialogDescription>
           </DialogHeader>
+          <button
+            type="button"
+            onClick={() => onOpenChange(false)}
+            aria-label={t('close')}
+            className={dialogClose}
+          >
+            <X className="size-4" />
+          </button>
         </div>
         {/* Mounted only while open, so each opening starts from the customer's address. */}
         {open && <SendEmailForm defaultTo={defaultTo} hint={hint} onSend={onSend} onCancel={() => onOpenChange(false)} />}

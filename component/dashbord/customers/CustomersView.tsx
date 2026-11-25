@@ -7,16 +7,6 @@ import { Download, Loader2, Plus, TriangleAlert, Upload } from 'lucide-react';
 import { toast } from 'sonner';
 
 import { Button } from '@/components/ui/button';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
 import { ApiError } from '@/lib/api/client';
 import { useApiErrorMessage } from '@/lib/api/use-api-error';
 import { can } from '@/lib/auth/permissions';
@@ -43,6 +33,7 @@ import {
   customerToFormValues,
   type CustomerFormValues,
 } from '@/lib/validations/customer';
+import ConfirmDialog from '@/component/ConfirmDialog';
 import AddCustomerSheet from './AddCustomerSheet';
 import BulkActionsBar from './BulkActionsBar';
 import CustomersTable from './CustomersTable';
@@ -469,41 +460,20 @@ export default function CustomersView() {
         />
       )}
 
-      <AlertDialog
+      <ConfirmDialog
         open={!!deleting}
-        onOpenChange={(open) => {
-          if (!open) setDeleting(null);
-        }}
-      >
-        <AlertDialogContent className="rounded-card border-line bg-surface text-ink shadow-float gap-0 overflow-hidden border p-0 sm:max-w-sm">
-          <div className="flex flex-col items-center px-6 pt-7 pb-6 text-center">
-            <span className="bg-danger-soft text-danger flex size-12 items-center justify-center rounded-full">
-              <TriangleAlert className="size-5" />
-            </span>
-            <AlertDialogHeader className="mt-4 min-w-0 place-items-center gap-2 text-center">
-              <AlertDialogTitle className="text-ink text-lg font-extrabold">
-                {deleting?.length === 1
-                  ? t('deleteDialog.title', { name: deleting[0].name })
-                  : t('deleteDialog.titleMany', { count: deleting?.length ?? 0 })}
-              </AlertDialogTitle>
-              <AlertDialogDescription className="text-muted max-w-xs text-sm leading-6">
-                {t('deleteDialog.description')}
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-          </div>
-          <AlertDialogFooter className="border-line bg-canvas/60 grid grid-cols-2 gap-2 border-t px-5 py-4 sm:gap-2">
-            <AlertDialogAction
-              onClick={deleteCustomer}
-              className="rounded-btn bg-danger hover:bg-danger/90 focus-visible:ring-danger/30 h-11 px-3 font-bold text-white"
-            >
-              {t('deleteDialog.confirm')}
-            </AlertDialogAction>
-            <AlertDialogCancel className="rounded-btn border-line-strong bg-surface text-ink hover:bg-canvas h-11 px-3 font-bold">
-              {t('deleteDialog.cancel')}
-            </AlertDialogCancel>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+        icon={TriangleAlert}
+        title={
+          deleting?.length === 1
+            ? t('deleteDialog.title', { name: deleting[0].name })
+            : t('deleteDialog.titleMany', { count: deleting?.length ?? 0 })
+        }
+        description={t('deleteDialog.description')}
+        cancelLabel={t('deleteDialog.cancel')}
+        confirmLabel={t('deleteDialog.confirm')}
+        onConfirm={deleteCustomer}
+        onClose={() => setDeleting(null)}
+      />
     </div>
   );
 }

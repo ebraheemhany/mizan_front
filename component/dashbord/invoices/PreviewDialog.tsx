@@ -39,7 +39,7 @@ export default function PreviewDialog({
             <DialogTitle className="text-ink text-lg font-extrabold">
               {t('title')}
             </DialogTitle>
-            <DialogDescription className="text-muted truncate text-xs">
+            <DialogDescription className="text-muted line-clamp-2 text-xs">
               {t('description', { customer: invoice.customer })}
             </DialogDescription>
           </DialogHeader>
@@ -48,7 +48,7 @@ export default function PreviewDialog({
             type="button"
             onClick={() => onOpenChange(false)}
             aria-label={t('close')}
-            className="text-muted hover:bg-surface hover:text-ink absolute end-4 top-4 rounded-lg p-1.5 transition-colors"
+            className="text-muted hover:bg-surface hover:text-ink focus-visible:ring-brand/30 absolute end-4 top-4 rounded-lg p-1.5 transition-colors outline-none focus-visible:ring-2"
           >
             <X className="size-4" />
           </button>

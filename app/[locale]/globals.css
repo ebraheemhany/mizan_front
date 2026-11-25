@@ -2,6 +2,10 @@
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 
+/* الموقع ملوش وضع داكن: dark: بتشتغل بس تحت كلاس .dark (مش مستخدم)، مش حسب ثيم الجهاز.
+   من غيرها مكونات components/ui كانت بتلوّن الزراير والحقول لما الجهاز يبقى داكن. */
+@custom-variant dark (&:where(.dark, .dark *));
+
 /* الخط بيتحدد حسب اللغة؛ Cairo احتياطي في الإنجليزي علشان أي نص عربي (أسماء عملاء مثلاً) */
 html[lang='ar'] { --font-app: var(--font-cairo); }
 html[lang='en'] { --font-app: var(--font-inter), var(--font-cairo); }
@@ -38,6 +42,27 @@ html[lang='en'] { --font-app: var(--font-inter), var(--font-cairo); }
   --color-danger: #b42318;
   --color-danger-soft: #fdecea;
   --color-neutral-soft: #eef1ed;
+
+  /* ألوان مكونات shadcn (components/ui) متربوطة بألوان ميزان. من غيرها الـ focus ring
+     والإطار بيطلعوا بلون النص (غامق) والقوائم المنسدلة شفافة.
+     --color-muted مش متعرف هنا: هو عندنا لون نص رمادي، فالمكونات بتستخدم bg-canvas بداله. */
+  --color-background: #ffffff;
+  --color-foreground: #0f2a20;
+  --color-card: #ffffff;
+  --color-card-foreground: #0f2a20;
+  --color-popover: #ffffff;
+  --color-popover-foreground: #0f2a20;
+  --color-primary: #047857;
+  --color-primary-foreground: #ffffff;
+  --color-secondary: #eef1ed;
+  --color-secondary-foreground: #0f2a20;
+  --color-muted-foreground: #6b7b73;
+  --color-accent: #e7f5ee;
+  --color-accent-foreground: #065f46;
+  --color-destructive: #b42318;
+  --color-border: #e3e8e2;
+  --color-input: #cbd6cf;
+  --color-ring: #047857;
 
   /* الزوايا والظل */
   --radius-card: 18px;

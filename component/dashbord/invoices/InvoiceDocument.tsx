@@ -182,9 +182,11 @@ export default function InvoiceDocument({
         />
       </dl>
 
-      <p className="text-muted border-line mt-6 border-t pt-4 text-xs leading-6">
-        {t('note')}: {invoice.note}
-      </p>
+      {invoice.note && (
+        <p className="text-muted border-line mt-6 border-t pt-4 text-xs leading-6">
+          {t('note')}: {invoice.note}
+        </p>
+      )}
     </section>
   );
 }

@@ -282,7 +282,7 @@ function ConnectForm() {
           </label>
           <input
             id={`paymob-${key}`}
-            dir="ltr"
+            dir={values[key] ? 'ltr' : undefined}
             type={key === 'secretKey' || key === 'hmacSecret' ? 'password' : 'text'}
             inputMode={key === 'integrationId' ? 'numeric' : undefined}
             autoComplete="off"
@@ -292,7 +292,7 @@ function ConnectForm() {
             onChange={(e) => setValues((v) => ({ ...v, [key]: e.target.value }))}
             onKeyDown={noSubmit}
             aria-invalid={!!errors[key]}
-            className={cn(settingsInput, 'text-left')}
+            className={settingsInput}
           />
           {errors[key] && <p className="text-danger mt-1 text-[11px] font-semibold">{errors[key]}</p>}
         </div>

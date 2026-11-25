@@ -59,7 +59,11 @@ export default function PublicPayPanel({
       <div className="flex flex-wrap items-end justify-between gap-2">
         <div>
           <h2 className="text-ink text-lg font-extrabold">{t('title')}</h2>
-          {pay.payable && <p className="text-muted mt-0.5 text-xs">{t('subtitle')}</p>}
+          {pay.payable && (
+            <p className="text-muted mt-0.5 text-xs">
+              {t(pay.online ? 'subtitle' : pay.transfer ? 'subtitleTransfer' : 'subtitleReceipt')}
+            </p>
+          )}
         </div>
         {pay.payable && (
           <p className="text-ink text-sm">
@@ -317,7 +321,7 @@ function ClaimForm({
             value={values.amount}
             onChange={(e) => set('amount')(e.target.value)}
             aria-invalid={!!problems.amount}
-            className={cn(inputClass, 'text-start tabular-nums')}
+            className={cn(inputClass, 'tabular-nums rtl:text-right')}
           />
           {problems.amount && <FieldProblem text={problems.amount} />}
         </div>
@@ -371,7 +375,6 @@ function ClaimForm({
           </Label>
           <Input
             id="claim-reference"
-            dir="auto"
             maxLength={100}
             placeholder={t('referencePlaceholder')}
             value={values.reference}

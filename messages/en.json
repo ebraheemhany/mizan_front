@@ -1,5 +1,6 @@
 {
     "Claims": {
+      "close": "Close",
       "title": "Receipts from the customer",
       "pendingHint": "{count, plural, one {One receipt waits for your review} other {# receipts wait for your review}}",
       "noneWaiting": "No receipts waiting for review",
@@ -29,6 +30,8 @@
       "cancel": "Back"
     },
     "PublicPay": {
+      "subtitleTransfer": "Transfer the amount to the details below, then send the receipt.",
+      "subtitleReceipt": "Already paid? Send the receipt here so it gets recorded.",
       "title": "Pay this invoice",
       "subtitle": "Pay online, or transfer the amount and send the receipt.",
       "due": "Amount due:",
@@ -116,6 +119,7 @@
       "sent": "A new link is on its way to {email}"
     },
     "SendEmail": {
+      "close": "Close",
       "to": "To",
       "message": "Message",
       "optional": "optional",
@@ -829,7 +833,7 @@
     "pickDate": "Pick a date",
     "method": "Payment method",
     "note": "Note (optional)",
-    "notePlaceholder": "e.g. transfer reference",
+    "notePlaceholder": "e.g. advance payment",
     "submit": "Record payment",
     "cancel": "Cancel",
     "close": "Close",
@@ -2537,7 +2541,7 @@
   "perMonth": "/ month",
   "success": "Upgrade to the {plan} plan requested",
   "features": {
-    "users": "Up to {count} users",
+    "users": "{count, plural, one {Up to {n} user} other {Up to {n} users}}",
     "invoices10": "10 invoices per month",
     "invoices20": "20 invoices per month",
     "invoicesUnlimited": "Unlimited invoices",
@@ -3013,6 +3017,7 @@
     }
   },
   "accountDialog": {
+    "close": "Close",
     "title": "Add account",
     "editTitle": "Edit account",
     "description": "A new account in the chart, for manual entries.",

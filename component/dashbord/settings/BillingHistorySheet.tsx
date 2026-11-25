@@ -136,7 +136,7 @@ export function BillingHistorySheet({ open, onClose }: Props) {
       >
         <SheetClose
           aria-label={t('history.close')}
-          className="text-muted hover:bg-neutral-soft hover:text-ink focus-visible:ring-brand absolute top-4 left-4 z-10 inline-flex size-9 items-center justify-center rounded-full transition-colors focus-visible:ring-2 focus-visible:outline-none"
+          className="text-muted hover:bg-neutral-soft hover:text-ink focus-visible:ring-brand absolute end-4 top-4 z-10 inline-flex size-9 items-center justify-center rounded-full transition-colors focus-visible:ring-2 focus-visible:outline-none"
         >
           <X className="size-4" aria-hidden="true" />
         </SheetClose>

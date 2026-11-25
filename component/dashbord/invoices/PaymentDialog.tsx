@@ -17,6 +17,17 @@ import {
   type LucideIcon,
 } from 'lucide-react';
 import { ar, enUS } from 'react-day-picker/locale';
+import {
+  dialogCancelButton,
+  dialogClose,
+  dialogConfirmButton,
+  dialogFooterBar,
+  dialogHeaderBar,
+  dialogHeading,
+  dialogIconTile,
+  dialogPopupPinned,
+  dialogScrollBody,
+} from '@/component/dialog-chrome';
 import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
 import {
@@ -178,10 +189,10 @@ function PaymentForm({
     'border-line-strong bg-surface text-ink-2 hover:bg-canvas rounded-full border px-3 py-1 text-xs font-bold transition-colors';
 
   return (
-    <form onSubmit={handleSubmit(submit)} noValidate>
-      <div className="space-y-5 px-6 py-5">
+    <form onSubmit={handleSubmit(submit)} noValidate className="flex min-h-0 flex-1 flex-col">
+      <div className={cn(dialogScrollBody, 'space-y-5 px-6 py-5')}>
         {/* ملخص: قبل وبعد */}
-        <div className="border-line bg-canvas/60 divide-line grid grid-cols-2 divide-x overflow-hidden rounded-xl border divide-x-reverse">
+        <div className="border-line bg-canvas/60 divide-line grid grid-cols-2 divide-x overflow-hidden rounded-xl border">
           <div className="px-4 py-3">
             <p className="text-muted text-xs font-semibold">
               {t('remainingNow')}
@@ -355,7 +366,6 @@ function PaymentForm({
             </Label>
             <Input
               id="pay-reference"
-              dir="auto"
               maxLength={100}
               autoComplete="off"
               placeholder={t('referencePlaceholder')}
@@ -418,18 +428,13 @@ function PaymentForm({
         </div>
       </div>
 
-      <DialogFooter className="border-line bg-canvas gap-2 border-t px-6 py-4 sm:gap-2">
-        <Button
-          type="button"
-          variant="outline"
-          onClick={onCancel}
-          className="rounded-btn border-line-strong bg-surface h-11 px-6 font-bold"
-        >
+      <DialogFooter className={dialogFooterBar}>
+        <Button type="button" variant="outline" onClick={onCancel} className={dialogCancelButton}>
           {t('cancel')}
         </Button>
         <Button
           type="submit"
-          className="rounded-btn bg-brand hover:bg-brand/90 h-11 px-8 font-bold text-white"
+          className={cn(dialogConfirmButton, 'bg-brand hover:bg-brand/90')}
         >
           {t('submit')}
         </Button>
@@ -460,14 +465,14 @@ export default function PaymentDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
         showCloseButton={false}
-        className="rounded-card border-line bg-surface text-ink shadow-float max-h-[90dvh] gap-0 overflow-x-hidden overflow-y-auto border p-0 [scrollbar-color:var(--color-line-strong)_transparent] [scrollbar-width:thin] sm:max-w-lg [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-line-strong [&::-webkit-scrollbar-thumb:hover]:bg-brand"
+        className={cn(dialogPopupPinned, 'sm:max-w-lg')}
       >
-        <div className="border-line bg-brand-soft/60 relative flex items-center gap-3.5 border-b px-6 py-5">
-          <span className="bg-surface text-brand ring-brand/10 flex size-11 shrink-0 items-center justify-center rounded-xl ring-1">
+        <div className={dialogHeaderBar()}>
+          <span className={dialogIconTile()}>
             <HandCoins className="size-5" />
           </span>
 
-          <DialogHeader className="min-w-0 gap-0.5 pe-8 text-start">
+          <DialogHeader className={dialogHeading}>
             <DialogTitle className="text-ink text-lg font-extrabold">
               {t('title')}
             </DialogTitle>
@@ -480,7 +485,7 @@ export default function PaymentDialog({
             type="button"
             onClick={() => onOpenChange(false)}
             aria-label={t('close')}
-            className="text-muted hover:bg-surface hover:text-ink absolute end-4 top-4 rounded-lg p-1.5 transition-colors"
+            className={dialogClose}
           >
             <X className="size-4" />
           </button>

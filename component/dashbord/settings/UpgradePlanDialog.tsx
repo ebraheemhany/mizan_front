@@ -8,6 +8,7 @@ import { useFormatter, useTranslations } from 'next-intl';
 import { Check, Loader2, Sparkles, X } from 'lucide-react';
 import { toast } from 'sonner';
 
+import { thinScrollbar } from '@/component/dialog-chrome';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { useApiErrorMessage } from '@/lib/api/use-api-error';
@@ -108,13 +109,16 @@ export function UpgradePlanDialog({ open, onClose }: Props) {
     <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
       <DialogContent
         showCloseButton={false}
-        className="border-line bg-[#f7fbf9] rounded-[28px] max-h-[90vh] w-[calc(100%-2rem)] gap-6 overflow-y-auto border p-5 shadow-[0_24px_70px_rgba(10,70,50,0.18)] sm:max-w-5xl sm:p-8"
+        className={cn(
+          'border-line bg-[#f7fbf9] rounded-[28px] max-h-[calc(100dvh-2rem)] w-[calc(100%-2rem)] gap-6 overflow-x-hidden overflow-y-auto border p-5 shadow-[0_24px_70px_rgba(10,70,50,0.18)] sm:max-w-5xl sm:p-8',
+          thinScrollbar,
+        )}
       >
         <button
           type="button"
           onClick={onClose}
           aria-label={t('upgradeDialog.close')}
-          className="text-muted hover:bg-white/70 hover:text-ink absolute end-4 top-4 rounded-full p-2 transition-colors"
+          className="text-muted hover:bg-white/70 hover:text-ink focus-visible:ring-brand/30 absolute end-4 top-4 rounded-full p-2 transition-colors outline-none focus-visible:ring-2"
         >
           <X className="size-5" aria-hidden="true" />
         </button>
@@ -185,7 +189,7 @@ export function UpgradePlanDialog({ open, onClose }: Props) {
                         >
                           <Check className="size-3.5" aria-hidden="true" />
                         </span>
-                        <span>{t(`upgradeDialog.features.${key}`, { count: num(plan.users) })}</span>
+                        <span>{t(`upgradeDialog.features.${key}`, { count: plan.users, n: num(plan.users) })}</span>
                       </li>
                     ))}
                   </ul>

@@ -4,6 +4,17 @@
 import { useState } from 'react';
 import { TrendingDown, X } from 'lucide-react';
 import { useTranslations } from 'next-intl';
+import {
+  dialogCancelButton,
+  dialogClose,
+  dialogConfirmButton,
+  dialogFooterBar,
+  dialogHeaderBar,
+  dialogHeading,
+  dialogIconTile,
+  dialogPopup,
+  dialogTitle,
+} from '@/component/dialog-chrome';
 import { ChipGroup, FieldError } from '@/component/form-parts';
 import { Button } from '@/components/ui/button';
 import {
@@ -18,6 +29,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { LOSS_REASONS, type Deal, type LossReason } from '@/lib/deals/model';
 import { useMoney } from '@/lib/money';
+import { cn } from '@/lib/utils';
 
 function LoseForm({
   onConfirm,
@@ -87,18 +99,18 @@ function LoseForm({
         </div>
       </div>
 
-      <DialogFooter className="border-line bg-canvas/60 gap-2 border-t px-6 py-4 sm:gap-2">
+      <DialogFooter className={dialogFooterBar}>
         <Button
           type="button"
           variant="outline"
           onClick={onCancel}
-          className="rounded-btn border-line-strong bg-surface text-ink hover:bg-canvas h-11 px-6 font-bold"
+          className={dialogCancelButton}
         >
           {t('cancel')}
         </Button>
         <Button
           type="submit"
-          className="rounded-btn bg-danger hover:bg-danger/90 focus-visible:ring-danger/30 h-11 gap-2 px-6 font-bold text-white"
+          className={cn(dialogConfirmButton, 'bg-danger hover:bg-danger/90 focus-visible:ring-danger/30')}
         >
           <TrendingDown className="size-4" />
           {t('confirm')}
@@ -129,15 +141,15 @@ export default function LoseDealDialog({
     >
       <DialogContent
         showCloseButton={false}
-        className="rounded-card border-line bg-surface text-ink shadow-float gap-0 overflow-hidden border p-0 sm:max-w-lg"
+        className={cn(dialogPopup, 'sm:max-w-lg')}
       >
-        <div className="bg-canvas/60 border-line relative flex items-start gap-3.5 border-b px-6 py-5">
-          <span className="bg-danger-soft text-danger flex size-12 shrink-0 items-center justify-center rounded-full">
+        <div className={dialogHeaderBar('danger')}>
+          <span className={dialogIconTile('danger')}>
             <TrendingDown className="size-5" />
           </span>
 
-          <DialogHeader className="min-w-0 gap-1 pe-8 text-start">
-            <DialogTitle className="text-ink text-lg font-extrabold">{t('title')}</DialogTitle>
+          <DialogHeader className={dialogHeading}>
+            <DialogTitle className={dialogTitle}>{t('title')}</DialogTitle>
             <DialogDescription className="sr-only">
               {deal
                 ? t('description', {
@@ -153,7 +165,7 @@ export default function LoseDealDialog({
             type="button"
             onClick={onClose}
             aria-label={t('close')}
-            className="text-muted hover:bg-surface hover:text-ink absolute end-4 top-4 rounded-full p-2 transition-colors"
+            className={dialogClose}
           >
             <X className="size-4" />
           </button>

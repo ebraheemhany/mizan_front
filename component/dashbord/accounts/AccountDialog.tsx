@@ -3,10 +3,22 @@
 'use client';
 
 import { useState } from 'react';
-import { BookPlus } from 'lucide-react';
+import { BookPlus, X } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { toast } from 'sonner';
 
+import {
+  dialogCancelButton,
+  dialogClose,
+  dialogConfirmButton,
+  dialogDescription,
+  dialogFooterBar,
+  dialogHeaderBar,
+  dialogHeading,
+  dialogIconTile,
+  dialogPopup,
+  dialogTitle,
+} from '@/component/dialog-chrome';
 import { ChipGroup, FieldError } from '@/component/form-parts';
 import { Button } from '@/components/ui/button';
 import {
@@ -22,6 +34,7 @@ import { Label } from '@/components/ui/label';
 import { ApiError } from '@/lib/api/client';
 import { useApiErrorMessage } from '@/lib/api/use-api-error';
 import { ACCOUNT_TYPES, useSaveAccount, type AccountType, type LedgerAccount } from '@/lib/ledger/hooks';
+import { cn } from '@/lib/utils';
 
 const fieldClass =
   'rounded-btn border-line-strong bg-surface hover:border-brand/50 focus-visible:border-brand focus-visible:ring-2 focus-visible:ring-brand/15 h-11';
@@ -110,19 +123,19 @@ function AccountForm({ account, onDone }: { account: LedgerAccount | null; onDon
         )}
       </div>
 
-      <DialogFooter className="border-line bg-canvas/60 gap-2 border-t px-6 py-4 sm:gap-2">
+      <DialogFooter className={dialogFooterBar}>
         <Button
           type="button"
           variant="outline"
           onClick={onDone}
-          className="rounded-btn border-line-strong bg-surface text-ink hover:bg-canvas h-11 px-6 font-bold"
+          className={dialogCancelButton}
         >
           {t('cancel')}
         </Button>
         <Button
           type="submit"
           disabled={save.isPending}
-          className="rounded-btn bg-brand hover:bg-brand-deep h-11 px-6 font-bold text-white"
+          className={cn(dialogConfirmButton, 'bg-brand hover:bg-brand/90')}
         >
           {t(account ? 'save' : 'add')}
         </Button>
@@ -146,18 +159,19 @@ export default function AccountDialog({
     <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
       <DialogContent
         showCloseButton={false}
-        className="rounded-card border-line bg-surface text-ink shadow-float gap-0 overflow-hidden border p-0 sm:max-w-lg"
+        className={cn(dialogPopup, 'sm:max-w-lg')}
       >
-        <div className="bg-canvas/60 border-line flex items-start gap-3.5 border-b px-6 py-5">
-          <span className="bg-brand-soft text-brand flex size-12 shrink-0 items-center justify-center rounded-full">
+        <div className={dialogHeaderBar()}>
+          <span className={dialogIconTile()}>
             <BookPlus className="size-5" />
           </span>
-          <DialogHeader className="min-w-0 gap-1 text-start">
-            <DialogTitle className="text-ink text-lg font-extrabold">
-              {t(account ? 'editTitle' : 'title')}
-            </DialogTitle>
-            <DialogDescription className="text-muted text-sm">{t('description')}</DialogDescription>
+          <DialogHeader className={dialogHeading}>
+            <DialogTitle className={dialogTitle}>{t(account ? 'editTitle' : 'title')}</DialogTitle>
+            <DialogDescription className={dialogDescription}>{t('description')}</DialogDescription>
           </DialogHeader>
+          <button type="button" onClick={onClose} aria-label={t('close')} className={dialogClose}>
+            <X className="size-4" />
+          </button>
         </div>
         {open && <AccountForm key={account?.id ?? 'new'} account={account} onDone={onClose} />}
       </DialogContent>
