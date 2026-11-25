@@ -130,9 +130,12 @@ export function useUpdateSettings() {
       (await api<{ settings: ApiSettings }>('/api/settings', { method: 'PATCH', body })).settings,
     onSuccess: (settings) => {
       queryClient.setQueryData(queryKeys.settings, settings);
-      // The company name also shows in the user menu: keep the session in step.
+      // The company name shows in the user menu and the currency on every amount: keep
+      // the session in step so the whole app follows at once.
       queryClient.setQueryData<SessionUser | null>(queryKeys.session, (user) =>
-        user ? { ...user, company: { ...user.company, name: settings.company.name } } : user,
+        user
+          ? { ...user, company: { ...user.company, name: settings.company.name, currency: settings.taxes.currency } }
+          : user,
       );
     },
   });

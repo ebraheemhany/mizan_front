@@ -27,7 +27,7 @@ import {
   useExpenseStats,
 } from '@/lib/expenses/hooks';
 import type { Expense } from '@/lib/mock/expenses';
-import { DEFAULT_CURRENCY, useMoney } from '@/lib/money';
+import { useCurrency, useMoney } from '@/lib/money';
 import { useDebouncedValue } from '@/lib/use-debounced-value';
 import type { QuickExpenseValues } from '@/lib/validations/expenses';
 import Pagination from '../Pagination';
@@ -58,6 +58,7 @@ function ExpensesContent() {
   const tApi = useTranslations('ExpensesApi');
   const format = useFormatter();
   const money = useMoney();
+  const currency = useCurrency();
   const errorMessage = useApiErrorMessage();
 
   const [filters, setFilters] = useState<Filters>(DEFAULT_FILTERS);
@@ -164,7 +165,7 @@ function ExpensesContent() {
         { header: tApi('columns.vendor'), value: (e) => e.vendor },
         { header: tApi('columns.paidFrom'), value: (e) => (e.paidFrom ? t(`sources.${e.paidFrom}`) : '') },
         { header: tApi('columns.amount'), value: (e) => e.amount },
-        { header: tApi('columns.currency'), value: () => DEFAULT_CURRENCY },
+        { header: tApi('columns.currency'), value: () => currency },
         { header: tApi('columns.status'), value: (e) => tApi(`statuses.${e.status}`) },
         { header: tApi('columns.dueDate'), value: (e) => e.dueDate },
       ];

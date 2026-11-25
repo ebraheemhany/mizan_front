@@ -25,6 +25,7 @@ import {
   type TransferDetails,
 } from '@/lib/collections/hooks';
 import { useDateTime } from '@/lib/data';
+import { useCurrency } from '@/lib/money';
 import { cn } from '@/lib/utils';
 import { settingsInput, settingsLabel, settingsTextarea } from './fieldStyles';
 
@@ -160,6 +161,8 @@ function TransferCard({ initial, canEdit }: { initial: TransferDetails; canEdit:
 
 function PaymobCard({ paymob, canEdit }: { paymob: PaymentSetup['paymob']; canEdit: boolean }) {
   const t = useTranslations('Settings.collect.paymob');
+  // Card payments go through Paymob Egypt, in Egyptian pounds only.
+  const egp = useCurrency() === 'EGP';
   const dateTime = useDateTime();
   const errorMessage = useApiErrorMessage();
   const disconnect = useDisconnectPaymob();
@@ -196,6 +199,8 @@ function PaymobCard({ paymob, canEdit }: { paymob: PaymentSetup['paymob']; canEd
           </span>
         )}
       </div>
+
+      {!egp && <p className="rounded-md bg-amber-50 px-3 py-2 text-xs leading-5 text-amber-800">{t('egpOnly')}</p>}
 
       {paymob.connected ? (
         <div className="space-y-3">

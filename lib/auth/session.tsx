@@ -8,6 +8,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from '@/i18n/navigation';
 import { safeNextPath } from '@/lib/auth/constants';
 import { api, continueWithGoogle, login, logout, refreshSession, type SessionUser } from '@/lib/api/client';
+import { CurrencyProvider } from '@/lib/money';
 import { queryKeys } from '@/lib/query/keys';
 import { dropUserData } from '@/lib/query/reset';
 
@@ -53,8 +54,9 @@ export function SessionProvider({ children }: { children: ReactNode }) {
   // (proxy.ts would send them straight back here, in a loop).
   if (isError) return <SessionUnreachable onRetry={() => refetch()} retrying={isFetching} />;
 
-  // Nothing of the app is shown until we know who is logged in.
-  return user ? children : <SessionLoading />;
+  // Nothing of the app is shown until we know who is logged in; then every amount is
+  // in the company's currency.
+  return user ? <CurrencyProvider currency={user.company.currency}>{children}</CurrencyProvider> : <SessionLoading />;
 }
 
 function SessionUnreachable({ onRetry, retrying }: { onRetry: () => void; retrying: boolean }) {

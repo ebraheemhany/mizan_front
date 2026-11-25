@@ -55,7 +55,7 @@ export default function TaxesCard() {
               />
             )}
           />
-          {/* TODO: نربط العملة بـ useMoney لما نربط الـ API */}
+          <p className="text-muted mt-1.5 text-[11px] leading-5">{t('currencyHint')}</p>
         </div>
 
         <div>

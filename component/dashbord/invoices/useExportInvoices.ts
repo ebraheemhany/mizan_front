@@ -4,10 +4,11 @@
 import { useTranslations } from 'next-intl';
 import { downloadCsv, type CsvColumn } from '@/lib/csv';
 import type { Invoice } from '@/lib/mock/invoices';
-import { DEFAULT_CURRENCY } from '@/lib/money';
+import { useCurrency } from '@/lib/money';
 
 export function useExportInvoices() {
   const t = useTranslations('Invoices');
+  const currency = useCurrency();
 
   return (rows: Invoice[], name = 'invoices') => {
     if (rows.length === 0) return;
@@ -19,7 +20,7 @@ export function useExportInvoices() {
       { header: t('columns.dueDate'), value: (i) => i.dueDate },
       { header: t('columns.total'), value: (i) => i.total },
       { header: t('columns.remaining'), value: (i) => i.remaining },
-      { header: t('columns.currency'), value: () => DEFAULT_CURRENCY },
+      { header: t('columns.currency'), value: () => currency },
       { header: t('columns.status'), value: (i) => t(`status.${i.status}`) },
     ];
 

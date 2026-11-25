@@ -627,7 +627,7 @@
     "freeButton": "Start free",
     "title": "Business",
     "price": "799",
-    "period": "EGP / monthly",
+    "period": "EGP / month",
     "description": "For larger teams that need permissions and control.",
     "feature1": "All Pro plan features",
     "feature2": "Unlimited users",
@@ -2689,6 +2689,7 @@
       "invalid": "This value isn't valid"
     },
     "paymob": {
+      "egpOnly": "Card payments through Paymob work in Egyptian pounds only, so customers won't see them while the company's currency isn't EGP.",
       "title": "Card payments (Paymob)",
       "hint": "Customers pay by card from the invoice link; the money goes to your own Paymob account",
       "live": "Live",
@@ -2768,6 +2769,7 @@
   },
   
 "taxes": {
+  "currencyHint": "Every amount is shown in it: invoices, quotes, reports, payroll, emails and the payment page. The numbers themselves are not converted at any exchange rate.",
   "title": "Taxes & currency",
   "vat": "VAT 14%",
   "vatHint": "Added automatically to invoices",

@@ -5,6 +5,7 @@ import { Loader2 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import Logo from '@/component/Logo';
 import { toUiDetail, usePublicInvoice } from '@/lib/invoices/hooks';
+import { CurrencyProvider } from '@/lib/money';
 import PublicInvoiceView from './PublicInvoiceView';
 import PublicPayPanel from './PublicPayPanel';
 
@@ -29,11 +30,14 @@ export default function PublicInvoiceLoader({ token }: { token: string }) {
     );
   }
   const { invoice, pay } = query.data;
+  // No session here: the amounts are in the invoice's currency (its company's).
   return (
-    <PublicInvoiceView
-      invoice={toUiDetail(invoice)}
-      displayNumber={invoice.displayNumber}
-      payment={<PublicPayPanel token={token} pay={pay} status={invoice.status} issueDate={invoice.issueDate} />}
-    />
+    <CurrencyProvider currency={invoice.currency}>
+      <PublicInvoiceView
+        invoice={toUiDetail(invoice)}
+        displayNumber={invoice.displayNumber}
+        payment={<PublicPayPanel token={token} pay={pay} status={invoice.status} issueDate={invoice.issueDate} />}
+      />
+    </CurrencyProvider>
   );
 }

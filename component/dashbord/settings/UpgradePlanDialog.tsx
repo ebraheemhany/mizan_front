@@ -16,6 +16,7 @@ import { can } from '@/lib/auth/permissions';
 import { useSession } from '@/lib/auth/session';
 import {
   isHigherPlan,
+  PLAN_CURRENCY,
   PLAN_FEATURES,
   useBilling,
   useCheckout,
@@ -170,7 +171,7 @@ export function UpgradePlanDialog({ open, onClose }: Props) {
                   </div>
 
                   <p className={cn('text-3xl font-black', isFeatured ? 'text-white' : 'text-[#0b251d]')}>
-                    {plan.price === 0 ? t('upgradeDialog.free') : money(plan.price)}
+                    {plan.price === 0 ? t('upgradeDialog.free') : money(plan.price, PLAN_CURRENCY)}
                     {plan.price > 0 && (
                       <span className={cn('ms-1 text-xs font-semibold', isFeatured ? 'text-emerald-100' : 'text-muted')}>
                         {t('upgradeDialog.perMonth')}

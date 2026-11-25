@@ -4,10 +4,11 @@ import { useTranslations } from 'next-intl';
 import { downloadCsv, type CsvColumn } from '@/lib/csv';
 import { toIso } from '@/lib/iso-date';
 import type { Payment } from '@/lib/mock/payments';
-import { DEFAULT_CURRENCY } from '@/lib/money';
+import { useCurrency } from '@/lib/money';
 
 export function useExportPayments() {
   const t = useTranslations('Payments');
+  const currency = useCurrency();
 
   return (rows: Payment[]) => {
     if (rows.length === 0) return;
@@ -22,7 +23,7 @@ export function useExportPayments() {
         value: (payment) => t(`methods.${payment.method}`),
       },
       { header: t('table.amount'), value: (payment) => payment.amount },
-      { header: t('form.fields.currency'), value: () => DEFAULT_CURRENCY },
+      { header: t('form.fields.currency'), value: () => currency },
       {
         header: t('form.fields.account'),
         value: (payment) =>

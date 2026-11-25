@@ -9,6 +9,9 @@ import { queryKeys } from '@/lib/query/keys';
 
 export type PlanId = 'free' | 'pro' | 'business';
 
+/** Mizan's own prices are in Egyptian pounds, whatever currency the company works in. */
+export const PLAN_CURRENCY = 'EGP';
+
 export type Plan = {
   id: PlanId;
   /** Per month, EGP. */

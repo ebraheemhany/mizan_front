@@ -73,7 +73,7 @@ export function BillingHistorySheet({ open, onClose }: Props) {
     const description = escapeHtml(describe(invoice));
     const date = escapeHtml(fmtDate(invoice.paidAt ?? invoice.createdAt));
     const status = escapeHtml(t(`history.status.${invoice.status}`));
-    const amount = escapeHtml(money(Number(invoice.amount)));
+    const amount = escapeHtml(money(Number(invoice.amount), invoice.currency));
     const title = escapeHtml(t('history.invoiceTitle'));
     const dateLabel = escapeHtml(t('history.date'));
     const totalLabel = escapeHtml(t('history.total'));
@@ -188,7 +188,7 @@ export function BillingHistorySheet({ open, onClose }: Props) {
                     )}
                   </div>
                   <span className="text-ink shrink-0 text-sm font-extrabold">
-                    {money(Number(inv.amount))}
+                    {money(Number(inv.amount), inv.currency)}
                   </span>
                 </div>
 
