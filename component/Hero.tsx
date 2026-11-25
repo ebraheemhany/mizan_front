@@ -1,4 +1,5 @@
 // src/components/landing/Hero.tsx
+import { ArrowLeft } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/navigation';
 import DashboardPreview from './DashboardPreview';
@@ -31,26 +32,21 @@ export default function Hero() {
         {t('description')}
       </p>
 
-      <div
-        className="animate-fade-up mt-6 flex flex-wrap items-center justify-center gap-3 motion-reduce:animate-none"
-        style={delay(300)}
-      >
+      <div className="animate-fade-up mt-7 flex justify-center motion-reduce:animate-none" style={delay(300)}>
         <Link
           href="/register"
-          className="rounded-btn bg-brand px-5 py-2.5 text-sm font-bold text-white transition hover:brightness-110"
+          className="rounded-btn bg-brand focus-visible:outline-brand group inline-flex items-center gap-2 px-7 py-3 text-base font-bold text-white shadow-md transition hover:shadow-lg hover:brightness-110 focus-visible:outline-2 focus-visible:outline-offset-2 active:scale-[0.98]"
         >
           {t('primaryCta')}
-        </Link>
-        <Link
-          href="/dashboard"
-          className="rounded-btn border-line-strong bg-surface text-ink hover:bg-canvas border px-5 py-2.5 text-sm font-bold transition"
-        >
-          {t('secondaryCta')}
+          <ArrowLeft
+            aria-hidden
+            className="size-4 transition-transform group-hover:-translate-x-0.5 motion-reduce:transition-none ltr:rotate-180 ltr:group-hover:translate-x-0.5"
+          />
         </Link>
       </div>
 
       <p
-        className="animate-fade-up text-muted mt-3 text-xs motion-reduce:animate-none"
+        className="animate-fade-up text-muted mt-3.5 text-xs motion-reduce:animate-none"
         style={delay(400)}
       >
         {t('note')}

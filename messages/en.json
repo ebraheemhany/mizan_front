@@ -306,7 +306,7 @@
         "description": "Every employee on the books during the month gets a line.",
         "close": "Close",
         "month": "Month",
-        "hint": "Absence, unpaid leave and advance installments are worked out for you, and anyone who joined or left during the month is paid for the days worked.",
+        "hint": "Absence, unpaid leave and advance installments are worked out for you, and anyone who joined or left during the month is paid for the days worked, with their insurance and tax in the same share.",
         "alreadyPrepared": "This month is already prepared; it will open.",
         "cancel": "Cancel",
         "open": "Open the month",
@@ -596,7 +596,7 @@
     "productTitle": "Product",
     "features": "Features",
     "pricing": "Pricing",
-    "freeTrial": "Free Trial",
+    "startFree": "Start free",
     "desktopApp": "Desktop app",
     "companyTitle": "Company",
     "faq": "FAQ",
@@ -623,7 +623,7 @@
     "free": "Free",
     "freePrice": "0",
     "freePeriod": "EGP / month",
-    "freeDescription": "For new users who want a simple free trial experience.",
+    "freeDescription": "For new businesses: the essentials, free with no time limit.",
     "freeButton": "Start free",
     "title": "Business",
     "price": "799",
@@ -684,7 +684,6 @@
   "title": "From the first customer message to the payment in your account, all in one place",
   "description": "Mizan brings customers, quotes, invoices, expenses and reports together in one simple platform, with no accounting knowledge required.",
   "primaryCta": "Get started free",
-  "secondaryCta": "Try the demo",
   "note": "No credit card needed · Set up in minutes"
 },
 "DashboardPreview": {
@@ -823,7 +822,6 @@
     "forgot": "Forgot password?",
     "submit": "Sign in",
     "submitting": "Signing in...",
-    "demo": "Continue with a demo",
     "noAccount": "Don't have an account?",
     "register": "Create a free account",
     "errors": {
