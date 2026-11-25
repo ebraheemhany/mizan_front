@@ -13,11 +13,10 @@ import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Link, useRouter } from '@/i18n/navigation';
+import { Link } from '@/i18n/navigation';
 import { ApiError, type GoogleSignIn as GoogleSignInValues } from '@/lib/api/client';
 import { useApiErrorMessage } from '@/lib/api/use-api-error';
-import { safeNextPath } from '@/lib/auth/constants';
-import { useGoogleSignInMutation } from '@/lib/auth/session';
+import { useGoAfterSignIn, useGoogleSignInMutation } from '@/lib/auth/session';
 import GoogleButton, { GOOGLE_CLIENT_ID } from './GoogleButton';
 
 type Props = {
@@ -40,7 +39,7 @@ type NewAccount = { credential: string; email: string; fullName: string };
 
 function WithGoogle({ children, remember = false, invitationToken, onInvitationDead }: Props) {
   const t = useTranslations('Auth.google');
-  const router = useRouter();
+  const goAfterSignIn = useGoAfterSignIn();
   const errorMessage = useApiErrorMessage();
   const signIn = useGoogleSignInMutation();
   const [error, setError] = useState<string | null>(null);
@@ -51,9 +50,7 @@ function WithGoogle({ children, remember = false, invitationToken, onInvitationD
     setError(null);
     try {
       await signIn.mutateAsync(values);
-      // Back to the page that sent us to log in (proxy.ts adds ?next=), else the dashboard.
-      const next = safeNextPath(new URLSearchParams(window.location.search).get('next'));
-      router.replace(next ?? '/dashboard');
+      goAfterSignIn();
     } catch (err) {
       if (!(err instanceof ApiError)) {
         setError(errorMessage(err));

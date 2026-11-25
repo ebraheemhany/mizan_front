@@ -6,10 +6,9 @@ import { Controller, useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslations } from 'next-intl';
 import { Eye, EyeOff, Loader2 } from 'lucide-react';
-import { Link, useRouter } from '@/i18n/navigation';
+import { Link } from '@/i18n/navigation';
 import { useApiErrorMessage } from '@/lib/api/use-api-error';
-import { safeNextPath } from '@/lib/auth/constants';
-import { useLoginMutation } from '@/lib/auth/session';
+import { useGoAfterSignIn, useLoginMutation } from '@/lib/auth/session';
 import { Button } from '@/components/ui/button';
 import GoogleSignIn from './GoogleSignIn';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -27,7 +26,7 @@ import {
 
 export default function LoginForm() {
   const t = useTranslations('Auth.login');
-  const router = useRouter();
+  const goAfterSignIn = useGoAfterSignIn();
   const loginMutation = useLoginMutation();
   const errorMessage = useApiErrorMessage();
   const [showPassword, setShowPassword] = useState(false);
@@ -58,10 +57,7 @@ export default function LoginForm() {
     setServerError(null);
     try {
       await loginMutation.mutateAsync(values);
-      // Back to the page that sent us here (proxy.ts adds ?next=), else the dashboard.
-      // Read at submit time, not with useSearchParams, so the page can still prerender.
-      const next = safeNextPath(new URLSearchParams(window.location.search).get('next'));
-      router.replace(next ?? '/dashboard');
+      goAfterSignIn();
     } catch (error) {
       setServerError(errorMessage(error));
     }

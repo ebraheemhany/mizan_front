@@ -6,6 +6,7 @@ import { Loader2 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from '@/i18n/navigation';
+import { safeNextPath } from '@/lib/auth/constants';
 import { api, continueWithGoogle, login, logout, refreshSession, type SessionUser } from '@/lib/api/client';
 import { queryKeys } from '@/lib/query/keys';
 import { dropUserData } from '@/lib/query/reset';
@@ -139,7 +140,25 @@ export function useLogoutMutation() {
       // then drop the cached data: the next person on this browser must not see it.
       queryClient.setQueryData(queryKeys.session, null);
       dropUserData(queryClient);
+      // The router may still hold pages fetched while signed in (/login was a redirect).
+      router.refresh();
       router.replace('/login');
     },
   });
+}
+
+/**
+ * Goes on once signed in: back to the page that sent us to log in (proxy.ts adds ?next=),
+ * else the dashboard. The router's cache is dropped first: it still holds what it fetched
+ * while signed out (the landing page prefetches /dashboard, which was then a redirect to
+ * /login), and reusing that kept people on the login page after signing in.
+ */
+export function useGoAfterSignIn() {
+  const router = useRouter();
+  return () => {
+    // Read at that moment, not with useSearchParams, so the pages can still prerender.
+    const next = safeNextPath(new URLSearchParams(window.location.search).get('next'));
+    router.refresh();
+    router.replace(next ?? '/dashboard');
+  };
 }
