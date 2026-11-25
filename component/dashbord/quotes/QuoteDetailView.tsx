@@ -31,6 +31,7 @@ import SendEmailDialog, { type SendEmailInput } from '../SendEmailDialog';
 import QuoteDocument from './QuoteDocument';
 import QuoteHistory from './QuoteHistory';
 import QuoteStatusBadge from './QuoteStatusBadge';
+import RecordAnswerDialog, { type AnswerTarget } from './RecordAnswerDialog';
 import { useQuoteActions, useQuoteErrorMessage } from './useQuoteActions';
 
 const outlineBtn =
@@ -95,6 +96,7 @@ function QuoteDetailContent({ data }: { data: ApiQuoteDetail }) {
   const emailQuote = useEmailQuote();
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [emailOpen, setEmailOpen] = useState(false);
+  const [answer, setAnswer] = useState<AnswerTarget<ReturnType<typeof toUiQuoteDetail>>>(null);
 
   const quote = toUiQuoteDetail(data);
   const { allowed } = actions;
@@ -119,6 +121,8 @@ function QuoteDetailContent({ data }: { data: ApiQuoteDetail }) {
   }
 
   // What can be done now (by status and role); the first primary one also goes in the header.
+  // A sent quote's next step is getting it to the customer, who answers from its link;
+  // recording an answer by hand has a box of its own below.
   const list: Action[] = [];
   if (allowed.edit(quote)) {
     list.push({ key: 'edit', label: tq('actions.edit'), icon: Pencil, run: () => actions.edit(quote) });
@@ -127,11 +131,7 @@ function QuoteDetailContent({ data }: { data: ApiQuoteDetail }) {
     list.push({ key: 'send', label: tq('actions.send'), icon: Send, run: () => void actions.send(quote), primary: true });
   }
   if (allowed.email(quote)) {
-    list.push({ key: 'email', label: tq('actions.sendEmail'), icon: Mail, run: () => setEmailOpen(true) });
-  }
-  if (allowed.decide(quote)) {
-    list.push({ key: 'accept', label: tq('actions.accept'), icon: Check, run: () => void actions.accept(quote), primary: true });
-    list.push({ key: 'reject', label: tq('actions.reject'), icon: X, run: () => void actions.reject(quote) });
+    list.push({ key: 'email', label: tq('actions.sendEmail'), icon: Mail, run: () => setEmailOpen(true), primary: true });
   }
   if (allowed.convert(quote)) {
     list.push({ key: 'convert', label: tq('actions.convert'), icon: Receipt, run: () => actions.convert(quote), primary: true });
@@ -237,6 +237,33 @@ function QuoteDetailContent({ data }: { data: ApiQuoteDetail }) {
             </section>
           )}
 
+          {allowed.decide(quote) && (
+            <section className="rounded-card border-line bg-surface border p-5 shadow-sm">
+              <h2 className="text-ink text-base font-extrabold">{tq('actions.statusActions')}</h2>
+              <p className="text-muted mt-1.5 text-xs leading-5">{tq('answerOutside')}</p>
+              <div className="mt-4 grid grid-cols-2 gap-2.5">
+                <Button
+                  variant="outline"
+                  disabled={actions.pending}
+                  onClick={() => setAnswer({ quote, kind: 'accept' })}
+                  className="rounded-btn border-line-strong bg-surface text-brand-deep hover:bg-brand-soft h-11 gap-1.5 px-2 text-sm font-bold"
+                >
+                  <Check className="size-4" />
+                  {tq('actions.accept')}
+                </Button>
+                <Button
+                  variant="outline"
+                  disabled={actions.pending}
+                  onClick={() => setAnswer({ quote, kind: 'reject' })}
+                  className="rounded-btn border-line-strong bg-surface text-danger hover:bg-danger-soft hover:text-danger h-11 gap-1.5 px-2 text-sm font-bold"
+                >
+                  <X className="size-4" />
+                  {tq('actions.reject')}
+                </Button>
+              </div>
+            </section>
+          )}
+
           <QuoteHistory events={quote.history} customer={quote.customer} />
         </aside>
       </div>
@@ -249,6 +276,12 @@ function QuoteDetailContent({ data }: { data: ApiQuoteDetail }) {
         defaultTo={quote.client.email ?? ''}
         hint={tApi('emailDialog.hint')}
         onSend={sendEmail}
+      />
+
+      <RecordAnswerDialog
+        target={answer}
+        onConfirm={(q, kind) => void (kind === 'accept' ? actions.accept(q) : actions.reject(q))}
+        onClose={() => setAnswer(null)}
       />
 
       <ConfirmDialog

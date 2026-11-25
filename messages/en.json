@@ -1862,7 +1862,7 @@
   "actions": {
     "sendEmail": "Send by email",
     "open": "Actions",
-    "statusActions": "Update quote status",
+    "statusActions": "Customer answered outside Mizan?",
     "send": "Send to customer",
     "accept": "Mark as accepted",
     "reject": "Mark as rejected",
@@ -1872,6 +1872,14 @@
     "duplicate": "Duplicate as draft",
     "delete": "Delete quote",
     "view": "View details"
+  },
+  "answerOutside": "Customers accept or reject a quote themselves from their link. If they answered you by phone, WhatsApp or in person, record their answer here.",
+  "answerDialog": {
+    "acceptTitle": "Record that quote {number} was accepted?",
+    "acceptDescription": "Only if {customer} accepted it outside Mizan. The quote becomes accepted, and its history shows your team recorded it.",
+    "rejectTitle": "Record that quote {number} was rejected?",
+    "rejectDescription": "Only if {customer} turned it down outside Mizan. The quote becomes rejected, and the customer can no longer accept it from their link.",
+    "cancel": "Back"
   },
   "deleteDialog": {
     "title": "Delete quote {number}?",

@@ -12,6 +12,18 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
+import { cn } from '@/lib/utils';
+
+const TONES = {
+  danger: {
+    badge: 'bg-danger-soft text-danger ring-danger/10',
+    confirm: 'bg-danger hover:bg-danger/90 focus-visible:ring-danger/30',
+  },
+  brand: {
+    badge: 'bg-brand-soft text-brand ring-brand/10',
+    confirm: 'bg-brand hover:bg-brand/90 focus-visible:ring-brand/30',
+  },
+} as const;
 
 export default function ConfirmDialog({
   open,
@@ -22,6 +34,7 @@ export default function ConfirmDialog({
   onConfirm,
   onClose,
   icon: Icon = Trash2,
+  tone = 'danger',
 }: {
   open: boolean;
   title: string;
@@ -32,6 +45,8 @@ export default function ConfirmDialog({
   onClose: () => void;
   /** Shown in the header and on the confirm button (a bin by default). */
   icon?: LucideIcon;
+  /** Red for what removes or refuses something (the default), green for a positive step. */
+  tone?: keyof typeof TONES;
 }) {
   return (
     <AlertDialog
@@ -42,7 +57,7 @@ export default function ConfirmDialog({
     >
       <AlertDialogContent className="rounded-card border-line bg-surface text-ink shadow-float gap-0 overflow-hidden border p-0 sm:max-w-md">
         <div className="flex flex-col items-center px-7 pb-7 pt-8 text-center">
-          <span className="bg-danger-soft text-danger ring-danger/10 flex size-14 items-center justify-center rounded-2xl ring-1">
+          <span className={cn('flex size-14 items-center justify-center rounded-2xl ring-1', TONES[tone].badge)}>
             <Icon className="size-6" />
           </span>
 
@@ -62,7 +77,7 @@ export default function ConfirmDialog({
           </AlertDialogCancel>
           <AlertDialogAction
             onClick={onConfirm}
-            className="rounded-btn bg-danger hover:bg-danger/90 focus-visible:ring-danger/30 h-11 gap-2 px-4 font-bold text-white shadow-sm"
+            className={cn('rounded-btn h-11 gap-2 px-4 font-bold text-white shadow-sm', TONES[tone].confirm)}
           >
             <Icon className="size-4" aria-hidden="true" />
             {confirmLabel}

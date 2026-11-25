@@ -22,6 +22,7 @@ import Pagination from '../Pagination';
 import QuotesStats from './QuotesStats';
 import QuotesTable from './QuotesTable';
 import QuotesToolbar from './QuotesToolbar';
+import RecordAnswerDialog, { type AnswerTarget } from './RecordAnswerDialog';
 import { useQuoteActions, useQuoteErrorMessage } from './useQuoteActions';
 import { DEFAULT_FILTERS, PAGE_SIZE, type Filters, type StatusFilter } from './utils';
 
@@ -42,6 +43,8 @@ export default function QuotesView() {
   const [filters, setFilters] = useState<Filters>(DEFAULT_FILTERS);
   const [page, setPage] = useState(1);
   const [deleteTarget, setDeleteTarget] = useState<Quote | null>(null);
+  // An answer the customer gave outside Mizan, waiting to be confirmed.
+  const [answer, setAnswer] = useState<AnswerTarget<Quote>>(null);
 
   const query = useDebouncedValue(filters.query.trim(), 300);
   const params: QuoteListParams = {
@@ -145,8 +148,8 @@ export default function QuotesView() {
               rows={rows}
               allowed={actions.allowed}
               onSend={(q) => void actions.send(q)}
-              onAccept={(q) => void actions.accept(q)}
-              onReject={(q) => void actions.reject(q)}
+              onAccept={(q) => setAnswer({ quote: q, kind: 'accept' })}
+              onReject={(q) => setAnswer({ quote: q, kind: 'reject' })}
               onConvert={actions.convert}
               onShare={(q) => void actions.copyLink(q)}
               onEdit={actions.edit}
@@ -157,6 +160,12 @@ export default function QuotesView() {
           </div>
         )}
       </div>
+
+      <RecordAnswerDialog
+        target={answer}
+        onConfirm={(q, kind) => void (kind === 'accept' ? actions.accept(q) : actions.reject(q))}
+        onClose={() => setAnswer(null)}
+      />
 
       <ConfirmDialog
         open={deleteTarget !== null}
