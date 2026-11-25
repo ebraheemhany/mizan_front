@@ -7,6 +7,17 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useLocale, useTranslations } from 'next-intl';
 import { Loader2, Pencil, UserPlus, X } from 'lucide-react';
 import { FieldError } from '@/component/form-parts';
+import {
+  dialogClose,
+  dialogDescription,
+  dialogHeading,
+  dialogIconTile,
+  dialogScrollBody,
+  dialogTitle,
+  sheetFooterBar,
+  sheetHeaderBar,
+  sheetPopup,
+} from '@/component/dialog-chrome';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -20,6 +31,7 @@ import {
 import { Textarea } from '@/components/ui/textarea';
 import { rtlLocales } from '@/i18n/routing';
 import type { Owner } from '@/lib/mock/customers';
+import { cn } from '@/lib/utils';
 import SettingsSelect from '@/component/dashbord/settings/SettingsSelect';
 import {
   createCustomerSchema,
@@ -88,7 +100,7 @@ function CustomerForm({
       noValidate
       className="flex min-h-0 flex-1 flex-col"
     >
-      <div className="flex-1 space-y-5 overflow-y-auto p-6">
+      <div className={cn(dialogScrollBody, 'space-y-5 p-6')}>
         {/* الاسم */}
         <div>
           <Label htmlFor="c-name" className={labelClass}>
@@ -206,7 +218,6 @@ function CustomerForm({
           </Label>
           <Input
             id="c-tax"
-            dir="ltr"
             inputMode="numeric"
             autoComplete="off"
             placeholder={t('taxNumberPlaceholder')}
@@ -234,7 +245,7 @@ function CustomerForm({
         </div>
       </div>
 
-      <div className="border-line bg-canvas/60 flex flex-col-reverse gap-2 border-t px-6 py-4 sm:flex-row sm:justify-end">
+      <div className={sheetFooterBar}>
         <Button
           type="button"
           variant="outline"
@@ -288,18 +299,18 @@ export default function AddCustomerSheet({
         // بيفتح من جهة نهاية الصفحة: شمال في العربي ويمين في الإنجليزي
         side={rtlLocales.includes(locale) ? 'left' : 'right'}
         showCloseButton={false}
-        className="w-full gap-0 border-0 bg-surface p-0 sm:max-w-xl"
+        className={cn(sheetPopup, 'sm:max-w-xl')}
       >
-        <SheetHeader className="border-line relative flex-row items-center gap-3.5 border-b px-6 py-5 text-start">
-          <span className="bg-brand-soft text-brand flex size-11 shrink-0 items-center justify-center rounded-xl">
+        <SheetHeader className={sheetHeaderBar()}>
+          <span className={dialogIconTile()}>
             <Icon className="size-5" />
           </span>
 
-          <div className="min-w-0 pe-8">
-            <SheetTitle className="text-ink text-lg font-extrabold">
+          <div className={dialogHeading}>
+            <SheetTitle className={dialogTitle}>
               {t(isEdit ? 'editTitle' : 'title')}
             </SheetTitle>
-            <SheetDescription className="mt-0.5 text-xs leading-5">
+            <SheetDescription className={dialogDescription}>
               {t(isEdit ? 'editDescription' : 'description')}
             </SheetDescription>
           </div>
@@ -308,7 +319,7 @@ export default function AddCustomerSheet({
             type="button"
             onClick={() => onOpenChange(false)}
             aria-label={t('close')}
-            className="text-muted hover:bg-canvas hover:text-ink focus-visible:ring-brand/30 absolute end-4 top-4 rounded-md p-1.5 transition-colors outline-none focus-visible:ring-2"
+            className={dialogClose}
           >
             <X className="size-4" />
           </button>

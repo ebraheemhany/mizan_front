@@ -30,11 +30,8 @@ export default function SettingsSelect({
         if (typeof nextValue === 'string') onValueChange(nextValue);
       }}
     >
-      <SelectPrimitive.Trigger
-        id={id}
-        dir="ltr"
-        className={settingsSelectTrigger}
-      >
+      <SelectPrimitive.Trigger id={id} className={settingsSelectTrigger}>
+        <SelectPrimitive.Value className="min-w-0 flex-1 truncate text-start" />
         <SelectPrimitive.Icon
           className={({ open }) =>
             cn(
@@ -48,10 +45,6 @@ export default function SettingsSelect({
             className="size-4"
           />
         </SelectPrimitive.Icon>
-        <SelectPrimitive.Value
-          dir="auto"
-          className="min-w-0 flex-1 text-end"
-        />
       </SelectPrimitive.Trigger>
 
       <SelectPrimitive.Portal>
@@ -68,7 +61,6 @@ export default function SettingsSelect({
                   key={option.value}
                   value={option.value}
                   className={cn(settingsSelectItem, 'gap-2')}
-                  dir="auto"
                 >
                   <SelectPrimitive.ItemText className="min-w-0 flex-1 truncate">
                     {option.label}

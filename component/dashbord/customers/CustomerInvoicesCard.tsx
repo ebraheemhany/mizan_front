@@ -7,6 +7,7 @@ import { thClass } from '@/component/table-styles';
 import { buttonVariants } from '@/components/ui/button';
 import { Link } from '@/i18n/navigation';
 import { useDate } from '@/lib/data';
+import { invoiceLabel } from '@/lib/invoices/hooks';
 import type { Invoice } from '@/lib/mock/invoices';
 import { useMoney } from '@/lib/money';
 import { cn } from '@/lib/utils';
@@ -73,7 +74,7 @@ export default function CustomerInvoicesCard({
                         dir="ltr"
                         className="text-brand inline-block font-extrabold tabular-nums hover:underline"
                       >
-                        #{inv.number}
+                        {invoiceLabel(inv)}
                       </Link>
                     </td>
                     <td className="text-muted px-4 py-3 whitespace-nowrap">

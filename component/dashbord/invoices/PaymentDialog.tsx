@@ -453,7 +453,8 @@ export default function PaymentDialog({
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  number: number;
+  /** The invoice as shown on screen (e.g. INV-2). */
+  number: string;
   customer: string;
   remaining: number;
   onSubmit: (input: PaymentInput) => void;
@@ -477,7 +478,7 @@ export default function PaymentDialog({
               {t('title')}
             </DialogTitle>
             <DialogDescription className="text-muted truncate text-xs">
-              {t('description', { number: String(number), customer })}
+              {t('description', { number, customer })}
             </DialogDescription>
           </DialogHeader>
 

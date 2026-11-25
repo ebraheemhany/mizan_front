@@ -10,6 +10,17 @@ import { toast } from 'sonner';
 import DateField from '@/component/DateField';
 import { ChipGroup, FieldError } from '@/component/form-parts';
 
+import {
+  dialogClose,
+  dialogDescription,
+  dialogHeading,
+  dialogIconTile,
+  dialogScrollBody,
+  dialogTitle,
+  sheetFooterBar,
+  sheetHeaderBar,
+  sheetPopup,
+} from '@/component/dialog-chrome';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import {
@@ -212,7 +223,7 @@ function DealForm({
 
   return (
     <form onSubmit={submit} noValidate className="flex min-h-0 flex-1 flex-col">
-      <div className="flex-1 space-y-5 overflow-y-auto p-6">
+      <div className={cn(dialogScrollBody, 'space-y-5 p-6')}>
         {/* العنوان */}
         <div>
           <Label htmlFor="d-title" className={labelClass}>
@@ -425,7 +436,7 @@ function DealForm({
         </div>
       </div>
 
-      <div className="border-line bg-canvas/60 flex flex-col-reverse gap-2 border-t px-6 py-4 sm:flex-row sm:justify-end">
+      <div className={sheetFooterBar}>
         <Button
           type="button"
           variant="outline"
@@ -474,16 +485,16 @@ export default function AddDealSheet({
         // بيفتح من جهة نهاية الصفحة: شمال في العربي ويمين في الإنجليزي
         side={rtlLocales.includes(locale) ? 'left' : 'right'}
         showCloseButton={false}
-        className="bg-surface w-full gap-0 border-0 p-0 sm:max-w-xl"
+        className={cn(sheetPopup, 'sm:max-w-xl')}
       >
-        <SheetHeader className="border-line relative flex-row items-center gap-3.5 border-b px-6 py-5 text-start">
-          <span className="bg-brand-soft text-brand flex size-11 shrink-0 items-center justify-center rounded-xl">
+        <SheetHeader className={sheetHeaderBar()}>
+          <span className={dialogIconTile()}>
             <Kanban className="size-5" />
           </span>
 
-          <div className="min-w-0 pe-8">
-            <SheetTitle className="text-ink text-lg font-extrabold">{deal ? t('editTitle') : t('title')}</SheetTitle>
-            <SheetDescription className="mt-0.5 text-xs leading-5">
+          <div className={dialogHeading}>
+            <SheetTitle className={dialogTitle}>{deal ? t('editTitle') : t('title')}</SheetTitle>
+            <SheetDescription className={dialogDescription}>
               {deal ? t('editDescription') : t('description')}
             </SheetDescription>
           </div>
@@ -492,7 +503,7 @@ export default function AddDealSheet({
             type="button"
             onClick={() => onOpenChange(false)}
             aria-label={t('close')}
-            className="text-muted hover:bg-canvas hover:text-ink focus-visible:ring-brand/30 absolute end-4 top-4 rounded-md p-1.5 transition-colors outline-none focus-visible:ring-2"
+            className={dialogClose}
           >
             <X className="size-4" />
           </button>

@@ -15,6 +15,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Link, useRouter } from '@/i18n/navigation';
 import { useDate } from '@/lib/data';
+import { invoiceLabel } from '@/lib/invoices/hooks';
 import { useMoney } from '@/lib/money';
 import { cn } from '@/lib/utils';
 import type { Invoice } from '@/lib/mock/invoices';
@@ -103,7 +104,7 @@ export default function InvoicesTable({
                     dir="ltr"
                     className="text-brand inline-block font-extrabold tabular-nums hover:underline"
                   >
-                    #{inv.number}
+                    {invoiceLabel(inv)}
                   </Link>
                 </td>
 

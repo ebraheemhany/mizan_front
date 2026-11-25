@@ -173,8 +173,13 @@ export function toUiInvoice(row: ApiInvoice): Invoice {
     remaining: Number(row.remaining),
     status: row.status,
     daysOverdue: row.daysOverdue ?? undefined,
+    displayNumber: row.displayNumber,
   };
 }
+
+/** How an invoice is named on screen: its display number (INV-2), or #2 without one. */
+export const invoiceLabel = (invoice: { number: number; displayNumber?: string }) =>
+  invoice.displayNumber || `#${invoice.number}`;
 
 export function toUiDetail(d: ApiInvoiceDetail): InvoiceDetail {
   const party = (p: ApiParty) => ({

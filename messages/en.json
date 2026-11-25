@@ -134,6 +134,7 @@
       }
     },
     "Header": {
+    "closeMenu": "Close menu",
     "logo": "Mizan",
     "features": "Features",
     "howItWorks": "How It Works",
@@ -680,7 +681,7 @@
   "cancel": "Cancel invoices"
 },
 "cancelDialog": {
-  "title": "Cancel invoice #{number}?",
+  "title": "Cancel invoice {number}?",
   "description": "Invoice {customer} will be cancelled and its remaining balance set to zero. This cannot be undone.",
   "bulkTitle": "Cancel {count, plural, one {one invoice} other {# invoices}}?",
   "bulkDescription": "Only selected invoices eligible for cancellation will be cancelled, and their remaining balances set to zero. This cannot be undone.",
@@ -688,8 +689,8 @@
   "confirm": "Confirm cancellation"
 },
 "toasts": {
-  "paymentRecorded": "Payment recorded on invoice #{number}",
-  "cancelled": "Invoice #{number} cancelled",
+  "paymentRecorded": "Payment recorded on invoice {number}",
+  "cancelled": "Invoice {number} cancelled",
   "cancelledMultiple": "{count, plural, one {One invoice cancelled} other {# invoices cancelled}}",
   "exported": "{count, plural, one {One invoice exported} other {# invoices exported}}",
   "reminderUnavailable": "Could not load reminder details for one of the selected invoices."
@@ -822,7 +823,7 @@
     "proofRemove": "Remove file",
     "proofFailed": "The payment is recorded, but the proof didn't upload. You can add it from the payments list.",
     "title": "Record payment",
-    "description": "Invoice #{number} · {customer}",
+    "description": "Invoice {number} — {customer}",
     "remainingNow": "Remaining now",
     "remainingAfter": "Remaining after payment",
     "paidInFull": "The invoice will be fully paid",
@@ -849,7 +850,7 @@
   },
   "reminderDialog": {
     "title": "Send payment reminder",
-    "description": "Invoice #{number} · {customer}",
+    "description": "Invoice {number} — {customer}",
     "channel": "Send via",
     "channels": {
       "email": "Email",
@@ -868,7 +869,7 @@
   },
   "ledger": {
     "title": "Accounting entry",
-    "description": "Invoice #{number} · Entries are generated automatically from the invoice and its payments.",
+    "description": "Invoice {number} · Entries are generated automatically from the invoice and its payments.",
     "close": "Close",
     "empty": "There is no accounting entry for this invoice. Drafts and cancelled invoices are not posted.",
     "entries": {
@@ -1135,7 +1136,7 @@
   "attention": {
     "title": "Needs attention",
     "empty": "Everything looks good. Nothing needs follow-up.",
-    "invoiceOverdue": "Invoice #{number} is overdue",
+    "invoiceOverdue": "Invoice {number} is overdue",
     "staleDeal": "“{title}” needs a follow-up",
     "pendingQuote": "Quote awaiting a reply",
     "item": "{customer} · {amount}",
@@ -1869,6 +1870,7 @@
     "addOn": "Add a task on {date}"
   },
   "form": {
+    "close": "Close",
     "title": "New task",
     "description": "Add the task details. It will show in the list and the calendar.",
     "fields": {
@@ -2109,7 +2111,7 @@
     "late": "{count, plural, one {1 day overdue} other {{text} days overdue}}",
     "whatsapp": "WhatsApp",
     "noPhone": "No phone number for {customer}.",
-    "message": "Hello {customer}, a friendly reminder about invoice #{number} for {amount}, which is {days} days overdue. Kindly arrange payment at your earliest convenience. Thank you."
+    "message": "Hello {customer}, a friendly reminder about invoice {number} for {amount}, which is {days} days overdue. Kindly arrange payment at your earliest convenience. Thank you."
   }
 },
 "Products": {
@@ -2170,6 +2172,7 @@
 },
 "empty": "No items match these filters.",
 "form": {
+  "close": "Close",
   "newTitle": "New item",
   "editTitle": "Edit item",
   "description": "Items appear in invoices and quotes.",
@@ -2405,6 +2408,7 @@
     }
   },
   "invite": {
+    "close": "Close",
     "title": "Invite a user",
     "description": "They will get an email invitation to join the company account.",
     "fields": { "name": "Name", "email": "Email", "role": "Role" },

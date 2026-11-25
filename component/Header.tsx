@@ -208,13 +208,7 @@ export default function Header() {
               showCloseButton={false}
               className="w-75 max-w-[85vw] border-[#e9eeeb] bg-[#f8faf8] p-5 sm:w-85"
             >
-              <SheetHeader
-                className={
-                  isArabic
-                    ? 'flex w-full flex-row-reverse items-center justify-between gap-3 border-b border-[#e9eeeb] pb-5'
-                    : 'flex w-full flex-row items-center justify-between gap-3 border-b border-[#e9eeeb] pb-5'
-                }
-              >
+              <SheetHeader className="flex w-full flex-row items-center justify-between gap-3 border-b border-[#e9eeeb] pb-5">
                 <SheetTitle className="flex items-center gap-2 text-[#17352d]">
                   <span className="flex size-9 items-center justify-center rounded-xl bg-[#008363] text-white">
                     <Scale size={20} />
@@ -224,7 +218,7 @@ export default function Header() {
 
                 <SheetClose
                   className="flex size-9 items-center justify-center rounded-lg text-[#53645d] transition hover:bg-[#edf2ed] hover:text-[#17352d]"
-                  aria-label="Close menu"
+                  aria-label={t('closeMenu')}
                 >
                   <X size={18} />
                 </SheetClose>

@@ -34,6 +34,14 @@ export const dialogClose =
   'text-muted hover:bg-surface hover:text-ink focus-visible:ring-brand/30 absolute end-4 top-4 rounded-lg p-1.5 transition-colors outline-none focus-visible:ring-2';
 
 export const dialogFooterBar = 'border-line bg-canvas shrink-0 gap-2 border-t px-6 py-4 sm:gap-2';
+
+// Side sheets use the same parts: SheetContent sheetPopup (+ sm:max-w-*), SheetHeader
+// sheetHeaderBar, then a form `flex min-h-0 flex-1 flex-col` holding the fields in
+// dialogScrollBody and the buttons in sheetFooterBar.
+export const sheetPopup = 'border-line bg-surface text-ink shadow-float w-full gap-0 border p-0';
+export const sheetHeaderBar = (tone: DialogTone = 'brand') => `${dialogHeaderBar(tone)} flex-row text-start`;
+export const sheetFooterBar =
+  'border-line bg-canvas flex shrink-0 flex-col-reverse gap-2 border-t px-6 py-4 sm:flex-row sm:justify-end';
 export const dialogCancelButton = 'rounded-btn border-line-strong bg-surface text-ink h-11 px-6 font-bold';
 /** Add the colour: bg-brand hover:bg-brand/90, or bg-danger hover:bg-danger/90. */
 export const dialogConfirmButton = 'rounded-btn h-11 gap-2 px-8 font-bold text-white';

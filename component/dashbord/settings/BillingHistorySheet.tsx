@@ -5,6 +5,16 @@ import { useFormatter, useLocale, useTranslations } from 'next-intl';
 import { CalendarDays, Download, Loader2, ReceiptText, X } from 'lucide-react';
 import { toast } from 'sonner';
 
+import {
+  dialogClose,
+  dialogDescription,
+  dialogHeading,
+  dialogIconTile,
+  dialogScrollBody,
+  dialogTitle,
+  sheetHeaderBar,
+  sheetPopup,
+} from '@/component/dialog-chrome';
 import { cn } from '@/lib/utils';
 import { useMoney } from '@/lib/money';
 import { useBillingPayments, type BillingPayment } from '@/lib/billing/hooks';
@@ -132,32 +142,25 @@ export function BillingHistorySheet({ open, onClose }: Props) {
       <SheetContent
         side={locale === 'ar' ? 'left' : 'right'}
         showCloseButton={false}
-        className="border-line bg-surface text-ink w-full gap-0 overflow-y-auto sm:max-w-md"
+        className={cn(sheetPopup, 'sm:max-w-md')}
       >
-        <SheetClose
-          aria-label={t('history.close')}
-          className="text-muted hover:bg-neutral-soft hover:text-ink focus-visible:ring-brand absolute end-4 top-4 z-10 inline-flex size-9 items-center justify-center rounded-full transition-colors focus-visible:ring-2 focus-visible:outline-none"
-        >
-          <X className="size-4" aria-hidden="true" />
-        </SheetClose>
-        <SheetHeader className="border-line bg-canvas/40 gap-3 border-b p-6 pe-14 text-start">
-          <span className="bg-brand-soft text-brand flex size-11 items-center justify-center rounded-2xl">
+        <SheetHeader className={sheetHeaderBar()}>
+          <span className={dialogIconTile()}>
             <ReceiptText className="size-5" aria-hidden="true" />
           </span>
-          <div className="space-y-1">
-            <SheetTitle className="text-ink text-lg font-extrabold">
-              {t('history.title')}
-            </SheetTitle>
-            <SheetDescription className="text-muted text-sm leading-6">
-              {t('history.description')}
-            </SheetDescription>
+          <div className={dialogHeading}>
+            <SheetTitle className={dialogTitle}>{t('history.title')}</SheetTitle>
+            <SheetDescription className={dialogDescription}>{t('history.description')}</SheetDescription>
           </div>
+          <SheetClose aria-label={t('history.close')} className={dialogClose}>
+            <X className="size-4" aria-hidden="true" />
+          </SheetClose>
         </SheetHeader>
 
         <div
           role="list"
           aria-label={t('history.title')}
-          className="flex-1 space-y-3 overflow-y-auto p-4 sm:p-5"
+          className={cn(dialogScrollBody, 'space-y-3 p-4 sm:p-5')}
         >
           {payments.isPending ? (
             <div className="text-muted flex justify-center py-16">

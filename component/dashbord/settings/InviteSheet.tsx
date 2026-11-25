@@ -5,9 +5,22 @@ import { useEffect, useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Check, Copy, Loader2 } from 'lucide-react';
+import { Check, Copy, Link2, Loader2, UserPlus, X } from 'lucide-react';
 import { toast } from 'sonner';
 
+import {
+  dialogCancelButton,
+  dialogClose,
+  dialogConfirmButton,
+  dialogDescription,
+  dialogHeading,
+  dialogIconTile,
+  dialogScrollBody,
+  dialogTitle,
+  sheetFooterBar,
+  sheetHeaderBar,
+  sheetPopup,
+} from '@/component/dialog-chrome';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@/components/ui/sheet';
@@ -15,6 +28,7 @@ import { ApiError } from '@/lib/api/client';
 import { useApiErrorMessage } from '@/lib/api/use-api-error';
 import { INVITE_ROLES } from '@/lib/auth/permissions';
 import { useInviteMutation } from '@/lib/team/hooks';
+import { cn } from '@/lib/utils';
 import { inviteSchema, type InviteValues } from '@/lib/validations/invite';
 import SettingsSelect from './SettingsSelect';
 import { settingsInput, settingsLabel } from './fieldStyles';
@@ -95,44 +109,47 @@ export default function InviteSheet({
 
   return (
     <Sheet open={open} onOpenChange={handleOpenChange}>
-      <SheetContent side={locale === 'ar' ? 'left' : 'right'} className="w-full overflow-y-auto sm:max-w-md">
-        <SheetHeader>
-          <SheetTitle className="text-ink text-base font-extrabold">
-            {created ? tTeam('invite.linkTitle') : t('title')}
-          </SheetTitle>
-          <SheetDescription className="text-muted text-xs">
-            {created
-              ? tTeam(created.emailSent ? 'invite.emailedHint' : 'invite.linkHint', { name: created.name, email: created.email })
-              : tTeam('invite.description')}
-          </SheetDescription>
+      <SheetContent
+        side={locale === 'ar' ? 'left' : 'right'}
+        showCloseButton={false}
+        className={cn(sheetPopup, 'sm:max-w-md')}
+      >
+        <SheetHeader className={sheetHeaderBar()}>
+          <span className={dialogIconTile()}>
+            {created ? <Link2 className="size-5" /> : <UserPlus className="size-5" />}
+          </span>
+          <div className={dialogHeading}>
+            <SheetTitle className={dialogTitle}>{created ? tTeam('invite.linkTitle') : t('title')}</SheetTitle>
+            <SheetDescription className={dialogDescription}>
+              {created
+                ? tTeam(created.emailSent ? 'invite.emailedHint' : 'invite.linkHint', { name: created.name, email: created.email })
+                : tTeam('invite.description')}
+            </SheetDescription>
+          </div>
+          <button type="button" onClick={() => handleOpenChange(false)} aria-label={t('close')} className={dialogClose}>
+            <X className="size-4" />
+          </button>
         </SheetHeader>
 
         {created ? (
-          <div className="space-y-4 px-4 pb-6">
-            <Input
-              readOnly
-              dir="ltr"
-              value={created.url}
-              onFocus={(e) => e.currentTarget.select()}
-              className={settingsInput}
-              aria-label={tTeam('invite.linkTitle')}
-            />
-            <div className="flex gap-2">
-              <Button
-                type="button"
-                onClick={copyLink}
-                className="rounded-btn bg-brand hover:bg-brand/90 h-10 flex-1 gap-2 text-xs font-bold text-white"
-              >
+          <div className="flex min-h-0 flex-1 flex-col">
+            <div className={cn(dialogScrollBody, 'px-6 py-5')}>
+              <Input
+                readOnly
+                dir="ltr"
+                value={created.url}
+                onFocus={(e) => e.currentTarget.select()}
+                className={settingsInput}
+                aria-label={tTeam('invite.linkTitle')}
+              />
+            </div>
+            <div className={sheetFooterBar}>
+              <Button type="button" variant="outline" onClick={() => handleOpenChange(false)} className={dialogCancelButton}>
+                {tTeam('invite.done')}
+              </Button>
+              <Button type="button" onClick={copyLink} className={cn(dialogConfirmButton, 'bg-brand hover:bg-brand/90')}>
                 {copied ? <Check className="size-4" /> : <Copy className="size-4" />}
                 {copied ? tTeam('invite.copied') : tTeam('invite.copy')}
-              </Button>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => handleOpenChange(false)}
-                className="rounded-btn border-line-strong h-10 border text-xs font-bold"
-              >
-                {tTeam('invite.done')}
               </Button>
             </div>
           </div>
@@ -144,71 +161,64 @@ export default function InviteSheet({
               e.stopPropagation();
               void handleSubmit(submit)(e);
             }}
-            className="space-y-4 px-4 pb-6"
+            className="flex min-h-0 flex-1 flex-col"
           >
-            <div>
-              <label htmlFor="invite-name" className={settingsLabel}>
-                {t('fields.name')}
-              </label>
-              <Input
-                id="invite-name"
-                dir="auto"
-                aria-invalid={!!errors.name?.message}
-                className={settingsInput}
-                {...register('name')}
-              />
-              {error(errors.name?.message)}
+            <div className={cn(dialogScrollBody, 'space-y-4 px-6 py-5')}>
+              <div>
+                <label htmlFor="invite-name" className={settingsLabel}>
+                  {t('fields.name')}
+                </label>
+                <Input
+                  id="invite-name"
+                  dir="auto"
+                  aria-invalid={!!errors.name?.message}
+                  className={settingsInput}
+                  {...register('name')}
+                />
+                {error(errors.name?.message)}
+              </div>
+
+              <div>
+                <label htmlFor="invite-email" className={settingsLabel}>
+                  {t('fields.email')}
+                </label>
+                <Input
+                  id="invite-email"
+                  type="email"
+                  dir="ltr"
+                  aria-invalid={!!errors.email?.message}
+                  className={settingsInput}
+                  {...register('email')}
+                />
+                {error(errors.email?.message)}
+              </div>
+
+              <div>
+                <label htmlFor="invite-role" className={settingsLabel}>
+                  {t('fields.role')}
+                </label>
+                <Controller
+                  control={control}
+                  name="role"
+                  render={({ field }) => (
+                    <SettingsSelect
+                      id="invite-role"
+                      value={field.value}
+                      onValueChange={field.onChange}
+                      options={INVITE_ROLES.map((role) => ({ value: role, label: tr(role) }))}
+                    />
+                  )}
+                />
+              </div>
             </div>
 
-            <div>
-              <label htmlFor="invite-email" className={settingsLabel}>
-                {t('fields.email')}
-              </label>
-              <Input
-                id="invite-email"
-                type="email"
-                dir="ltr"
-                aria-invalid={!!errors.email?.message}
-                className={settingsInput}
-                {...register('email')}
-              />
-              {error(errors.email?.message)}
-            </div>
-
-            <div>
-              <label htmlFor="invite-role" className={settingsLabel}>
-                {t('fields.role')}
-              </label>
-              <Controller
-                control={control}
-                name="role"
-                render={({ field }) => (
-                  <SettingsSelect
-                    id="invite-role"
-                    value={field.value}
-                    onValueChange={field.onChange}
-                    options={INVITE_ROLES.map((role) => ({ value: role, label: tr(role) }))}
-                  />
-                )}
-              />
-            </div>
-
-            <div className="flex gap-2 pt-2">
-              <Button
-                type="submit"
-                disabled={isSubmitting}
-                className="rounded-btn bg-brand hover:bg-brand/90 h-10 flex-1 gap-2 text-xs font-bold text-white"
-              >
+            <div className={sheetFooterBar}>
+              <Button type="button" variant="outline" onClick={() => handleOpenChange(false)} className={dialogCancelButton}>
+                {t('cancel')}
+              </Button>
+              <Button type="submit" disabled={isSubmitting} className={cn(dialogConfirmButton, 'bg-brand hover:bg-brand/90')}>
                 {isSubmitting && <Loader2 className="size-4 animate-spin" />}
                 {isSubmitting ? tTeam('invite.sending') : t('send')}
-              </Button>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => handleOpenChange(false)}
-                className="rounded-btn border-line-strong h-10 border text-xs font-bold"
-              >
-                {t('cancel')}
               </Button>
             </div>
           </form>

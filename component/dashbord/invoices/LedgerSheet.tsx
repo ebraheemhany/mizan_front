@@ -18,6 +18,7 @@ import {
   type JournalEntry,
 } from '@/lib/accounting';
 import { useDate } from '@/lib/data';
+import { invoiceLabel } from '@/lib/invoices/hooks';
 import type { InvoiceDetail } from '@/lib/mock/invoice-details';
 import { useMoney } from '@/lib/money';
 import { cn } from '@/lib/utils';
@@ -160,7 +161,7 @@ export default function LedgerSheet({
               {t('title')}
             </SheetTitle>
             <SheetDescription className="text-muted mt-1 truncate text-xs">
-              {t('description', { number: String(invoice.number) })}
+              {t('description', { number: invoiceLabel(invoice) })}
             </SheetDescription>
           </div>
 

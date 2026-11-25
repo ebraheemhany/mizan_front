@@ -5,9 +5,22 @@ import { useEffect } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 import { Controller, useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Package, PackagePlus, X } from 'lucide-react';
 import { toast } from 'sonner';
 
+import {
+  dialogCancelButton,
+  dialogClose,
+  dialogConfirmButton,
+  dialogDescription,
+  dialogHeading,
+  dialogIconTile,
+  dialogScrollBody,
+  dialogTitle,
+  sheetFooterBar,
+  sheetHeaderBar,
+  sheetPopup,
+} from '@/component/dialog-chrome';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
@@ -28,6 +41,7 @@ import { ApiError } from '@/lib/api/client';
 import { useApiErrorMessage } from '@/lib/api/use-api-error';
 import type { CatalogItem } from '@/lib/mock/products';
 import { useNextProductCode } from '@/lib/products/hooks';
+import { cn } from '@/lib/utils';
 import { itemSchema, type ItemFormValues } from '@/lib/validations/products';
 import { CATEGORIES } from './ProductsToolbar';
 
@@ -135,209 +149,207 @@ export default function ItemSheet({
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent
         side={locale === 'ar' ? 'left' : 'right'}
-        className="border-line bg-surface text-ink w-full overflow-y-auto sm:max-w-md"
+        showCloseButton={false}
+        className={cn(sheetPopup, 'sm:max-w-md')}
       >
-        <SheetHeader className="border-line bg-canvas/40 border-b px-6 py-5">
-          <SheetTitle className="text-ink text-base font-extrabold">
-            {item ? t('editTitle') : t('newTitle')}
-          </SheetTitle>
-          <SheetDescription className="text-muted text-xs">
-            {t('description')}
-          </SheetDescription>
+        <SheetHeader className={sheetHeaderBar()}>
+          <span className={dialogIconTile()}>
+            {item ? <Package className="size-5" /> : <PackagePlus className="size-5" />}
+          </span>
+          <div className={dialogHeading}>
+            <SheetTitle className={dialogTitle}>{item ? t('editTitle') : t('newTitle')}</SheetTitle>
+            <SheetDescription className={dialogDescription}>{t('description')}</SheetDescription>
+          </div>
+          <button type="button" onClick={() => onOpenChange(false)} aria-label={t('close')} className={dialogClose}>
+            <X className="size-4" />
+          </button>
         </SheetHeader>
 
-        <form
-          onSubmit={handleSubmit(submit)}
-          noValidate
-          className="space-y-4 px-6 pb-6 pt-2"
-        >
-          <div>
-            <label htmlFor="item-name" className={label}>
-              {t('fields.name')}
-            </label>
-            <Input
-              id="item-name"
-              placeholder={t('placeholders.name')}
-              className={input}
-              {...register('name')}
-            />
-            {error(errors.name?.message)}
-          </div>
-
-          <div className="grid grid-cols-2 gap-3">
+        <form onSubmit={handleSubmit(submit)} noValidate className="flex min-h-0 flex-1 flex-col">
+          <div className={cn(dialogScrollBody, 'space-y-4 px-6 py-5')}>
             <div>
-              <label id="item-type-label" className={label}>
-                {t('fields.type')}
-              </label>
-              <Controller
-                name="type"
-                control={control}
-                render={({ field: typeField }) => (
-                  <Select
-                    value={typeField.value}
-                    onValueChange={(value) => {
-                      if (value) typeField.onChange(value);
-                    }}
-                  >
-                    <SelectTrigger
-                      id="item-type"
-                      aria-labelledby="item-type-label"
-                      ref={typeField.ref}
-                      onBlur={typeField.onBlur}
-                      className={selectTrigger}
-                    >
-                      <SelectValue>{tp(`types.${typeField.value}`)}</SelectValue>
-                    </SelectTrigger>
-                    <SelectContent className={selectContent}>
-                      <SelectItem value="service" className={selectItem}>
-                        {tp('types.service')}
-                      </SelectItem>
-                      <SelectItem value="product" className={selectItem}>
-                        {tp('types.product')}
-                      </SelectItem>
-                    </SelectContent>
-                  </Select>
-                )}
-              />
-            </div>
-            <div>
-              <label id="item-category-label" className={label}>
-                {t('fields.category')}
-              </label>
-              <Controller
-                name="category"
-                control={control}
-                render={({ field: categoryField }) => (
-                  <Select
-                    value={categoryField.value}
-                    onValueChange={(value) => {
-                      if (value) categoryField.onChange(value);
-                    }}
-                  >
-                    <SelectTrigger
-                      id="item-category"
-                      aria-labelledby="item-category-label"
-                      ref={categoryField.ref}
-                      onBlur={categoryField.onBlur}
-                      className={selectTrigger}
-                    >
-                      <SelectValue>
-                        {tp(`categories.${categoryField.value}`)}
-                      </SelectValue>
-                    </SelectTrigger>
-                    <SelectContent className={selectContent}>
-                      {CATEGORIES.map((category) => (
-                        <SelectItem
-                          key={category}
-                          value={category}
-                          className={selectItem}
-                        >
-                          {tp(`categories.${category}`)}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                )}
-              />
-            </div>
-          </div>
-
-          <div>
-            <label htmlFor="item-code" className={label}>
-              {t('fields.code')}
-            </label>
-            <Input
-              id="item-code"
-              dir="ltr"
-              className={input}
-              {...register('code')}
-            />
-            {error(errors.code?.message)}
-          </div>
-
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label htmlFor="item-price" className={label}>
-                {t('fields.price')}
+              <label htmlFor="item-name" className={label}>
+                {t('fields.name')}
               </label>
               <Input
-                id="item-price"
-                type="number"
-                inputMode="decimal"
-                min="0"
-                step="any"
+                id="item-name"
+                placeholder={t('placeholders.name')}
                 className={input}
-                {...register('price')}
+                {...register('name')}
               />
-              {error(errors.price?.message)}
+              {error(errors.name?.message)}
             </div>
-            <div>
-              <label htmlFor="item-tax" className={label}>
-                {t('fields.tax')}
-              </label>
-              <Input
-                id="item-tax"
-                type="number"
-                inputMode="decimal"
-                min="0"
-                max="100"
-                step="any"
-                className={input}
-                {...register('taxRate')}
-              />
-              {error(errors.taxRate?.message)}
-            </div>
-          </div>
 
-          {type === 'product' && (
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label htmlFor="item-stock" className={label}>
-                  {t('fields.stock')}
+                <label id="item-type-label" className={label}>
+                  {t('fields.type')}
                 </label>
-                <Input
-                  id="item-stock"
-                  type="number"
-                  inputMode="numeric"
-                  min="0"
-                  className={input}
-                  {...register('stock')}
+                <Controller
+                  name="type"
+                  control={control}
+                  render={({ field: typeField }) => (
+                    <Select
+                      value={typeField.value}
+                      onValueChange={(value) => {
+                        if (value) typeField.onChange(value);
+                      }}
+                    >
+                      <SelectTrigger
+                        id="item-type"
+                        aria-labelledby="item-type-label"
+                        ref={typeField.ref}
+                        onBlur={typeField.onBlur}
+                        className={selectTrigger}
+                      >
+                        <SelectValue>{tp(`types.${typeField.value}`)}</SelectValue>
+                      </SelectTrigger>
+                      <SelectContent className={selectContent}>
+                        <SelectItem value="service" className={selectItem}>
+                          {tp('types.service')}
+                        </SelectItem>
+                        <SelectItem value="product" className={selectItem}>
+                          {tp('types.product')}
+                        </SelectItem>
+                      </SelectContent>
+                    </Select>
+                  )}
                 />
-                {error(errors.stock?.message)}
               </div>
               <div>
-                <label htmlFor="item-low" className={label}>
-                  {t('fields.lowStockAt')}
+                <label id="item-category-label" className={label}>
+                  {t('fields.category')}
                 </label>
-                <Input
-                  id="item-low"
-                  type="number"
-                  inputMode="numeric"
-                  min="0"
-                  className={input}
-                  {...register('lowStockAt')}
+                <Controller
+                  name="category"
+                  control={control}
+                  render={({ field: categoryField }) => (
+                    <Select
+                      value={categoryField.value}
+                      onValueChange={(value) => {
+                        if (value) categoryField.onChange(value);
+                      }}
+                    >
+                      <SelectTrigger
+                        id="item-category"
+                        aria-labelledby="item-category-label"
+                        ref={categoryField.ref}
+                        onBlur={categoryField.onBlur}
+                        className={selectTrigger}
+                      >
+                        <SelectValue>
+                          {tp(`categories.${categoryField.value}`)}
+                        </SelectValue>
+                      </SelectTrigger>
+                      <SelectContent className={selectContent}>
+                        {CATEGORIES.map((category) => (
+                          <SelectItem
+                            key={category}
+                            value={category}
+                            className={selectItem}
+                          >
+                            {tp(`categories.${category}`)}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  )}
                 />
-                {error(errors.lowStockAt?.message)}
               </div>
             </div>
-          )}
 
-          <div className="border-line bg-surface sticky bottom-0 flex gap-2 border-t py-3">
+            <div>
+              <label htmlFor="item-code" className={label}>
+                {t('fields.code')}
+              </label>
+              <Input
+                id="item-code"
+                dir="ltr"
+                className={input}
+                {...register('code')}
+              />
+              {error(errors.code?.message)}
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label htmlFor="item-price" className={label}>
+                  {t('fields.price')}
+                </label>
+                <Input
+                  id="item-price"
+                  type="number"
+                  inputMode="decimal"
+                  min="0"
+                  step="any"
+                  className={input}
+                  {...register('price')}
+                />
+                {error(errors.price?.message)}
+              </div>
+              <div>
+                <label htmlFor="item-tax" className={label}>
+                  {t('fields.tax')}
+                </label>
+                <Input
+                  id="item-tax"
+                  type="number"
+                  inputMode="decimal"
+                  min="0"
+                  max="100"
+                  step="any"
+                  className={input}
+                  {...register('taxRate')}
+                />
+                {error(errors.taxRate?.message)}
+              </div>
+            </div>
+
+            {type === 'product' && (
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label htmlFor="item-stock" className={label}>
+                    {t('fields.stock')}
+                  </label>
+                  <Input
+                    id="item-stock"
+                    type="number"
+                    inputMode="numeric"
+                    min="0"
+                    className={input}
+                    {...register('stock')}
+                  />
+                  {error(errors.stock?.message)}
+                </div>
+                <div>
+                  <label htmlFor="item-low" className={label}>
+                    {t('fields.lowStockAt')}
+                  </label>
+                  <Input
+                    id="item-low"
+                    type="number"
+                    inputMode="numeric"
+                    min="0"
+                    className={input}
+                    {...register('lowStockAt')}
+                  />
+                  {error(errors.lowStockAt?.message)}
+                </div>
+              </div>
+            )}
+          </div>
+
+          <div className={sheetFooterBar}>
+            <Button type="button" variant="outline" onClick={() => onOpenChange(false)} className={dialogCancelButton}>
+              {t('cancel')}
+            </Button>
             <Button
               type="submit"
               disabled={isSubmitting}
-              className="rounded-btn bg-brand hover:bg-brand/90 h-10 flex-1 gap-2 text-xs font-bold text-white"
+              className={cn(dialogConfirmButton, 'bg-brand hover:bg-brand/90')}
             >
               {isSubmitting && <Loader2 className="size-4 animate-spin" />}
               {item ? t('saveEdit') : t('saveNew')}
-            </Button>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => onOpenChange(false)}
-              className="rounded-btn border-line-strong h-10 border text-xs font-bold"
-            >
-              {t('cancel')}
             </Button>
           </div>
         </form>

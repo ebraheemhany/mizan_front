@@ -20,6 +20,7 @@ import {
 } from '@/components/ui/command';
 import { Input } from '@/components/ui/input';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { dialogScrollBody } from '@/component/dialog-chrome';
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { ApiError } from '@/lib/api/client';
 import { useApiErrorMessage } from '@/lib/api/use-api-error';
@@ -242,7 +243,7 @@ export function ManualEntrySheet({ open, onClose, entry, accounts, closedThrough
           }}
           className="flex min-h-0 flex-1 flex-col"
         >
-          <div className="bg-canvas/40 flex-1 space-y-5 overflow-y-auto p-4 sm:p-6">
+          <div className={cn(dialogScrollBody, 'bg-canvas/40 space-y-5 p-4 sm:p-6')}>
             {/* minmax(0,1fr) + min-w-0: the date field shrinks instead of pushing past the sheet. */}
             <div className="rounded-card border-line bg-surface grid gap-4 border p-4 sm:grid-cols-[11rem_minmax(0,1fr)]">
               <div className="min-w-0">

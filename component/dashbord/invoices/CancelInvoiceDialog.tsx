@@ -4,6 +4,7 @@
 import { TriangleAlert } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import ConfirmDialog from '@/component/ConfirmDialog';
+import { invoiceLabel } from '@/lib/invoices/hooks';
 import type { Invoice } from '@/lib/mock/invoices';
 
 export default function CancelInvoiceDialog({
@@ -24,7 +25,7 @@ export default function CancelInvoiceDialog({
       icon={TriangleAlert}
       title={
         singleInvoice
-          ? t('title', { number: String(singleInvoice.number) })
+          ? t('title', { number: invoiceLabel(singleInvoice) })
           : t('bulkTitle', { count: invoices?.length ?? 0 })
       }
       description={singleInvoice ? t('description', { customer: singleInvoice.customer }) : t('bulkDescription')}

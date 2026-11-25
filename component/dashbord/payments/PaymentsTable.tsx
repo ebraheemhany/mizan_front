@@ -57,10 +57,8 @@ export default function PaymentsTable({
               </td>
               <td className={cn(td, 'text-brand-deep font-extrabold tabular-nums')}>
                 <Link href={`/invoices/${p.invoiceNo}`} className="hover:underline">
-                  #{format.number(p.invoiceNo, {
-                    useGrouping: false,
-                    numberingSystem: 'latn',
-                  })}
+                  {p.invoiceDisplay ??
+                    `#${format.number(p.invoiceNo, { useGrouping: false, numberingSystem: 'latn' })}`}
                 </Link>
               </td>
               <td className={cn(td, 'text-ink font-bold')}>{p.customer}</td>

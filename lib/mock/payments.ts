@@ -17,6 +17,8 @@ export type Payment = {
   id: string
   number: string // PAY-0212
   invoiceNo: number
+  /** The invoice as the company shows it (e.g. INV-2). */
+  invoiceDisplay?: string
   customer: string
   date: string // YYYY-MM-DD
   invoiceDate: string // تاريخ إصدار الفاتورة (لحساب أيام التحصيل)
@@ -31,6 +33,8 @@ export type Payment = {
 // فاتورة مفتوحة (لسه عليها رصيد)
 export type OpenInvoice = {
   number: number
+  /** As the company shows it (e.g. INV-2). */
+  displayNumber?: string
   customer: string
   balance: number
   issued: string

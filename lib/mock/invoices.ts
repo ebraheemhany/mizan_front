@@ -11,6 +11,8 @@ export type Invoice = {
   remaining: number;
   status: InvoiceStatus;
   daysOverdue?: number;
+  /** The number as the company shows it (prefix + number, e.g. INV-2). */
+  displayNumber?: string;
 };
 
 // "النهارده" في البيانات الوهمية. بيتشال لما نربط الـ API

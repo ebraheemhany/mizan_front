@@ -5,7 +5,7 @@ import { useTranslations } from 'next-intl';
 import { thClass } from '@/component/table-styles';
 import { Link } from '@/i18n/navigation';
 import { useDate } from '@/lib/data';
-import { toUiInvoice, useInvoices } from '@/lib/invoices/hooks';
+import { invoiceLabel, toUiInvoice, useInvoices } from '@/lib/invoices/hooks';
 import { useMoney } from '@/lib/money';
 import { cn } from '@/lib/utils';
 import StatusBadge from './invoices/StatusBadge';
@@ -55,7 +55,7 @@ export default function RecentInvoices() {
                       'text-brand inline-block font-extrabold tabular-nums hover:underline',
                     )}
                   >
-                    #{inv.number}
+                    {invoiceLabel(inv)}
                   </Link>
                 </td>
                 <td className="text-ink-2 px-4 py-3 font-semibold">

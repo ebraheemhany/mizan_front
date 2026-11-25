@@ -5,6 +5,7 @@ import { useSyncExternalStore } from 'react';
 import { createPortal } from 'react-dom';
 import { Scale } from 'lucide-react';
 import { useTranslations } from 'next-intl';
+import { invoiceLabel } from '@/lib/invoices/hooks';
 import type { InvoiceDetail } from '@/lib/mock/invoice-details';
 import InvoiceDocument from './InvoiceDocument';
 import StatusBadge from './StatusBadge';
@@ -42,7 +43,7 @@ export default function InvoicePrintSheet({
           <p className="text-2xl font-extrabold">
             {t('title')}{' '}
             <span dir="ltr" className="inline-block">
-              #{invoice.number}
+              {invoiceLabel(invoice)}
             </span>
           </p>
           <div className="mt-1.5">

@@ -16,6 +16,7 @@ import {
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { useDate } from '@/lib/data';
+import { invoiceLabel } from '@/lib/invoices/hooks';
 import type { InvoiceDetail } from '@/lib/mock/invoice-details';
 import { useMoney } from '@/lib/money';
 import { cn } from '@/lib/utils';
@@ -51,7 +52,7 @@ function ReminderForm({
   const [message, setMessage] = useState(() =>
     t(invoice.status === 'overdue' ? 'templateOverdue' : 'template', {
       customer: invoice.customer,
-      number: String(invoice.number),
+      number: invoiceLabel(invoice),
       amount: money(invoice.remaining),
       dueDate: date(invoice.dueDate),
     }),
@@ -208,7 +209,7 @@ export default function ReminderDialog({
             </DialogTitle>
             <DialogDescription className="text-muted truncate text-xs">
               {t('description', {
-                number: String(invoice.number),
+                number: invoiceLabel(invoice),
                 customer: invoice.customer,
               })}
             </DialogDescription>

@@ -134,6 +134,7 @@
      }
    },
    "Header": {
+    "closeMenu": "إغلاق القائمة",
     "logo": "ميزان",
     "features": "المميزات",
     "howItWorks": "كيف يعمل",
@@ -680,7 +681,7 @@
   "cancel": "إلغاء الفواتير"
 },
 "cancelDialog": {
-  "title": "هل تريد إلغاء الفاتورة رقم #{number}؟",
+  "title": "هل تريد إلغاء الفاتورة {number}؟",
   "description": "سيتم إلغاء فاتورة {customer} وتصفير المبلغ المتبقي. لا يمكن التراجع عن الإلغاء.",
   "bulkTitle": "هل تريد إلغاء {count, plural, one {فاتورة واحدة} two {فاتورتين} few {# فواتير} many {# فاتورة} other {# فاتورة}}؟",
   "bulkDescription": "سيتم إلغاء الفواتير المحددة القابلة للإلغاء فقط، وتصفير المبالغ المتبقية. لا يمكن التراجع عن الإلغاء.",
@@ -688,8 +689,8 @@
   "confirm": "تأكيد الإلغاء"
 },
 "toasts": {
-  "paymentRecorded": "تم تسجيل الدفعة على الفاتورة رقم #{number}",
-  "cancelled": "تم إلغاء الفاتورة رقم #{number}",
+  "paymentRecorded": "تم تسجيل الدفعة على الفاتورة {number}",
+  "cancelled": "تم إلغاء الفاتورة {number}",
   "cancelledMultiple": "تم إلغاء {count, plural, one {فاتورة واحدة} two {فاتورتين} few {# فواتير} many {# فاتورة} other {# فاتورة}}",
   "exported": "تم تصدير {count, plural, one {فاتورة واحدة} two {فاتورتين} few {# فواتير} many {# فاتورة} other {# فاتورة}}",
   "reminderUnavailable": "تعذر تجهيز بيانات التذكير لإحدى الفواتير المحددة."
@@ -822,7 +823,7 @@
     "proofRemove": "شيل الملف",
     "proofFailed": "الدفعة اتسجلت، بس صورة الإثبات ما اترفعتش. تقدر ترفعها من قائمة الدفعات.",
     "title": "تسجيل دفعة",
-    "description": "فاتورة #{number} · {customer}",
+    "description": "فاتورة {number} — {customer}",
     "remainingNow": "المتبقي الآن",
     "remainingAfter": "المتبقي بعد الدفعة",
     "paidInFull": "ستُسدَّد الفاتورة بالكامل",
@@ -849,7 +850,7 @@
   },
   "reminderDialog": {
     "title": "إرسال تذكير بالدفع",
-    "description": "فاتورة #{number} · {customer}",
+    "description": "فاتورة {number} — {customer}",
     "channel": "قناة الإرسال",
     "channels": {
       "email": "البريد الإلكتروني",
@@ -868,7 +869,7 @@
   },
   "ledger": {
     "title": "القيد المحاسبي",
-    "description": "فاتورة #{number} · تُولَّد القيود تلقائياً من الفاتورة والدفعات.",
+    "description": "فاتورة {number} · تُولَّد القيود تلقائياً من الفاتورة والدفعات.",
     "close": "إغلاق",
     "empty": "لا يوجد قيد محاسبي لهذه الفاتورة. المسودات والفواتير الملغاة لا تُرحَّل.",
     "entries": {
@@ -1135,7 +1136,7 @@
   "attention": {
     "title": "يحتاج إلى انتباه",
     "empty": "كل شيء على ما يرام، لا توجد عناصر تحتاج إلى متابعة.",
-    "invoiceOverdue": "فاتورة #{number} متأخرة",
+    "invoiceOverdue": "فاتورة {number} متأخرة",
     "staleDeal": "«{title}» بلا متابعة",
     "pendingQuote": "عرض سعر ينتظر الرد",
     "item": "{customer} · {amount}",
@@ -1870,6 +1871,7 @@
     "addOn": "إضافة مهمة يوم {date}"
   },
   "form": {
+    "close": "إغلاق",
     "title": "مهمة جديدة",
     "description": "اكتب تفاصيل المهمة وهتظهر في القائمة والتقويم.",
     "fields": {
@@ -2112,7 +2114,7 @@
     "late": "{count, plural, one {متأخرة يوم واحد} two {متأخرة يومين} few {متأخرة {text} أيام} many {متأخرة {text} يوماً} other {متأخرة {text} يوم}}",
     "whatsapp": "واتساب",
     "noPhone": "مفيش رقم تليفون لـ {customer}.",
-    "message": "أهلاً {customer}، تذكير ودّي بالفاتورة #{number} بمبلغ {amount}، وهي متأخرة {days} يوم. نرجو التكرم بالسداد في أقرب وقت. شكراً لتعاملكم معنا."
+    "message": "أهلاً {customer}، تذكير ودّي بالفاتورة {number} بمبلغ {amount}، وهي متأخرة {days} يوم. نرجو التكرم بالسداد في أقرب وقت. شكراً لتعاملكم معنا."
   }
 },
 "Products": {
@@ -2173,6 +2175,7 @@
 },
 "empty": "مفيش أصناف بالفلاتر دي.",
 "form": {
+  "close": "إغلاق",
   "newTitle": "صنف جديد",
   "editTitle": "تعديل الصنف",
   "description": "الأصناف دي بتظهر في الفواتير وعروض الأسعار.",
@@ -2408,6 +2411,7 @@
     }
   },
   "invite": {
+    "close": "إغلاق",
     "title": "دعوة مستخدم",
     "description": "هيوصله إيميل بدعوة للانضمام لحساب الشركة.",
     "fields": { "name": "الاسم", "email": "الإيميل", "role": "الدور" },

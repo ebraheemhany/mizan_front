@@ -34,7 +34,7 @@ export default function RemindersCard({
   const num = (v: number) =>
     format.number(v, { useGrouping: false, numberingSystem: 'latn' });
 
-  function sendWhatsApp(inv: OpenInvoice & { phone: string | null }, daysLate: number) {
+  function sendWhatsApp(inv: OpenInvoice & { phone: string | null; displayNumber: string }, daysLate: number) {
     const phone = toWhatsAppNumber(inv.phone);
     if (!phone) {
       toast.error(t('noPhone', { customer: inv.customer }));
@@ -43,7 +43,7 @@ export default function RemindersCard({
 
     const text = t('message', {
       customer: inv.customer,
-      number: num(inv.number),
+      number: inv.displayNumber,
       amount: money(inv.balance),
       days: num(daysLate),
     });

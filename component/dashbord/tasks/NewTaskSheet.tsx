@@ -5,9 +5,22 @@ import { useEffect } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Loader2 } from 'lucide-react';
+import { CalendarCheck, Loader2, X } from 'lucide-react';
 
 import DateField from '@/component/DateField';
+import {
+  dialogCancelButton,
+  dialogClose,
+  dialogConfirmButton,
+  dialogDescription,
+  dialogHeading,
+  dialogIconTile,
+  dialogScrollBody,
+  dialogTitle,
+  sheetFooterBar,
+  sheetHeaderBar,
+  sheetPopup,
+} from '@/component/dialog-chrome';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
@@ -26,6 +39,7 @@ import {
 } from '@/components/ui/sheet';
 import { useDeals } from '@/lib/deals/hooks';
 import type { TaskKind, TaskPriority } from '@/lib/tasks/hooks';
+import { cn } from '@/lib/utils';
 import { taskSchema, type TaskFormValues } from '@/lib/validations/tasks';
 import TaskCustomerPicker from './TaskCustomerPicker';
 
@@ -110,90 +124,188 @@ export default function NewTaskSheet({
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent
         side={locale === 'ar' ? 'left' : 'right'}
-        className="border-line bg-surface text-ink shadow-float w-full gap-0 overflow-y-auto border sm:max-w-md"
+        showCloseButton={false}
+        className={cn(sheetPopup, 'sm:max-w-md')}
       >
-        <SheetHeader className="border-line bg-canvas/60 gap-1 border-b px-6 py-5 text-start">
-          <SheetTitle className="text-ink text-base font-extrabold">
-            {t('title')}
-          </SheetTitle>
-          <SheetDescription className="text-muted text-xs">
-            {t('description')}
-          </SheetDescription>
+        <SheetHeader className={sheetHeaderBar()}>
+          <span className={dialogIconTile()}>
+            <CalendarCheck className="size-5" />
+          </span>
+          <div className={dialogHeading}>
+            <SheetTitle className={dialogTitle}>{t('title')}</SheetTitle>
+            <SheetDescription className={dialogDescription}>{t('description')}</SheetDescription>
+          </div>
+          <button type="button" onClick={() => onOpenChange(false)} aria-label={t('close')} className={dialogClose}>
+            <X className="size-4" />
+          </button>
         </SheetHeader>
 
-        <form
-          onSubmit={handleSubmit(save)}
-          noValidate
-          className="space-y-5 px-6 py-5"
-        >
-          <div>
-            <label htmlFor="task-title" className={label}>
-              {t('fields.title')}
-            </label>
-            <Input
-              id="task-title"
-              placeholder={t('placeholders.title')}
-              className={inputClass}
-              {...register('title')}
-            />
-            {error(errors.title?.message)}
-          </div>
-
-          <div>
-            <label htmlFor="task-due" className={label}>
-              {t('fields.due')}
-            </label>
-            <Controller
-              name="due"
-              control={control}
-              render={({ field: dueField }) => (
-                <DateField
-                  id="task-due"
-                  value={dueField.value}
-                  onChange={dueField.onChange}
-                  placeholder={t('fields.due')}
-                  invalid={!!errors.due}
-                />
-              )}
-            />
-            {error(errors.due?.message)}
-          </div>
-
-          <div className="grid grid-cols-2 gap-3">
+        <form onSubmit={handleSubmit(save)} noValidate className="flex min-h-0 flex-1 flex-col">
+          <div className={cn(dialogScrollBody, 'space-y-5 px-6 py-5')}>
             <div>
-              <label htmlFor="task-priority" className={label}>
-                {t('fields.priority')}
+              <label htmlFor="task-title" className={label}>
+                {t('fields.title')}
+              </label>
+              <Input
+                id="task-title"
+                placeholder={t('placeholders.title')}
+                className={inputClass}
+                {...register('title')}
+              />
+              {error(errors.title?.message)}
+            </div>
+
+            <div>
+              <label htmlFor="task-due" className={label}>
+                {t('fields.due')}
               </label>
               <Controller
-                name="priority"
+                name="due"
                 control={control}
-                render={({ field: priorityField }) => (
+                render={({ field: dueField }) => (
+                  <DateField
+                    id="task-due"
+                    value={dueField.value}
+                    onChange={dueField.onChange}
+                    placeholder={t('fields.due')}
+                    invalid={!!errors.due}
+                  />
+                )}
+              />
+              {error(errors.due?.message)}
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label htmlFor="task-priority" className={label}>
+                  {t('fields.priority')}
+                </label>
+                <Controller
+                  name="priority"
+                  control={control}
+                  render={({ field: priorityField }) => (
+                    <Select
+                      value={priorityField.value}
+                      onValueChange={(value) => {
+                        if (value) priorityField.onChange(value);
+                      }}
+                    >
+                      <SelectTrigger
+                        id="task-priority"
+                        ref={priorityField.ref}
+                        onBlur={priorityField.onBlur}
+                        className={`${inputClass} w-full font-semibold shadow-sm`}
+                      >
+                        <SelectValue>
+                          {t(`priorities.${priorityField.value}`)}
+                        </SelectValue>
+                      </SelectTrigger>
+                      <SelectContent className="border-line bg-surface text-ink rounded-xl p-1.5 shadow-lg">
+                        {PRIORITIES.map((priority) => (
+                          <SelectItem
+                            key={priority}
+                            value={priority}
+                            className="rounded-btn min-h-10 px-3 py-2 text-xs font-semibold transition-colors focus:bg-brand-soft focus:text-brand-deep data-highlighted:bg-brand-soft data-highlighted:text-brand-deep data-[selected]:bg-brand-soft data-[selected]:text-brand-deep"
+                          >
+                            {t(`priorities.${priority}`)}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  )}
+                />
+              </div>
+
+              <div>
+                <label htmlFor="task-kind" className={label}>
+                  {t('fields.kind')}
+                </label>
+                <Controller
+                  name="kind"
+                  control={control}
+                  render={({ field: kindField }) => (
+                    <Select
+                      value={kindField.value}
+                      onValueChange={(value) => {
+                        if (value) kindField.onChange(value);
+                      }}
+                    >
+                      <SelectTrigger
+                        id="task-kind"
+                        ref={kindField.ref}
+                        onBlur={kindField.onBlur}
+                        className={`${inputClass} w-full font-semibold shadow-sm`}
+                      >
+                        <SelectValue>
+                          {t(`kinds.${kindField.value}`)}
+                        </SelectValue>
+                      </SelectTrigger>
+                      <SelectContent className="border-line bg-surface text-ink rounded-xl p-1.5 shadow-lg">
+                        {KINDS.map((kind) => (
+                          <SelectItem
+                            key={kind}
+                            value={kind}
+                            className="rounded-btn min-h-10 px-3 py-2 text-xs font-semibold transition-colors focus:bg-brand-soft focus:text-brand-deep data-highlighted:bg-brand-soft data-highlighted:text-brand-deep data-[selected]:bg-brand-soft data-[selected]:text-brand-deep"
+                          >
+                            {t(`kinds.${kind}`)}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  )}
+                />
+              </div>
+            </div>
+
+            <div>
+              <label htmlFor="task-deal" className={label}>
+                {t('fields.deal')}
+              </label>
+              <Controller
+                name="deal"
+                control={control}
+                render={({ field: dealField }) => (
                   <Select
-                    value={priorityField.value}
+                    value={dealField.value?.id ?? 'none'}
                     onValueChange={(value) => {
-                      if (value) priorityField.onChange(value);
+                      const picked = openDeals.find((d) => d.id === value) ?? (presetDeal?.id === value ? presetDeal : null);
+                      if (!picked) {
+                        dealField.onChange(null);
+                        return;
+                      }
+                      dealField.onChange({ id: picked.id, title: picked.title });
+                      // The deal's customer, unless one was already chosen.
+                      if (!getValues('customer')) {
+                        setValue('customer', { id: picked.customerId, name: picked.customer });
+                      }
                     }}
                   >
                     <SelectTrigger
-                      id="task-priority"
-                      ref={priorityField.ref}
-                      onBlur={priorityField.onBlur}
+                      id="task-deal"
+                      ref={dealField.ref}
+                      onBlur={dealField.onBlur}
                       className={`${inputClass} w-full font-semibold shadow-sm`}
                     >
-                      <SelectValue>
-                        {t(`priorities.${priorityField.value}`)}
-                      </SelectValue>
+                      <SelectValue>{dealField.value ? dealField.value.title : t('dealNone')}</SelectValue>
                     </SelectTrigger>
-                    <SelectContent className="border-line bg-surface text-ink rounded-xl p-1.5 shadow-lg">
-                      {PRIORITIES.map((priority) => (
-                        <SelectItem
-                          key={priority}
-                          value={priority}
-                          className="rounded-btn min-h-10 px-3 py-2 text-xs font-semibold transition-colors focus:bg-brand-soft focus:text-brand-deep data-highlighted:bg-brand-soft data-highlighted:text-brand-deep data-[selected]:bg-brand-soft data-[selected]:text-brand-deep"
-                        >
-                          {t(`priorities.${priority}`)}
-                        </SelectItem>
-                      ))}
+                    <SelectContent className="border-line bg-surface text-ink max-h-72 rounded-xl p-1.5 shadow-lg">
+                      <SelectItem
+                        value="none"
+                        className="rounded-btn text-muted min-h-10 px-3 py-2 text-xs font-semibold"
+                      >
+                        {t('dealNone')}
+                      </SelectItem>
+                      {[...openDeals, ...(presetDeal && !openDeals.some((d) => d.id === presetDeal.id) ? [presetDeal] : [])].map(
+                        (deal) => (
+                          <SelectItem
+                            key={deal.id}
+                            value={deal.id}
+                            className="rounded-btn min-h-10 px-3 py-2 text-xs font-semibold transition-colors focus:bg-brand-soft focus:text-brand-deep data-highlighted:bg-brand-soft data-highlighted:text-brand-deep data-[selected]:bg-brand-soft data-[selected]:text-brand-deep"
+                          >
+                            {deal.title} · {deal.customer}
+                          </SelectItem>
+                        ),
+                      )}
                     </SelectContent>
                   </Select>
                 )}
@@ -201,134 +313,34 @@ export default function NewTaskSheet({
             </div>
 
             <div>
-              <label htmlFor="task-kind" className={label}>
-                {t('fields.kind')}
+              <label htmlFor="task-customer" className={label}>
+                {t('fields.customer')}
               </label>
               <Controller
-                name="kind"
+                name="customer"
                 control={control}
-                render={({ field: kindField }) => (
-                  <Select
-                    value={kindField.value}
-                    onValueChange={(value) => {
-                      if (value) kindField.onChange(value);
-                    }}
-                  >
-                    <SelectTrigger
-                      id="task-kind"
-                      ref={kindField.ref}
-                      onBlur={kindField.onBlur}
-                      className={`${inputClass} w-full font-semibold shadow-sm`}
-                    >
-                      <SelectValue>
-                        {t(`kinds.${kindField.value}`)}
-                      </SelectValue>
-                    </SelectTrigger>
-                    <SelectContent className="border-line bg-surface text-ink rounded-xl p-1.5 shadow-lg">
-                      {KINDS.map((kind) => (
-                        <SelectItem
-                          key={kind}
-                          value={kind}
-                          className="rounded-btn min-h-10 px-3 py-2 text-xs font-semibold transition-colors focus:bg-brand-soft focus:text-brand-deep data-highlighted:bg-brand-soft data-highlighted:text-brand-deep data-[selected]:bg-brand-soft data-[selected]:text-brand-deep"
-                        >
-                          {t(`kinds.${kind}`)}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                render={({ field: customerField }) => (
+                  <TaskCustomerPicker
+                    id="task-customer"
+                    value={customerField.value}
+                    onChange={customerField.onChange}
+                  />
                 )}
               />
             </div>
           </div>
 
-          <div>
-            <label htmlFor="task-deal" className={label}>
-              {t('fields.deal')}
-            </label>
-            <Controller
-              name="deal"
-              control={control}
-              render={({ field: dealField }) => (
-                <Select
-                  value={dealField.value?.id ?? 'none'}
-                  onValueChange={(value) => {
-                    const picked = openDeals.find((d) => d.id === value) ?? (presetDeal?.id === value ? presetDeal : null);
-                    if (!picked) {
-                      dealField.onChange(null);
-                      return;
-                    }
-                    dealField.onChange({ id: picked.id, title: picked.title });
-                    // The deal's customer, unless one was already chosen.
-                    if (!getValues('customer')) {
-                      setValue('customer', { id: picked.customerId, name: picked.customer });
-                    }
-                  }}
-                >
-                  <SelectTrigger
-                    id="task-deal"
-                    ref={dealField.ref}
-                    onBlur={dealField.onBlur}
-                    className={`${inputClass} w-full font-semibold shadow-sm`}
-                  >
-                    <SelectValue>{dealField.value ? dealField.value.title : t('dealNone')}</SelectValue>
-                  </SelectTrigger>
-                  <SelectContent className="border-line bg-surface text-ink max-h-72 rounded-xl p-1.5 shadow-lg">
-                    <SelectItem
-                      value="none"
-                      className="rounded-btn text-muted min-h-10 px-3 py-2 text-xs font-semibold"
-                    >
-                      {t('dealNone')}
-                    </SelectItem>
-                    {[...openDeals, ...(presetDeal && !openDeals.some((d) => d.id === presetDeal.id) ? [presetDeal] : [])].map(
-                      (deal) => (
-                        <SelectItem
-                          key={deal.id}
-                          value={deal.id}
-                          className="rounded-btn min-h-10 px-3 py-2 text-xs font-semibold transition-colors focus:bg-brand-soft focus:text-brand-deep data-highlighted:bg-brand-soft data-highlighted:text-brand-deep data-[selected]:bg-brand-soft data-[selected]:text-brand-deep"
-                        >
-                          {deal.title} · {deal.customer}
-                        </SelectItem>
-                      ),
-                    )}
-                  </SelectContent>
-                </Select>
-              )}
-            />
-          </div>
-
-          <div>
-            <label htmlFor="task-customer" className={label}>
-              {t('fields.customer')}
-            </label>
-            <Controller
-              name="customer"
-              control={control}
-              render={({ field: customerField }) => (
-                <TaskCustomerPicker
-                  id="task-customer"
-                  value={customerField.value}
-                  onChange={customerField.onChange}
-                />
-              )}
-            />
-          </div>
-
-          <div className="flex gap-2 pt-2">
+          <div className={sheetFooterBar}>
+            <Button type="button" variant="outline" onClick={() => onOpenChange(false)} className={dialogCancelButton}>
+              {t('cancel')}
+            </Button>
             <Button
               type="submit"
               disabled={isSubmitting}
-              className="rounded-btn bg-brand hover:bg-brand/90 h-10 flex-1 gap-2 text-xs font-bold text-white"
+              className={cn(dialogConfirmButton, 'bg-brand hover:bg-brand/90')}
             >
               {isSubmitting && <Loader2 className="size-4 animate-spin" />}
               {t('save')}
-            </Button>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => onOpenChange(false)}
-              className="rounded-btn border-line-strong h-10 border text-xs font-bold"
-            >
-              {t('cancel')}
             </Button>
           </div>
         </form>

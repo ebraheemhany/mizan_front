@@ -118,7 +118,7 @@ function InvoiceDetailContent({ data }: { data: NonNullable<ReturnType<typeof us
     try {
       const { proofFailed } = await recordPaymentWithProof.mutateAsync({ ref: invoice.id, input });
       setPaymentOpen(false);
-      toast.success(tInvoices('toasts.paymentRecorded', { number: String(invoice.number) }));
+      toast.success(tInvoices('toasts.paymentRecorded', { number: data.displayNumber }));
       // The payment is saved; only the file didn't make it (it can be added from the payment).
       if (proofFailed) toast.warning(t('paymentDialog.proofFailed'));
     } catch (error) {
@@ -149,7 +149,7 @@ function InvoiceDetailContent({ data }: { data: NonNullable<ReturnType<typeof us
     setCancelOpen(false);
     await run(
       action.mutateAsync({ kind: 'cancel', ref: invoice.id }),
-      tInvoices('toasts.cancelled', { number: String(invoice.number) }),
+      tInvoices('toasts.cancelled', { number: data.displayNumber }),
     );
   }
 
@@ -263,7 +263,7 @@ function InvoiceDetailContent({ data }: { data: NonNullable<ReturnType<typeof us
       <PaymentDialog
         open={paymentOpen}
         onOpenChange={setPaymentOpen}
-        number={invoice.number}
+        number={data.displayNumber}
         customer={invoice.customer}
         remaining={invoice.remaining}
         onSubmit={recordPayment}

@@ -15,6 +15,7 @@ import { useRecordPaymentWithProof } from '@/lib/collections/hooks';
 import { useCustomers } from '@/lib/customers/hooks';
 import {
   fetchInvoicesForExport,
+  invoiceLabel,
   toUiDetail,
   toUiInvoice,
   useBulkCancelInvoices,
@@ -163,7 +164,7 @@ export default function InvoicesView() {
     try {
       const { proofFailed } = await recordPaymentWithProof.mutateAsync({ ref: target.id, input });
       setPayTarget(null);
-      toast.success(t('toasts.paymentRecorded', { number: String(target.number) }));
+      toast.success(t('toasts.paymentRecorded', { number: invoiceLabel(target) }));
       if (proofFailed) toast.warning(tDetail('paymentDialog.proofFailed'));
     } catch (error) {
       toast.error(errorMessage(error));
@@ -182,7 +183,7 @@ export default function InvoicesView() {
         return next;
       });
       if (targets.length === 1 && cancelled === 1) {
-        toast.success(t('toasts.cancelled', { number: String(targets[0].number) }));
+        toast.success(t('toasts.cancelled', { number: invoiceLabel(targets[0]) }));
       } else {
         toast.success(t('toasts.cancelledMultiple', { count: cancelled }));
       }
@@ -304,7 +305,7 @@ export default function InvoicesView() {
           onOpenChange={(open) => {
             if (!open) setPayTarget(null);
           }}
-          number={payTarget.number}
+          number={invoiceLabel(payTarget)}
           customer={payTarget.customer}
           remaining={payTarget.remaining}
           onSubmit={recordPayment}

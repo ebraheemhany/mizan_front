@@ -135,7 +135,7 @@ export default function RecordPaymentCard({
                   // The trigger shows the same text as the list item, not the bare invoice number.
                   items={invoices.map((i) => ({
                     value: String(i.number),
-                    label: `#${num(i.number)} — ${i.customer} (${money(i.balance)})`,
+                    label: `${i.displayNumber ?? `#${num(i.number)}`} — ${i.customer} (${money(i.balance)})`,
                   }))}
                   onValueChange={(value) => {
                     if (value) invoiceField.onChange(value);
@@ -157,7 +157,7 @@ export default function RecordPaymentCard({
                         value={String(i.number)}
                         className="rounded-btn min-h-10 px-3 py-2 text-xs font-semibold focus:bg-brand-soft focus:text-brand-deep data-highlighted:bg-brand-soft data-highlighted:text-brand-deep"
                       >
-                        #{num(i.number)} — {i.customer} ({money(i.balance)})
+                        {i.displayNumber ?? `#${num(i.number)}`} — {i.customer} ({money(i.balance)})
                       </SelectItem>
                     ))}
                   </SelectContent>

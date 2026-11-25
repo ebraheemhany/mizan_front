@@ -60,6 +60,7 @@ export type ApiOpenInvoice = {
 /** An open invoice as the payments page uses it, plus what the reminders and the bell need. */
 export type OpenInvoiceRow = OpenInvoice & {
   id: string;
+  displayNumber: string;
   customerId: string;
   phone: string | null;
   daysOverdue: number | null;
@@ -89,6 +90,7 @@ export function toUiPayment(p: ApiPayment): Payment {
     id: p.id,
     number: p.number,
     invoiceNo: p.invoiceNumber,
+    invoiceDisplay: p.invoiceDisplayNumber,
     customer: p.customer,
     date: p.date,
     invoiceDate: p.invoiceDate,
@@ -104,6 +106,7 @@ export function toUiPayment(p: ApiPayment): Payment {
 const toOpenInvoice = (i: ApiOpenInvoice): OpenInvoiceRow => ({
   id: i.id,
   number: i.number,
+  displayNumber: i.displayNumber,
   customerId: i.customerId,
   customer: i.customer,
   balance: Number(i.balance),
