@@ -34,6 +34,7 @@ import {
   useReportVat,
   useBalanceSheet,
   useCashFlow,
+  vatRatesOf,
   type ReportPeriod,
   type ReportSummary,
 } from '@/lib/reports/hooks';
@@ -392,7 +393,7 @@ function ReportsContent() {
         [t('vat.output'), vat.output],
         [t('vat.input'), vat.input],
         [t('vat.due'), vat.due],
-        [t('vatTab.details.rate'), `${vat.rate}%`],
+        [t('vatTab.details.rate'), vatRatesOf(vat).map((rate) => `${rate}%`).join(' / ')],
         [t('vatTab.details.taxableSales'), vat.taxableSales],
         [tApi('exemptSales'), vat.exemptSales],
         [tApi('invoicesCount'), vat.invoicesCount],

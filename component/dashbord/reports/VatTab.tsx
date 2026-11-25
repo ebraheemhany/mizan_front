@@ -5,7 +5,7 @@ import { useFormatter, useTranslations } from 'next-intl';
 
 import StatCard from '@/component/StatCard';
 import { useMoney } from '@/lib/money';
-import type { VatReport } from '@/lib/reports/hooks';
+import { vatRatesOf, type VatReport } from '@/lib/reports/hooks';
 import VatCard from './VatCard';
 
 /** Output VAT is the VAT stored on issued invoices; expenses carry no input VAT yet. */
@@ -52,11 +52,11 @@ export default function VatTab({ vat }: { vat: VatReport }) {
                 {t('details.rate')}
               </span>
               <span className="text-ink font-bold tabular-nums">
-                {format.number(vat.rate / 100, {
-                  style: 'percent',
-                  maximumFractionDigits: 2,
-                  numberingSystem: 'latn',
-                })}
+                {vatRatesOf(vat)
+                  .map((rate) =>
+                    format.number(rate / 100, { style: 'percent', maximumFractionDigits: 2, numberingSystem: 'latn' }),
+                  )
+                  .join(' · ')}
               </span>
             </li>
             <li className={row}>

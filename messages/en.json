@@ -2777,9 +2777,14 @@
   },
   
 "taxes": {
+  "errors": {
+    "vatRateInvalid": "Enter a rate above 0 and up to 100, with at most 2 decimals."
+  },
+  "vatRate": "VAT rate",
+  "vatRateHint": "Applies to new invoices and quotes. Earlier ones keep their rate.",
   "currencyHint": "Every amount is shown in it: invoices, quotes, reports, payroll, emails and the payment page. The numbers themselves are not converted at any exchange rate.",
   "title": "Taxes & currency",
-  "vat": "VAT 14%",
+  "vat": "VAT",
   "vatHint": "Added automatically to invoices",
   "withholding": "Withholding & addition tax",
   "withholdingHint": "For corporate customers",

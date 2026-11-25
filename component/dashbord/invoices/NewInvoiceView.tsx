@@ -38,7 +38,7 @@ import { can } from '@/lib/auth/permissions';
 import { useSession } from '@/lib/auth/session';
 import { useCreateCustomer, useCustomers } from '@/lib/customers/hooks';
 import { useCreateInvoice } from '@/lib/invoices/hooks';
-import { useSettings } from '@/lib/settings/hooks';
+import { newDocumentVatRate, useSettings } from '@/lib/settings/hooks';
 import { useMoney } from '@/lib/money';
 import { toUiQuoteDetail, useQuote, type QuoteDetail } from '@/lib/quotes/hooks';
 import { cn } from '@/lib/utils';
@@ -48,7 +48,6 @@ import {
   createInvoiceSchema,
   lineAmount,
   TERMS,
-  VAT_RATE,
   type InvoiceFormValues,
 } from '@/lib/validations/invoice';
 import CustomerCombobox from './CustomerCombobox';
@@ -176,7 +175,8 @@ export default function NewInvoiceView({
     quote = loaded;
   }
 
-  const vatEnabled = settings.data?.taxes.vatEnabled ?? true;
+  // The company's rate (or 0 with VAT off): a preview; the server does the math.
+  const vatRate = newDocumentVatRate(settings.data?.taxes);
   const settingsTerms = settings.data?.numbering.paymentTermsDays ?? 30;
   const options = customers.data?.items.map((c) => ({ id: c.id, name: c.name, city: c.city ?? '' })) ?? [];
   // The quote's customer may not be among the first 100: add it so the picker shows it.
@@ -194,7 +194,7 @@ export default function NewInvoiceView({
       prefill={prefill}
       onQuoteGone={quoteGone}
       customers={options}
-      vatRate={vatEnabled ? VAT_RATE : 0}
+      vatRate={vatRate}
       defaultTerms={(TERMS as readonly number[]).includes(settingsTerms) ? settingsTerms : 30}
     />
   );
@@ -264,7 +264,7 @@ function InvoiceForm({
   /** The server refused the conversion (already converted, no longer accepted, or gone). */
   onQuoteGone: () => Promise<void>;
   customers: CustomerOption[];
-  /** From the settings: 14, or 0 when VAT is off. */
+  /** From the settings: the company's rate, or 0 when VAT is off. */
   vatRate: number;
   /** From the settings (payment terms). */
   defaultTerms: number;

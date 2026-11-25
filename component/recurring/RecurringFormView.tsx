@@ -31,13 +31,12 @@ import {
   type RecurringDetail,
   type RecurringInput,
 } from '@/lib/recurring/hooks';
-import { useSettings } from '@/lib/settings/hooks';
+import { newDocumentVatRate, useSettings } from '@/lib/settings/hooks';
 import { cn } from '@/lib/utils';
 import {
   calcTotals,
   parseNumber,
   TERMS,
-  VAT_RATE,
 } from '@/lib/validations/invoice';
 import {
   createRecurringSchema,
@@ -146,7 +145,8 @@ export default function RecurringFormView({ templateId }: { templateId?: string 
     );
   }
 
-  const vatEnabled = settings.data?.taxes.vatEnabled ?? true;
+  // The company's rate (or 0 with VAT off): a preview; the server does the math.
+  const vatRate = newDocumentVatRate(settings.data?.taxes);
   const options = customers.data?.items.map((c) => ({ id: c.id, name: c.name, city: c.city ?? '' })) ?? [];
   // The template's customer may not be among the first 100: add it so the picker shows it.
   if (template?.customerId && !options.some((c) => c.id === template.customerId)) {
@@ -158,7 +158,7 @@ export default function RecurringFormView({ templateId }: { templateId?: string 
       key={template?.id ?? 'new'}
       template={template}
       customers={options}
-      vatRate={vatEnabled ? VAT_RATE : 0}
+      vatRate={vatRate}
     />
   );
 }

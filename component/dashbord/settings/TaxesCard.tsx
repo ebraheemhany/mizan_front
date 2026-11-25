@@ -2,12 +2,13 @@
 'use client';
 
 import { useFormatter, useTranslations } from 'next-intl';
-import { Controller, useFormContext } from 'react-hook-form';
+import { Controller, useFormContext, useWatch } from 'react-hook-form';
 
+import { Input } from '@/components/ui/input';
 import type { SettingsValues } from '@/lib/validations/settings';
 import SwitchField from './SwitchField';
 import SettingsSelect from './SettingsSelect';
-import { settingsLabel } from './fieldStyles';
+import { settingsInput, settingsLabel } from './fieldStyles';
 
 const CURRENCIES = ['EGP', 'USD', 'SAR', 'AED'] as const;
 const MONTHS = Array.from({ length: 12 }, (_, i) => i + 1);
@@ -15,7 +16,13 @@ const MONTHS = Array.from({ length: 12 }, (_, i) => i + 1);
 export default function TaxesCard() {
   const t = useTranslations('Settings.taxes');
   const format = useFormatter();
-  const { control } = useFormContext<SettingsValues>();
+  const {
+    control,
+    register,
+    formState: { errors },
+  } = useFormContext<SettingsValues>();
+  const vatEnabled = useWatch({ control, name: 'taxes.vatEnabled' });
+  const rateError = errors.taxes?.vatRate?.message;
 
   return (
     <section
@@ -30,6 +37,32 @@ export default function TaxesCard() {
           label={t('vat')}
           hint={t('vatHint')}
         />
+        {vatEnabled && (
+          <div>
+            <label htmlFor="tax-vat-rate" className={settingsLabel}>
+              {t('vatRate')}
+            </label>
+            <div className="relative sm:max-w-48">
+              <Input
+                id="tax-vat-rate"
+                inputMode="decimal"
+                aria-invalid={!!rateError}
+                aria-describedby="tax-vat-rate-note"
+                className={`${settingsInput} pe-9 tabular-nums`}
+                {...register('taxes.vatRate')}
+              />
+              <span className="text-muted pointer-events-none absolute inset-y-0 end-3 flex items-center text-xs font-bold">
+                %
+              </span>
+            </div>
+            <p
+              id="tax-vat-rate-note"
+              className={rateError ? 'text-danger mt-1.5 text-[11px] font-semibold' : 'text-muted mt-1.5 text-[11px] leading-5'}
+            >
+              {rateError ? t('errors.vatRateInvalid') : t('vatRateHint')}
+            </p>
+          </div>
+        )}
         <SwitchField
           name="taxes.withholdingEnabled"
           label={t('withholding')}

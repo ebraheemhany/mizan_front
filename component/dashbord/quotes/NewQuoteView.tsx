@@ -35,9 +35,9 @@ import {
   type QuoteDetail,
   type QuoteInput,
 } from '@/lib/quotes/hooks';
-import { useSettings } from '@/lib/settings/hooks';
+import { newDocumentVatRate, useSettings } from '@/lib/settings/hooks';
 import { cn } from '@/lib/utils';
-import { calcTotals, parseNumber, VAT_RATE } from '@/lib/validations/invoice';
+import { calcTotals, parseNumber } from '@/lib/validations/invoice';
 import { createQuoteSchema, type QuoteFormValues } from '@/lib/validations/quote';
 import CustomerCombobox, { type CustomerOption } from '@/component/dashbord/invoices/CustomerCombobox';
 import LineItemsSection from '@/component/dashbord/invoices/LineItemsSection';
@@ -123,7 +123,8 @@ export default function NewQuoteView({ editNumber }: { editNumber?: number }) {
   // Updating state while rendering (React re-renders right away), not in an effect.
   if (editQuote && !formQuote) setFormQuote(editQuote);
 
-  const vatEnabled = settings.data?.taxes.vatEnabled ?? true;
+  // The company's rate (or 0 with VAT off): a preview; the server does the math.
+  const vatRate = newDocumentVatRate(settings.data?.taxes);
   const options = customers.data?.items.map((c) => ({ id: c.id, name: c.name, city: c.city ?? '' })) ?? [];
   // The draft's customer may not be among the first 100: add it so the picker shows it.
   if (editQuote?.customerId && !options.some((c) => c.id === editQuote.customerId)) {
@@ -135,7 +136,7 @@ export default function NewQuoteView({ editNumber }: { editNumber?: number }) {
       key={editQuote?.id ?? 'new'}
       editQuote={editQuote}
       customers={options}
-      vatRate={vatEnabled ? VAT_RATE : 0}
+      vatRate={vatRate}
     />
   );
 }
@@ -147,7 +148,7 @@ function QuoteForm({
 }: {
   editQuote?: QuoteDetail;
   customers: CustomerOption[];
-  /** From the settings: 14, or 0 when VAT is off (preview only; the server does the math). */
+  /** From the settings: the company's rate, or 0 when VAT is off (preview only; the server does the math). */
   vatRate: number;
 }) {
   const t = useTranslations('QuoteForm');

@@ -41,6 +41,7 @@ import { ApiError } from '@/lib/api/client';
 import { useApiErrorMessage } from '@/lib/api/use-api-error';
 import type { CatalogItem } from '@/lib/mock/products';
 import { useNextProductCode } from '@/lib/products/hooks';
+import { newDocumentVatRate, useSettings } from '@/lib/settings/hooks';
 import { cn } from '@/lib/utils';
 import { itemSchema, type ItemFormValues } from '@/lib/validations/products';
 import { CATEGORIES } from './ProductsToolbar';
@@ -53,7 +54,8 @@ const selectContent = 'border-line bg-surface text-ink rounded-xl shadow-lg';
 const selectItem =
   'rounded-btn min-h-10 px-3 py-2 text-xs font-semibold focus:bg-brand-soft focus:text-brand-deep data-highlighted:bg-brand-soft data-highlighted:text-brand-deep';
 
-function toDefaults(item: CatalogItem | null): ItemFormValues {
+/** taxRate: a new product starts at the company's VAT rate. */
+function toDefaults(item: CatalogItem | null, taxRate: string): ItemFormValues {
   if (!item) {
     return {
       name: '',
@@ -61,7 +63,7 @@ function toDefaults(item: CatalogItem | null): ItemFormValues {
       // Filled in from the server's suggestion (next-code) once it arrives.
       code: '',
       price: '',
-      taxRate: '14',
+      taxRate,
       category: 'software',
       stock: '',
       lowStockAt: '',
@@ -95,6 +97,8 @@ export default function ItemSheet({
   const tp = useTranslations('Products');
   const locale = useLocale();
   const errorMessage = useApiErrorMessage();
+  const settings = useSettings();
+  const taxRate = String(newDocumentVatRate(settings.data?.taxes));
 
   const {
     register,
@@ -106,13 +110,13 @@ export default function ItemSheet({
     formState: { errors, dirtyFields, isSubmitting },
   } = useForm<ItemFormValues>({
     resolver: zodResolver(itemSchema),
-    defaultValues: toDefaults(item),
+    defaultValues: toDefaults(item, taxRate),
   });
 
   // كل مرة الدرج يتفتح نبدأ من بيانات الصنف (أو فاضي)
   useEffect(() => {
-    if (open) reset(toDefaults(item));
-  }, [open, item, reset]);
+    if (open) reset(toDefaults(item, taxRate));
+  }, [open, item, reset, taxRate]);
 
   const type = useWatch({ control, name: 'type' });
   // The server suggests the next free code for the chosen type.

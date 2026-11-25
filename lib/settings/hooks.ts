@@ -5,6 +5,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { api, apiUpload, type SessionUser } from '@/lib/api/client';
 import { queryKeys } from '@/lib/query/keys';
+import { VAT_RATE } from '@/lib/validations/invoice';
 import type { SettingsValues } from '@/lib/validations/settings';
 
 export type ApiSettings = {
@@ -19,6 +20,8 @@ export type ApiSettings = {
   };
   taxes: {
     vatEnabled: boolean;
+    /** Percent as a 2-decimal string ("14.00"): what new invoices and quotes get. */
+    vatRate: string;
     withholdingEnabled: boolean;
     currency: SettingsValues['taxes']['currency'];
     fiscalStartMonth: number;
@@ -45,7 +48,8 @@ export function toFormValues(s: ApiSettings): SettingsValues {
       phone: s.company.phone ?? '',
       address: s.company.address ?? '',
     },
-    taxes: { ...s.taxes, fiscalStartMonth: String(s.taxes.fiscalStartMonth) },
+    // "14.00" shows as 14, "10.50" as 10.5.
+    taxes: { ...s.taxes, vatRate: String(Number(s.taxes.vatRate ?? VAT_RATE)), fiscalStartMonth: String(s.taxes.fiscalStartMonth) },
     numbering: {
       invoicePrefix: s.numbering.invoicePrefix,
       invoiceNext: String(s.numbering.invoiceNext),
@@ -113,6 +117,12 @@ export function useRemoveLogo() {
     await api('/api/settings/logo', { method: 'DELETE' });
     return null;
   });
+}
+
+/** The VAT rate a new invoice or quote gets: the company's, or 0 with VAT off. */
+export function newDocumentVatRate(taxes: ApiSettings['taxes'] | undefined) {
+  if (!taxes) return VAT_RATE;
+  return taxes.vatEnabled ? Number(taxes.vatRate ?? VAT_RATE) : 0;
 }
 
 export function useSettings() {

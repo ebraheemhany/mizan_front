@@ -82,8 +82,10 @@ export type AgingReport = {
 export type VatReport = {
   period: PeriodRange;
   currentMonth: string;
-  /** Percent, e.g. 14. */
-  rate: number;
+  /** Percent, e.g. 14: the period's rate, or null when it changed within the period. */
+  rate: number | null;
+  /** Every rate the period's invoices were taxed at (empty before any). */
+  rates: number[];
   output: number;
   input: number;
   due: number;
@@ -187,6 +189,9 @@ function toAging(a: ApiAging): AgingReport {
     overdue: Number(a.overdue),
   };
 }
+
+/** The rates to show for a VAT report: its rate, or each one when there were several. */
+export const vatRatesOf = (v: VatReport) => (v.rate !== null ? [v.rate] : v.rates);
 
 function toVat(v: ApiVat): VatReport {
   return {

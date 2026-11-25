@@ -12,6 +12,7 @@ type InvoiceFormMessages = {
 
 // Same choices as the company's default payment terms in the settings.
 export const TERMS = [0, 15, 30, 45, 60] as const;
+/** Egypt's standard rate: the company's rate until its settings are loaded or changed. */
 export const VAT_RATE = 14;
 
 // بيقبل "1,000" و"1 000" كمان

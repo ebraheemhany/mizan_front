@@ -17,8 +17,15 @@ const companySchema = z.object({
   address: z.string().trim(),
 });
 
+// The VAT rate in percent: more than 0, at most 100, up to 2 decimals (14, 14.5).
+const vatRate = z
+  .string()
+  .trim()
+  .refine((v) => /^\d{1,3}(\.\d{1,2})?$/.test(v) && Number(v) > 0 && Number(v) <= 100, 'vatRateInvalid');
+
 const taxesSchema = z.object({
   vatEnabled: z.boolean(),
+  vatRate,
   withholdingEnabled: z.boolean(),
   currency: z.enum(['EGP', 'USD', 'SAR', 'AED']),
   fiscalStartMonth: z.string().regex(/^(?:[1-9]|1[0-2])$/),
