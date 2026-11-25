@@ -1,4 +1,99 @@
 {
+    "Claims": {
+      "title": "Receipts from the customer",
+      "pendingHint": "{count, plural, one {One receipt waits for your review} other {# receipts wait for your review}}",
+      "noneWaiting": "No receipts waiting for review",
+      "reference": "Transaction:",
+      "sentAt": "Sent {at}",
+      "rejected": "Rejected",
+      "viewReceipt": "View receipt",
+      "accept": "Confirm & record",
+      "reject": "Reject",
+      "acceptTitle": "Confirm the payment",
+      "acceptDescription": "A payment of {amount} will be recorded on the invoice, with the receipt kept as its proof.",
+      "account": "Where did the money go?",
+      "accounts": {
+        "bank": "Bank",
+        "wallet": "Wallet",
+        "cashbox": "Cash box"
+      },
+      "acceptConfirm": "Confirm & record payment",
+      "accepted": "Payment of {amount} recorded",
+      "rejectTitle": "Reject the receipt",
+      "rejectDescription": "The customer will see this reason on the invoice link.",
+      "reason": "Reason",
+      "reasonPlaceholder": "e.g. The amount hasn't reached the account yet",
+      "reasonRequired": "Write the reason",
+      "rejectConfirm": "Reject receipt",
+      "rejectedToast": "Receipt rejected",
+      "cancel": "Back"
+    },
+    "PublicPay": {
+      "title": "Pay this invoice",
+      "subtitle": "Pay online, or transfer the amount and send the receipt.",
+      "due": "Amount due:",
+      "paidInFull": "This invoice is fully paid. Thank you!",
+      "checkout": {
+        "pending": "Confirming your payment…",
+        "paid": "Payment successful. Thank you!",
+        "failed": "The payment didn't go through. You can try again or choose another way to pay."
+      },
+      "card": {
+        "title": "Pay by card",
+        "hint": "Visa, Mastercard or Meeza — secure payment through Paymob",
+        "pay": "Pay now",
+        "test": "Test mode: only test cards are accepted, and no real money is charged."
+      },
+      "transfer": {
+        "title": "Or transfer to this account",
+        "bankName": "Bank",
+        "accountName": "Account name",
+        "accountNumber": "Account number / IBAN",
+        "instapayAddress": "InstaPay",
+        "walletNumber": "Wallet number",
+        "copy": "Copy"
+      },
+      "claim": {
+        "open": "Already transferred? Send the receipt",
+        "title": "Report a transfer",
+        "hint": "Send a picture of the transfer receipt; the company will check it and confirm the payment.",
+        "amount": "Amount",
+        "date": "Transfer date",
+        "method": "How you paid",
+        "methods": {
+          "instapay": "InstaPay",
+          "bank": "Bank transfer",
+          "vodafoneCash": "Mobile wallet"
+        },
+        "reference": "Transaction number (optional)",
+        "referencePlaceholder": "e.g. 123456789",
+        "payerName": "Sender name (optional)",
+        "receipt": "Receipt",
+        "pickFile": "Choose an image or a PDF",
+        "fileHint": "PNG, JPG, WEBP or PDF, up to 5 MB",
+        "note": "Note (optional)",
+        "submit": "Send receipt",
+        "cancel": "Cancel",
+        "sent": "Receipt sent. The company will check it and confirm the payment.",
+        "errors": {
+          "amount": "Enter the amount",
+          "amountTooHigh": "The amount is more than what is due",
+          "date": "Choose the date",
+          "file": "The receipt is required",
+          "fileType": "The file must be an image or a PDF",
+          "fileSize": "The file is larger than 5 MB"
+        }
+      },
+      "claims": {
+        "title": "Receipts sent",
+        "status": {
+          "pending": "Under review",
+          "accepted": "Confirmed",
+          "rejected": "Rejected"
+        },
+        "reason": "Reason: {reason}"
+      }
+    },
     "BillingReturn": {
       "unknownTitle": "We can't find this payment",
       "unknownBody": "Go back to the subscription and try again.",
@@ -637,6 +732,14 @@
     "viewEntry": "View accounting entry"
   },
   "payments": {
+    "sources": {
+      "claim": "From the customer's receipt",
+      "online": "Paid online"
+    },
+    "reference": "Transaction:",
+    "viewProof": "View proof",
+    "attachProof": "Attach proof",
+    "proofAttached": "Proof attached",
     "title": "Payments",
     "empty": "No payments recorded on this invoice.",
     "methods": {
@@ -651,6 +754,14 @@
   "history": {
     "title": "History",
     "events": {
+      "paymentClaimed": {
+        "title": "Customer sent a payment receipt",
+        "detail": "of {amount}"
+      },
+      "paymentClaimRejected": {
+        "title": "Customer's receipt rejected",
+        "detail": "of {amount}"
+      },
       "emailed": {
         "title": "Emailed",
         "detail": "To {to}"
@@ -700,6 +811,12 @@
     }
   },
   "paymentDialog": {
+    "reference": "Transaction number (optional)",
+    "referencePlaceholder": "Transfer or transaction number",
+    "proof": "Proof of payment (optional)",
+    "proofPick": "Attach the receipt or transfer screenshot",
+    "proofRemove": "Remove file",
+    "proofFailed": "The payment is recorded, but the proof didn't upload. You can add it from the payments list.",
     "title": "Record payment",
     "description": "Invoice #{number} · {customer}",
     "remainingNow": "Remaining now",
@@ -717,6 +834,8 @@
     "cancel": "Cancel",
     "close": "Close",
     "errors": {
+      "receiptType": "The file must be an image or a PDF",
+      "receiptSize": "The file is larger than 5 MB",
       "amountRequired": "Amount is required",
       "amountInvalid": "Enter a valid amount greater than zero",
       "amountMax": "Amount is more than the invoice remaining",
@@ -1833,6 +1952,10 @@
   "markAll": "Mark all as read",
   "empty": "No new notifications.",
   "items": {
+    "paymentClaim": {
+      "title": "{title} sent a payment receipt",
+      "hint": "{ref} · {amount} · review it"
+    },
     "receivableOverdue": {
       "title": "{title} has overdue balances",
       "hint": "{amount} overdue"
@@ -2086,12 +2209,71 @@
 }
 },
 "Settings": {
+  "collect": {
+    "title": "Receiving payments from customers",
+    "description": "What you set here shows on every invoice link, so customers can pay online or transfer and send the receipt.",
+    "loadError": "We couldn't load the payment settings.",
+    "retry": "Try again",
+    "transfer": {
+      "title": "Transfer details",
+      "hint": "Shown to customers so they can transfer to you",
+      "bankName": "Bank name",
+      "accountName": "Account holder",
+      "accountNumber": "Account number or IBAN",
+      "instapayAddress": "InstaPay address",
+      "walletNumber": "Wallet number (Vodafone Cash...)",
+      "instructions": "Instructions for customers (optional)",
+      "placeholders": {
+        "bankName": "e.g. National Bank of Egypt",
+        "accountName": "e.g. Al Amal Trading",
+        "accountNumber": "EG380019000500000000263180002",
+        "instapayAddress": "name@instapay",
+        "walletNumber": "01012345678",
+        "instructions": "e.g. Write the invoice number in the transfer note"
+      },
+      "save": "Save transfer details",
+      "saved": "Transfer details saved",
+      "invalid": "This value isn't valid"
+    },
+    "paymob": {
+      "title": "Card payments (Paymob)",
+      "hint": "Customers pay by card from the invoice link; the money goes to your own Paymob account",
+      "live": "Live",
+      "test": "Test",
+      "publicKey": "Public key",
+      "integrationId": "Integration ID",
+      "connectedAt": "Connected",
+      "testNote": "Test keys: customers can only try paying with test cards. Once your Paymob account is live, disconnect and connect the live keys.",
+      "disconnect": "Disconnect Paymob",
+      "disconnected": "Paymob disconnected",
+      "notConnected": "Not connected. Only the owner can connect it.",
+      "howTo": "Find the keys in the Paymob dashboard: Settings → Account info (Secret key, Public key and HMAC), and the integration number under Developers → Payment Integrations (pick the card one, Online Card, not wallets).",
+      "secretKey": "Secret key",
+      "hmacSecret": "HMAC",
+      "placeholders": {
+        "secretKey": "egy_sk_…",
+        "publicKey": "egy_pk_…",
+        "hmacSecret": "e.g. 09C9DE…",
+        "integrationId": "e.g. 5676043"
+      },
+      "checkNote": "To check the keys work we create a 1 EGP payment request that nobody pays; nothing is charged. The secret keys are stored encrypted.",
+      "connect": "Connect Paymob",
+      "connected": "Paymob connected",
+      "errors": {
+        "secretKey": "Paste the Secret key (it starts with egy_sk_)",
+        "publicKey": "Paste the Public key (it starts with egy_pk_), of the same kind as the Secret key (test or live)",
+        "hmacSecret": "Paste the HMAC",
+        "integrationId": "Enter the integration number"
+      }
+    }
+  },
   "title": "Settings & permissions",
   "description": "Company, users and billing settings",
   "actions": {
     "save": "Save changes"
   },
   "tabs": {
+    "collect": "Receiving payments",
     "company": "Company",
     "taxes": "Taxes & currency",
     "numbering": "Numbering",
@@ -2468,6 +2650,13 @@
     "expense": "Expense"
   },
   "events": {
+    "paymentDetailsUpdated": "Updated the transfer details shown to customers",
+    "paymobConnected": "Connected the Paymob account for card payments on invoices",
+    "paymobDisconnected": "Disconnected the Paymob account",
+    "paymentClaimSubmitted": "Customer sent a receipt of {amount} ({method})",
+    "paymentClaimAccepted": "Confirmed the customer's receipt of {amount} ({method})",
+    "paymentClaimRejected": "Rejected the customer's receipt of {amount}",
+    "paymentProofAttached": "Attached proof to payment {payment}",
     "signedInWithGoogle": "Signed in with Google",
     "googleLinked": "Linked the account to Google",
     "subscriptionStarted": "Subscribed to {plan} for {amount} until {through}",
@@ -2848,6 +3037,14 @@
   }
 },
   "ApiErrors": {
+    "PAYMOB_SECRET_INVALID": "Paymob didn't accept the Secret key. Make sure you copied all of it",
+    "PAYMOB_INTEGRATION_INVALID": "This integration ID doesn't exist in this Paymob account. Use the card one (Online Card)",
+    "PAYMOB_REFUSED": "Paymob refused the request. Check the keys and try again",
+    "ENCRYPTION_NOT_SET": "Saving payment keys isn't set up on the server",
+    "ONLINE_PAYMENT_UNAVAILABLE": "Paying online isn't available for this invoice",
+    "CLAIMS_LIMIT": "Receipts are already waiting for review on this invoice. Please wait until the company checks them",
+    "CLAIM_ALREADY_REVIEWED": "This receipt was already reviewed",
+    "PAYMENT_CHANGED": "The payment changed meanwhile; reload and try again",
     "GOOGLE_TOKEN_INVALID": "Google sign-in didn't complete. Please try again",
     "GOOGLE_EMAIL_UNVERIFIED": "Google hasn't verified this account's email. Use another account, or your email and password",
     "GOOGLE_SIGNIN_UNAVAILABLE": "Sign-in with Google isn't available right now",

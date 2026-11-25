@@ -6,6 +6,7 @@ import { useTranslations } from 'next-intl';
 import Logo from '@/component/Logo';
 import { toUiDetail, usePublicInvoice } from '@/lib/invoices/hooks';
 import PublicInvoiceView from './PublicInvoiceView';
+import PublicPayPanel from './PublicPayPanel';
 
 /** The customer's view of an invoice, opened from its link (no login). */
 export default function PublicInvoiceLoader({ token }: { token: string }) {
@@ -27,5 +28,12 @@ export default function PublicInvoiceLoader({ token }: { token: string }) {
       </div>
     );
   }
-  return <PublicInvoiceView invoice={toUiDetail(query.data)} displayNumber={query.data.displayNumber} />;
+  const { invoice, pay } = query.data;
+  return (
+    <PublicInvoiceView
+      invoice={toUiDetail(invoice)}
+      displayNumber={invoice.displayNumber}
+      payment={<PublicPayPanel token={token} pay={pay} status={invoice.status} issueDate={invoice.issueDate} />}
+    />
+  );
 }

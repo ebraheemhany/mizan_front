@@ -1,6 +1,7 @@
 // components/invoices/PublicInvoiceView.tsx
 'use client';
 
+import type { ReactNode } from 'react';
 import { Download } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 
@@ -15,9 +16,12 @@ import Logo from '@/component/Logo';
 export default function PublicInvoiceView({
   invoice,
   displayNumber,
+  payment,
 }: {
   invoice: InvoiceDetail;
   displayNumber: string;
+  /** How to pay it (card, transfer details, sending a receipt), above the invoice. */
+  payment?: ReactNode;
 }) {
   const t = useTranslations('InvoiceDetail');
   const tApi = useTranslations('InvoicesApi');
@@ -53,6 +57,8 @@ export default function PublicInvoiceView({
 
           <StatusBadge status={invoice.status} daysOverdue={invoice.daysOverdue} />
         </div>
+
+        {payment}
 
         <InvoiceDocument invoice={invoice} />
 

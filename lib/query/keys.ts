@@ -96,6 +96,13 @@ export const queryKeys = {
   },
   /** Public: an invoice opened from its shareable link (no login). */
   publicInvoice: (token: string) => ['public-invoice', token] as const,
+  /** A card payment started on a public invoice link (checking how it ended). */
+  onlinePayment: (token: string, id: string) => ['public-invoice', token, 'checkout', id] as const,
+  collections: {
+    all: ['collections'] as const,
+    setup: ['collections', 'setup'] as const,
+    claims: (status: string) => ['collections', 'claims', status] as const,
+  },
   /** Public: a quote opened from its shareable link (no login). */
   publicQuote: (token: string) => ['public-quote', token] as const,
   /** Company settings (currency, numbering, details...). */

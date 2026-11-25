@@ -14,7 +14,8 @@ const NOTIFICATIONS = [
   'weeklyDigest',
 ] as const;
 
-const INTEGRATIONS = ['whatsapp', 'paymentGateway', 'eta', 'calendar'] as const;
+// The payment gateway has its own section now (CollectSection: Paymob + transfer details).
+const INTEGRATIONS = ['whatsapp', 'eta', 'calendar'] as const;
 
 export default function NotificationsSection() {
   const t = useTranslations('Settings');

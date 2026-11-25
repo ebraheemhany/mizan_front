@@ -1,4 +1,5 @@
 // component/dashbord/notifications/utils.ts
+import type { ReviewClaim } from '@/lib/collections/hooks';
 import type { Expense } from '@/lib/mock/expenses';
 import type { OpenInvoiceRow } from '@/lib/payments/hooks';
 import type { Quote } from '@/lib/quotes/hooks';
@@ -9,7 +10,8 @@ export type NotificationKind =
   | 'taskOverdue'
   | 'taskToday'
   | 'expenseDue'
-  | 'quoteAccepted';
+  | 'quoteAccepted'
+  | 'paymentClaim';
 
 export type AppNotification = {
   id: string;
@@ -55,8 +57,19 @@ export function buildNotifications(
   today: string,
   expenses: Expense[],
   acceptedQuotes: Quote[] = [],
+  /** Receipts customers sent on invoice links (only fetched for roles that record payments). */
+  pendingClaims: ReviewClaim[] = [],
 ): AppNotification[] {
   const receivables = overdueReceivables(openInvoices);
+
+  const claims = pendingClaims.map((c) => ({
+    id: `claim-${c.id}`,
+    kind: 'paymentClaim' as const,
+    title: c.invoice.customer,
+    amount: Number(c.amount),
+    ref: c.invoice.displayNumber,
+    href: `/invoices/${c.invoice.number}`,
+  }));
 
   const overdueTasks = tasks
     .filter((t) => !t.done && t.due < today)
@@ -100,5 +113,5 @@ export function buildNotifications(
       href: `/invoices/new?fromQuote=${q.number}`,
     }));
 
-  return [...receivables, ...toConvert, ...overdueTasks, ...todayTasks, ...dueExpenses];
+  return [...claims, ...receivables, ...toConvert, ...overdueTasks, ...todayTasks, ...dueExpenses];
 }

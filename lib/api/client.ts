@@ -240,6 +240,23 @@ export async function apiUpload<T>(path: string, file: Blob, name?: string): Pro
   return (await res.json()) as T;
 }
 
+/**
+ * Sends a file from a public page (no login): a customer's receipt on the invoice link.
+ * POST with the file as the body; anything else the server needs goes in `path`'s query.
+ */
+export async function apiPublicUpload<T>(path: string, file: Blob, name?: string): Promise<T> {
+  const res = await send(`${API_URL}${path}`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': file.type || 'application/octet-stream',
+      ...(name ? { 'X-File-Name': encodeURIComponent(name) } : {}),
+    },
+    body: file,
+  });
+  if (!res.ok) throw await toApiError(res);
+  return (await res.json()) as T;
+}
+
 /** A protected file (a receipt), to show or save. */
 export async function apiBlob(path: string): Promise<Blob> {
   const res = await withSession(

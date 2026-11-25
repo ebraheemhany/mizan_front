@@ -25,6 +25,7 @@ import TaxesCard from './TaxesCard';
 import TemplateCard from './TemplateCard';
 import UsersSection from './UsersSection';
 import NotificationsSection from './NotificationsSection';
+import CollectSection from './CollectSection';
 import { SecuritySection } from './SecuritySection';
 import { SubscriptionSection } from './SubscriptionSection';
 type TabKey =
@@ -35,6 +36,7 @@ type TabKey =
   | 'users'
   | 'notifications'
   | 'integrations'
+  | 'collect'
   | 'security'
   | 'subscription';
 
@@ -46,9 +48,13 @@ const TAB_KEYS: TabKey[] = [
   'users',
   'notifications',
   'integrations',
+  'collect',
   'security',
   'subscription',
 ];
+
+/** A tab's section: settings-<key>, or just <key> for the ones other pages link to (#subscription). */
+const sectionOf = (key: TabKey) => document.getElementById(`settings-${key}`) ?? document.getElementById(key);
 
 const primaryBtn =
   'rounded-btn bg-brand hover:bg-brand/90 h-10 gap-2 text-xs font-bold text-white';
@@ -101,9 +107,7 @@ function SettingsForm({ initial }: { initial: SettingsValues }) {
   }));
 
   useEffect(() => {
-    const sections = TAB_KEYS.map((key) =>
-      document.getElementById(`settings-${key}`),
-    ).filter((section): section is HTMLElement => section !== null);
+    const sections = TAB_KEYS.map(sectionOf).filter((section): section is HTMLElement => section !== null);
 
     const observer = new IntersectionObserver(
       (entries) => {
@@ -114,7 +118,7 @@ function SettingsForm({ initial }: { initial: SettingsValues }) {
           )[0];
         if (active) {
           const activeKey = TAB_KEYS.find(
-            (key) => active.target.id === `settings-${key}`,
+            (key) => active.target.id === `settings-${key}` || active.target.id === key,
           );
           if (activeKey) setTab(activeKey);
         }
@@ -127,7 +131,7 @@ function SettingsForm({ initial }: { initial: SettingsValues }) {
   }, []);
 
   function goTo(key: TabKey) {
-    const el = document.getElementById(`settings-${key}`);
+    const el = sectionOf(key);
     if (el) {
       setTab(key);
       el.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -184,6 +188,8 @@ function SettingsForm({ initial }: { initial: SettingsValues }) {
         <fieldset disabled={!canEdit}>
           <NotificationsSection />
         </fieldset>
+        {/* How customers pay on the invoice link (saved by itself, not with the form). */}
+        <CollectSection />
         <div className="grid gap-6 lg:grid-cols-2">
           <SecuritySection />
           <SubscriptionSection />

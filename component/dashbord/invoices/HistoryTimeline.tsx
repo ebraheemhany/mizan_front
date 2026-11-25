@@ -23,7 +23,11 @@ export default function HistoryTimeline({
       <ol className="mt-4">
         {events.map((e, i) => {
           const values =
-            e.type === 'payment' || e.type === 'paymentRemoved' || e.type === 'chequeBounced'
+            e.type === 'payment' ||
+            e.type === 'paymentRemoved' ||
+            e.type === 'chequeBounced' ||
+            e.type === 'paymentClaimed' ||
+            e.type === 'paymentClaimRejected'
               ? { ...e.values, amount: money(Number(e.values?.amount ?? 0)) }
               : e.type === 'reminderSent'
                 ? { channel: tChannels(String(e.values?.channel ?? 'email')), to: String(e.values?.to ?? 'none') }

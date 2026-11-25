@@ -10,6 +10,7 @@ import {
   FileCheck2,
   ListChecks,
   Receipt,
+  ReceiptText,
   Wallet,
   type LucideIcon,
 } from 'lucide-react';
@@ -28,6 +29,7 @@ import {
   type AppNotification,
   type NotificationKind,
 } from './utils';
+import { usePendingClaims } from '@/lib/collections/hooks';
 import { useExpenses } from '@/lib/expenses/hooks';
 import { can } from '@/lib/auth/permissions';
 import { useSession } from '@/lib/auth/session';
@@ -41,6 +43,7 @@ const ICON: Record<NotificationKind, { Icon: LucideIcon; tone: string }> = {
   taskToday: { Icon: CalendarClock, tone: 'bg-info-soft text-info' },
   expenseDue: { Icon: Wallet, tone: 'bg-amber-50 text-amber-800' },
   quoteAccepted: { Icon: FileCheck2, tone: 'bg-brand-soft text-brand-deep' },
+  paymentClaim: { Icon: ReceiptText, tone: 'bg-amber-50 text-amber-800' },
 };
 
 const iconBtn =
@@ -58,7 +61,11 @@ export default function NotificationsMenu() {
   // Overdue balances per customer come from the open invoices (any role may read them).
   const openInvoices = useOpenInvoices().data;
   // Accepted quotes waiting to become invoices: one small request, only for those who may convert.
-  const mayConvert = can(useSession().role, 'issueInvoices');
+  const role = useSession().role;
+  const mayConvert = can(role, 'issueInvoices');
+  // Receipts customers sent on invoice links, for those who review them.
+  const mayReview = can(role, 'recordPayments');
+  const pendingClaims = usePendingClaims(mayReview).data;
   const acceptedQuotes = useQuotesList(
     // Only the ones not converted yet, so older ones still to invoice aren't crowded out.
     { status: 'accepted', period: 'all', converted: false, page: 1, pageSize: 20 },
@@ -72,8 +79,9 @@ export default function NotificationsMenu() {
         today,
         expenses,
         mayConvert ? (acceptedQuotes?.items.map(toUiQuote) ?? []) : [],
+        mayReview ? (pendingClaims ?? []) : [],
       ),
-    [openInvoices, tasks, today, expenses, mayConvert, acceptedQuotes],
+    [openInvoices, tasks, today, expenses, mayConvert, acceptedQuotes, mayReview, pendingClaims],
   );
   const [read, setRead] = useState<Set<string>>(new Set());
 

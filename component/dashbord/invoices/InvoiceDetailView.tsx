@@ -11,6 +11,7 @@ import { ApiError } from '@/lib/api/client';
 import { useApiErrorMessage } from '@/lib/api/use-api-error';
 import { can } from '@/lib/auth/permissions';
 import { useSession } from '@/lib/auth/session';
+import { useRecordPaymentWithProof } from '@/lib/collections/hooks';
 import { useDate } from '@/lib/data';
 import { toUiDetail, useInvoice, useInvoiceAction } from '@/lib/invoices/hooks';
 import { printWithTitle } from '@/lib/print';
@@ -19,6 +20,7 @@ import PageHeader from '@/component/PageHeader';
 import SendEmailDialog, { type SendEmailInput } from '../SendEmailDialog';
 import AttachmentsCard from './AttachmentsCard';
 import CancelInvoiceDialog from './CancelInvoiceDialog';
+import ClaimsCard from './ClaimsCard';
 import HistoryTimeline from './HistoryTimeline';
 import InvoiceDocument from './InvoiceDocument';
 import InvoicePrintSheet from './InvoicePrintSheet';
@@ -80,8 +82,10 @@ function InvoiceDetailContent({ data }: { data: NonNullable<ReturnType<typeof us
   const errorMessage = useApiErrorMessage();
   const user = useSession();
   const action = useInvoiceAction();
+  const recordPaymentWithProof = useRecordPaymentWithProof();
 
   const invoice = toUiDetail(data);
+  const mayReview = can(user.role, 'recordPayments');
   const mayIssue = can(user.role, 'issueInvoices');
   const mayPay = can(user.role, 'recordPayments') && canRecordPayment(invoice);
   const mayRemind = mayIssue && canSendReminder(invoice);
@@ -111,15 +115,15 @@ function InvoiceDetailContent({ data }: { data: NonNullable<ReturnType<typeof us
   }
 
   async function recordPayment(input: PaymentInput) {
-    const ok = await run(
-      action.mutateAsync({
-        kind: 'payment',
-        ref: invoice.id,
-        body: { amount: input.amount.toFixed(2), date: input.date, method: input.method, note: input.note },
-      }),
-      tInvoices('toasts.paymentRecorded', { number: String(invoice.number) }),
-    );
-    if (ok) setPaymentOpen(false);
+    try {
+      const { proofFailed } = await recordPaymentWithProof.mutateAsync({ ref: invoice.id, input });
+      setPaymentOpen(false);
+      toast.success(tInvoices('toasts.paymentRecorded', { number: String(invoice.number) }));
+      // The payment is saved; only the file didn't make it (it can be added from the payment).
+      if (proofFailed) toast.warning(t('paymentDialog.proofFailed'));
+    } catch (error) {
+      toast.error(errorMessage(error));
+    }
   }
 
   async function sendReminder(input: ReminderInput) {
@@ -232,6 +236,8 @@ function InvoiceDetailContent({ data }: { data: NonNullable<ReturnType<typeof us
       <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_20rem]">
         {/* العمود الرئيسي: الفاتورة + المرفقات */}
         <div className="min-w-0 space-y-5">
+          {/* Receipts customers sent on the link: they need a look first. */}
+          {invoice.claims && invoice.claims.length > 0 && <ClaimsCard claims={invoice.claims} canReview={mayReview} />}
           <InvoiceDocument invoice={invoice} />
           <AttachmentsCard />
         </div>
@@ -249,7 +255,7 @@ function InvoiceDetailContent({ data }: { data: NonNullable<ReturnType<typeof us
             onPreview={() => setPreviewOpen(true)}
             onViewEntry={() => setLedgerOpen(true)}
           />
-          <PaymentsCard payments={invoice.payments} />
+          <PaymentsCard payments={invoice.payments} canAttach={mayReview} />
           <HistoryTimeline events={invoice.history} />
         </aside>
       </div>

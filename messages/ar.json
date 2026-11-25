@@ -1,4 +1,99 @@
 {
+   "Claims": {
+     "title": "إيصالات من العميل",
+     "pendingHint": "{count, plural, one {إيصال واحد مستني مراجعتك} two {إيصالين مستنيين مراجعتك} few {# إيصالات مستنية مراجعتك} other {# إيصال مستني مراجعتك}}",
+     "noneWaiting": "مفيش إيصالات مستنية مراجعة",
+     "reference": "رقم العملية:",
+     "sentAt": "اتبعت {at}",
+     "rejected": "مرفوض",
+     "viewReceipt": "عرض الإيصال",
+     "accept": "تأكيد وتسجيل",
+     "reject": "رفض",
+     "acceptTitle": "تأكيد الدفعة",
+     "acceptDescription": "هتتسجل دفعة بقيمة {amount} على الفاتورة، والإيصال هيتحفظ كإثبات ليها.",
+     "account": "الفلوس نزلت فين؟",
+     "accounts": {
+       "bank": "البنك",
+       "wallet": "المحفظة",
+       "cashbox": "الخزنة"
+     },
+     "acceptConfirm": "تأكيد وتسجيل الدفعة",
+     "accepted": "اتسجلت دفعة بقيمة {amount}",
+     "rejectTitle": "رفض الإيصال",
+     "rejectDescription": "العميل هيشوف السبب ده على رابط الفاتورة.",
+     "reason": "السبب",
+     "reasonPlaceholder": "مثال: المبلغ ما وصلش الحساب لحد دلوقتي",
+     "reasonRequired": "اكتب السبب",
+     "rejectConfirm": "رفض الإيصال",
+     "rejectedToast": "اترفض الإيصال",
+     "cancel": "رجوع"
+   },
+   "PublicPay": {
+     "title": "دفع الفاتورة",
+     "subtitle": "ادفع إلكترونياً، أو حوّل المبلغ وأرسل صورة الإيصال.",
+     "due": "المبلغ المستحق:",
+     "paidInFull": "هذه الفاتورة مدفوعة بالكامل. شكراً لك!",
+     "checkout": {
+       "pending": "جارٍ التأكد من الدفع…",
+       "paid": "تم الدفع بنجاح. شكراً لك!",
+       "failed": "لم تكتمل عملية الدفع. يمكنك المحاولة مرة أخرى أو اختيار طريقة أخرى."
+     },
+     "card": {
+       "title": "الدفع بالبطاقة",
+       "hint": "فيزا أو ماستركارد أو ميزة — دفع آمن عبر Paymob",
+       "pay": "ادفع الآن",
+       "test": "وضع تجريبي: تُقبل البطاقات التجريبية فقط، ولا تُخصم أموال حقيقية."
+     },
+     "transfer": {
+       "title": "أو حوّل إلى الحساب التالي",
+       "bankName": "البنك",
+       "accountName": "اسم الحساب",
+       "accountNumber": "رقم الحساب / IBAN",
+       "instapayAddress": "إنستاباي",
+       "walletNumber": "رقم المحفظة",
+       "copy": "نسخ"
+     },
+     "claim": {
+       "open": "هل حوّلت المبلغ؟ أرسل صورة الإيصال",
+       "title": "إبلاغ عن تحويل",
+       "hint": "أرسل صورة إيصال التحويل، وستراجعها الشركة ثم تؤكد الدفعة.",
+       "amount": "المبلغ",
+       "date": "تاريخ التحويل",
+       "method": "طريقة التحويل",
+       "methods": {
+         "instapay": "إنستاباي",
+         "bank": "تحويل بنكي",
+         "vodafoneCash": "محفظة إلكترونية"
+       },
+       "reference": "رقم العملية (اختياري)",
+       "referencePlaceholder": "مثال: 123456789",
+       "payerName": "اسم المحوِّل (اختياري)",
+       "receipt": "صورة الإيصال",
+       "pickFile": "اختر صورة أو ملف PDF",
+       "fileHint": "PNG أو JPG أو WEBP أو PDF، حتى 5 ميجابايت",
+       "note": "ملاحظة (اختياري)",
+       "submit": "إرسال الإيصال",
+       "cancel": "إلغاء",
+       "sent": "تم إرسال الإيصال. ستراجعه الشركة وتؤكد الدفعة.",
+       "errors": {
+         "amount": "أدخل المبلغ",
+         "amountTooHigh": "المبلغ أكبر من المستحق",
+         "date": "اختر التاريخ",
+         "file": "صورة الإيصال مطلوبة",
+         "fileType": "يجب أن يكون الملف صورة أو PDF",
+         "fileSize": "حجم الملف أكبر من 5 ميجابايت"
+       }
+     },
+     "claims": {
+       "title": "الإيصالات المرسلة",
+       "status": {
+         "pending": "قيد المراجعة",
+         "accepted": "تم التأكيد",
+         "rejected": "مرفوض"
+       },
+       "reason": "السبب: {reason}"
+     }
+   },
    "BillingReturn": {
      "unknownTitle": "مش لاقيين الدفعة دي",
      "unknownBody": "ارجع للاشتراك وجرّب تاني.",
@@ -637,6 +732,14 @@
     "viewEntry": "عرض القيد المحاسبي"
   },
   "payments": {
+    "sources": {
+      "claim": "من إيصال العميل",
+      "online": "دفع أونلاين"
+    },
+    "reference": "رقم العملية:",
+    "viewProof": "عرض الإثبات",
+    "attachProof": "إرفاق إثبات",
+    "proofAttached": "اترفع الإثبات",
     "title": "الدفعات",
     "empty": "لا توجد دفعات مسجّلة على هذه الفاتورة.",
     "methods": {
@@ -651,6 +754,14 @@
   "history": {
     "title": "السجل",
     "events": {
+      "paymentClaimed": {
+        "title": "العميل بعت إيصال دفع",
+        "detail": "بقيمة {amount}"
+      },
+      "paymentClaimRejected": {
+        "title": "اترفض إيصال العميل",
+        "detail": "بقيمة {amount}"
+      },
       "emailed": {
         "title": "اتبعتت بالإيميل",
         "detail": "إلى {to}"
@@ -700,6 +811,12 @@
     }
   },
   "paymentDialog": {
+    "reference": "رقم العملية (اختياري)",
+    "referencePlaceholder": "رقم التحويل أو العملية",
+    "proof": "إثبات الدفع (اختياري)",
+    "proofPick": "إرفاق صورة الإيصال أو التحويل",
+    "proofRemove": "شيل الملف",
+    "proofFailed": "الدفعة اتسجلت، بس صورة الإثبات ما اترفعتش. تقدر ترفعها من قائمة الدفعات.",
     "title": "تسجيل دفعة",
     "description": "فاتورة #{number} · {customer}",
     "remainingNow": "المتبقي الآن",
@@ -717,6 +834,8 @@
     "cancel": "إلغاء",
     "close": "إغلاق",
     "errors": {
+      "receiptType": "الملف لازم يكون صورة أو PDF",
+      "receiptSize": "الملف أكبر من 5 ميجا",
       "amountRequired": "المبلغ مطلوب",
       "amountInvalid": "أدخل مبلغاً صحيحاً أكبر من صفر",
       "amountMax": "المبلغ أكبر من المتبقي على الفاتورة",
@@ -1834,6 +1953,10 @@
   "markAll": "تحديد الكل كمقروء",
   "empty": "مفيش إشعارات جديدة.",
   "items": {
+    "paymentClaim": {
+      "title": "{title} بعت إيصال دفع",
+      "hint": "{ref} · {amount} · راجعه"
+    },
     "receivableOverdue": {
       "title": "{title} عنده مبالغ متأخرة",
       "hint": "{amount} متأخرة"
@@ -2089,12 +2212,71 @@
 }
 },
 "Settings": {
+  "collect": {
+    "title": "استلام المدفوعات من العملاء",
+    "description": "اللي هتحطه هنا بيظهر لعملائك في رابط كل فاتورة، علشان يدفعوا أونلاين أو يحوّلوا ويبعتوا الإيصال.",
+    "loadError": "مقدرناش نجيب إعدادات الدفع.",
+    "retry": "حاول تاني",
+    "transfer": {
+      "title": "بيانات التحويل",
+      "hint": "بتظهر للعميل علشان يحوّل عليها",
+      "bankName": "اسم البنك",
+      "accountName": "اسم صاحب الحساب",
+      "accountNumber": "رقم الحساب أو IBAN",
+      "instapayAddress": "عنوان إنستاباي",
+      "walletNumber": "رقم المحفظة (فودافون كاش...)",
+      "instructions": "تعليمات للعميل (اختياري)",
+      "placeholders": {
+        "bankName": "مثال: البنك الأهلي المصري",
+        "accountName": "مثال: شركة الأمل للتجارة",
+        "accountNumber": "EG380019000500000000263180002",
+        "instapayAddress": "name@instapay",
+        "walletNumber": "01012345678",
+        "instructions": "مثال: اكتب رقم الفاتورة في وصف التحويل"
+      },
+      "save": "حفظ بيانات التحويل",
+      "saved": "اتحفظت بيانات التحويل",
+      "invalid": "القيمة دي مش صحيحة"
+    },
+    "paymob": {
+      "title": "الدفع بالكارت (Paymob)",
+      "hint": "عملاؤك يدفعوا بالكارت من رابط الفاتورة، والفلوس تنزل في حساب Paymob بتاعك",
+      "live": "مفعّل",
+      "test": "تجريبي",
+      "publicKey": "Public key",
+      "integrationId": "Integration ID",
+      "connectedAt": "اتربط",
+      "testNote": "مفاتيح تجريبية: العملاء هيقدروا يجربوا الدفع بكروت تجريبية بس. لما حسابك على Paymob يتفعّل، افصل واربط المفاتيح الـ Live.",
+      "disconnect": "فصل Paymob",
+      "disconnected": "اتفصل Paymob",
+      "notConnected": "مش مربوط. المالك بس يقدر يربطه.",
+      "howTo": "هتلاقي المفاتيح في لوحة Paymob: Settings ← Account info (الـ Secret key والـ Public key والـ HMAC)، ورقم الـ Integration من Developers ← Payment Integrations (اختار بتاع الكروت Online Card، مش المحافظ).",
+      "secretKey": "Secret key",
+      "hmacSecret": "HMAC",
+      "placeholders": {
+        "secretKey": "egy_sk_…",
+        "publicKey": "egy_pk_…",
+        "hmacSecret": "مثال: 09C9DE…",
+        "integrationId": "مثال: 5676043"
+      },
+      "checkNote": "علشان نتأكد إن المفاتيح شغالة بنعمل طلب دفع تجريبي بجنيه واحد محدش بيدفعه، ومفيش فلوس بتتخصم. المفاتيح السرية بتتحفظ متشفرة.",
+      "connect": "ربط Paymob",
+      "connected": "اتربط Paymob",
+      "errors": {
+        "secretKey": "الصق الـ Secret key (بيبدأ بـ egy_sk_)",
+        "publicKey": "الصق الـ Public key (بيبدأ بـ egy_pk_)، ومن نفس نوع الـ Secret key (تجريبي أو Live)",
+        "hmacSecret": "الصق الـ HMAC",
+        "integrationId": "اكتب رقم الـ Integration"
+      }
+    }
+  },
   "title": "الإعدادات والصلاحيات",
   "description": "إعدادات الشركة والمستخدمين والفوترة",
   "actions": {
     "save": "حفظ التغييرات"
   },
   "tabs": {
+    "collect": "استلام المدفوعات",
     "company": "الشركة",
     "taxes": "الضرائب والعملات",
     "numbering": "الترقيم",
@@ -2471,6 +2653,13 @@
     "expense": "مصروف"
   },
   "events": {
+    "paymentDetailsUpdated": "تعديل بيانات التحويل اللي بتظهر للعملاء",
+    "paymobConnected": "ربط حساب Paymob لدفع الفواتير بالكارت",
+    "paymobDisconnected": "فصل حساب Paymob",
+    "paymentClaimSubmitted": "العميل بعت إيصال بقيمة {amount} ({method})",
+    "paymentClaimAccepted": "تأكيد إيصال العميل بقيمة {amount} ({method})",
+    "paymentClaimRejected": "رفض إيصال العميل بقيمة {amount}",
+    "paymentProofAttached": "إرفاق إثبات للدفعة {payment}",
     "signedInWithGoogle": "تسجيل دخول بجوجل",
     "googleLinked": "ربط الحساب بجوجل",
     "subscriptionStarted": "اشتراك في باقة {plan} بقيمة {amount} لحد {through}",
@@ -2851,6 +3040,14 @@
   }
 },
   "ApiErrors": {
+    "PAYMOB_SECRET_INVALID": "Paymob رفض الـ Secret key. اتأكد إنك نسخته كامل",
+    "PAYMOB_INTEGRATION_INVALID": "رقم الـ Integration ده مش موجود في حساب Paymob ده. استخدم بتاع الكروت (Online Card)",
+    "PAYMOB_REFUSED": "Paymob رفض الطلب. راجع المفاتيح وجرّب تاني",
+    "ENCRYPTION_NOT_SET": "حفظ مفاتيح الدفع مش متظبط على السيرفر",
+    "ONLINE_PAYMENT_UNAVAILABLE": "الدفع أونلاين مش متاح للفاتورة دي",
+    "CLAIMS_LIMIT": "فيه إيصالات لسه مستنية مراجعة على الفاتورة دي. استنى لحد ما الشركة تراجعها",
+    "CLAIM_ALREADY_REVIEWED": "الإيصال ده اتراجع قبل كده",
+    "PAYMENT_CHANGED": "الدفعة اتغيرت، حدّث الصفحة وجرّب تاني",
     "GOOGLE_TOKEN_INVALID": "الدخول بجوجل ماكملش. جرّب تاني",
     "GOOGLE_EMAIL_UNVERIFIED": "جوجل مأكدش إيميل الحساب ده. استخدم حساب تاني أو الإيميل وكلمة المرور",
     "GOOGLE_SIGNIN_UNAVAILABLE": "الدخول بجوجل مش متاح دلوقتي",

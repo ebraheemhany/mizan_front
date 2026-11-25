@@ -11,6 +11,7 @@ import { Link } from '@/i18n/navigation';
 import { useApiErrorMessage } from '@/lib/api/use-api-error';
 import { can } from '@/lib/auth/permissions';
 import { useSession } from '@/lib/auth/session';
+import { useRecordPaymentWithProof } from '@/lib/collections/hooks';
 import { useCustomers } from '@/lib/customers/hooks';
 import {
   fetchInvoicesForExport,
@@ -18,7 +19,6 @@ import {
   toUiInvoice,
   useBulkCancelInvoices,
   useFetchInvoice,
-  useInvoiceAction,
   useInvoices,
   useInvoiceStats,
   type InvoiceListParams,
@@ -110,7 +110,8 @@ export default function InvoicesView() {
     [customersQuery.data],
   );
 
-  const action = useInvoiceAction();
+  const recordPaymentWithProof = useRecordPaymentWithProof();
+  const tDetail = useTranslations('InvoiceDetail');
   const bulkCancel = useBulkCancelInvoices();
 
   const data = invoicesQuery.data;
@@ -160,13 +161,10 @@ export default function InvoicesView() {
     if (!payTarget) return;
     const target = payTarget;
     try {
-      await action.mutateAsync({
-        kind: 'payment',
-        ref: target.id,
-        body: { amount: input.amount.toFixed(2), date: input.date, method: input.method, note: input.note },
-      });
+      const { proofFailed } = await recordPaymentWithProof.mutateAsync({ ref: target.id, input });
       setPayTarget(null);
       toast.success(t('toasts.paymentRecorded', { number: String(target.number) }));
+      if (proofFailed) toast.warning(tDetail('paymentDialog.proofFailed'));
     } catch (error) {
       toast.error(errorMessage(error));
     }

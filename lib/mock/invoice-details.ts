@@ -38,6 +38,25 @@ export type Payment = {
   account?: 'bank' | 'cashbox' | 'wallet';
   reference?: string;
   note?: string;
+  /** A receipt or transfer screenshot is attached (GET /api/payments/:id/proof). */
+  hasProof?: boolean;
+  /** Typed in by staff (null), accepted from a customer's receipt, or paid online by card. */
+  source?: 'claim' | 'online' | null;
+};
+
+/** A receipt a customer sent on the invoice link; it changes nothing until reviewed. */
+export type PaymentClaim = {
+  id: string;
+  amount: number;
+  date: string;
+  method: 'bank' | 'instapay' | 'vodafoneCash';
+  reference?: string;
+  payerName?: string;
+  note?: string;
+  status: 'pending' | 'accepted' | 'rejected';
+  rejectReason?: string;
+  createdAt: string;
+  receipt: { contentType: string; name: string | null };
 };
 
 export type HistoryEvent = {
@@ -52,7 +71,9 @@ type:
     | 'payment'
     | 'paymentRemoved'
     | 'chequeBounced'
-    | 'cancelled';
+    | 'cancelled'
+    | 'paymentClaimed'
+    | 'paymentClaimRejected';
   at: string; // yyyy-mm-dd أو ISO كامل لو فيه وقت
   values?: Record<string, string | number>;
   
@@ -69,6 +90,8 @@ export type InvoiceDetail = Invoice & {
   note: string;
   payments: Payment[];
   history: HistoryEvent[];
+  /** Customers' receipts waiting for review, and recent refusals (logged-in users only). */
+  claims?: PaymentClaim[];
 };
 
 export const ISSUER: Party = {

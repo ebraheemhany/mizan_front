@@ -58,12 +58,55 @@ export type ApiInvoiceDetail = ApiInvoice & {
     account: 'bank' | 'cashbox' | 'wallet' | null;
     reference: string | null;
     note: string | null;
+    hasProof?: boolean;
+    source?: 'claim' | 'online' | null;
   }[];
+  /** Customers' receipts waiting for review, and recent refusals (logged-in users only). */
+  claims?: ApiClaim[];
   /** Only for logged-in users (not on the public link). */
   publicToken?: string | null;
   /** The recurring template that made it, if any (logged-in users only). */
   recurring?: { id: string; name: string } | null;
   history?: { id: string; type: HistoryEvent['type']; at: string; values: Record<string, string | number> }[];
+};
+
+export type ApiClaim = {
+  id: string;
+  amount: string;
+  date: string;
+  method: 'bank' | 'instapay' | 'vodafoneCash';
+  reference: string | null;
+  payerName: string | null;
+  note: string | null;
+  status: 'pending' | 'accepted' | 'rejected';
+  rejectReason: string | null;
+  createdAt: string;
+  receipt: { contentType: string; name: string | null };
+};
+
+/** How the customer can pay, on the public link (GET /api/public/invoices/:token). */
+export type PublicPayOptions = {
+  payable: boolean;
+  remaining: string;
+  /** Card payment through the company's Paymob; test: its test keys (no real money). */
+  online: { test: boolean } | null;
+  transfer: {
+    bankName: string | null;
+    accountName: string | null;
+    accountNumber: string | null;
+    instapayAddress: string | null;
+    walletNumber: string | null;
+    instructions: string | null;
+  } | null;
+  claims: {
+    id: string;
+    amount: string;
+    date: string;
+    method: ApiClaim['method'];
+    status: ApiClaim['status'];
+    rejectReason: string | null;
+    createdAt: string;
+  }[];
 };
 
 export type InvoiceStatsData = {
@@ -162,8 +205,23 @@ export function toUiDetail(d: ApiInvoiceDetail): InvoiceDetail {
       account: p.account ?? undefined,
       reference: p.reference ?? undefined,
       note: p.note ?? undefined,
+      hasProof: p.hasProof ?? false,
+      source: p.source ?? null,
     })),
     history: (d.history ?? []).map((h) => ({ id: h.id, type: h.type, at: h.at, values: h.values })),
+    claims: (d.claims ?? []).map((c) => ({
+      id: c.id,
+      amount: Number(c.amount),
+      date: c.date,
+      method: c.method,
+      reference: c.reference ?? undefined,
+      payerName: c.payerName ?? undefined,
+      note: c.note ?? undefined,
+      status: c.status,
+      rejectReason: c.rejectReason ?? undefined,
+      createdAt: c.createdAt,
+      receipt: c.receipt,
+    })),
   };
 }
 
@@ -225,11 +283,11 @@ export async function fetchInvoicesForExport(params: Omit<InvoiceListParams, 'pa
   return items;
 }
 
+/** The invoice behind a public link, with how its customer can pay it. */
 export function usePublicInvoice(token: string) {
   return useQuery({
     queryKey: queryKeys.publicInvoice(token),
-    queryFn: async () =>
-      (await api<{ invoice: ApiInvoiceDetail }>(`/api/public/invoices/${token}`, { auth: false })).invoice,
+    queryFn: () => api<{ invoice: ApiInvoiceDetail; pay: PublicPayOptions }>(`/api/public/invoices/${token}`, { auth: false }),
     retry: false,
   });
 }
@@ -283,7 +341,11 @@ export function useInvoiceAction() {
       action:
         | { kind: 'send'; ref: string | number }
         | { kind: 'cancel'; ref: string | number }
-        | { kind: 'payment'; ref: string | number; body: { amount: string; date: string; method: string; note: string } }
+        | {
+            kind: 'payment';
+            ref: string | number;
+            body: { amount: string; date: string; method: string; reference?: string; note: string };
+          }
         | {
             kind: 'reminder';
             ref: string | number;
@@ -303,6 +365,25 @@ export function useInvoiceAction() {
     },
     onSuccess: after,
   });
+}
+
+/**
+ * Records a payment on an invoice and returns the new payment's id too, so its
+ * proof (a receipt or transfer screenshot) can be uploaded right after.
+ */
+export function useRecordInvoicePayment() {
+  const after = useAfterInvoiceChange();
+  return useMutation({
+    mutationFn: ({ ref, body }: { ref: string | number; body: { amount: string; date: string; method: string; reference?: string; note: string } }) =>
+      api<InvoiceResponse & { paymentId: string }>(`/api/invoices/${ref}/payments`, { method: 'POST', body }),
+    onSuccess: (res) => after(res.invoice),
+  });
+}
+
+/** Refreshes everything an invoice touches (after a receipt is accepted, a proof attached...). */
+export function useRefreshInvoice() {
+  const after = useAfterInvoiceChange();
+  return () => after();
 }
 
 export function useBulkCancelInvoices() {

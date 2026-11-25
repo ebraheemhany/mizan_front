@@ -12,6 +12,7 @@ import {
   CreditCard,
   HandCoins,
   Landmark,
+  Paperclip,
   X,
   type LucideIcon,
 } from 'lucide-react';
@@ -46,12 +47,17 @@ import {
   type PaymentValues,
 } from '@/lib/validations/payment';
 import { useDate } from '@/lib/data';
+import { RECEIPT_TYPES, receiptProblem } from '@/lib/expenses/hooks';
 
 export type PaymentInput = {
   amount: number;
   date: string;
   method: PaymentMethod;
+  /** Transfer or card transaction number (optional). */
+  reference: string;
   note: string;
+  /** A receipt or transfer screenshot, uploaded once the payment is saved (optional). */
+  proof: File | null;
 };
 
 const METHOD_ICONS: Record<PaymentMethod, LucideIcon> = {
@@ -100,6 +106,16 @@ function PaymentForm({
   const formatDate = useDate();
   const { symbol } = moneyParts(remaining);
   const [dateOpen, setDateOpen] = useState(false);
+  const [reference, setReference] = useState('');
+  const [proof, setProof] = useState<File | null>(null);
+  const [proofError, setProofError] = useState<string | null>(null);
+
+  function pickProof(file: File | null) {
+    if (!file) return;
+    const problem = receiptProblem(file);
+    setProofError(problem ? t(`errors.${problem}`) : null);
+    setProof(problem ? null : file);
+  }
 
   // Today on the user's device (payments can't be in the future).
   const todayIso = toIso(new Date());
@@ -151,9 +167,12 @@ function PaymentForm({
       amount: parseAmount(v.amount),
       date: v.date,
       method: v.method,
+      reference: v.method === 'cash' ? '' : reference.trim(),
       note: v.note.trim(),
+      proof,
     });
   }
+  const method = watch('method');
 
   const chip =
     'border-line-strong bg-surface text-ink-2 hover:bg-canvas rounded-full border px-3 py-1 text-xs font-bold transition-colors';
@@ -326,6 +345,60 @@ function PaymentForm({
               </div>
             )}
           />
+        </div>
+
+        {/* رقم العملية: للتحويل والكارت (الكاش ملوش) */}
+        {method !== 'cash' && (
+          <div>
+            <Label htmlFor="pay-reference" className="text-ink mb-2 text-sm font-bold">
+              {t('reference')}
+            </Label>
+            <Input
+              id="pay-reference"
+              dir="auto"
+              maxLength={100}
+              autoComplete="off"
+              placeholder={t('referencePlaceholder')}
+              value={reference}
+              onChange={(e) => setReference(e.target.value)}
+              className={fieldClass}
+            />
+          </div>
+        )}
+
+        {/* إثبات الدفع (اختياري): صورة الإيصال أو التحويل */}
+        <div>
+          <p className="text-ink mb-2 text-sm font-bold">{t('proof')}</p>
+          <input
+            id="pay-proof"
+            type="file"
+            accept={RECEIPT_TYPES.join(',')}
+            className="sr-only"
+            onChange={(e) => pickProof(e.target.files?.[0] ?? null)}
+          />
+          <div className="flex items-center gap-2">
+            <label
+              htmlFor="pay-proof"
+              className={cn(
+                'rounded-btn flex min-w-0 flex-1 cursor-pointer items-center gap-2.5 border border-dashed px-3 py-2.5 text-xs transition-colors',
+                proof ? 'border-brand bg-brand-soft/40' : 'border-line-strong hover:bg-canvas',
+              )}
+            >
+              <Paperclip className={cn('size-4 shrink-0', proof ? 'text-brand' : 'text-muted')} />
+              <span className="text-ink-2 min-w-0 truncate font-semibold">{proof ? proof.name : t('proofPick')}</span>
+            </label>
+            {proof && (
+              <button
+                type="button"
+                onClick={() => setProof(null)}
+                aria-label={t('proofRemove')}
+                className="text-muted hover:text-danger hover:bg-danger-soft rounded-lg p-2"
+              >
+                <X className="size-4" />
+              </button>
+            )}
+          </div>
+          <FieldError message={proofError ?? undefined} />
         </div>
 
         {/* ملاحظة */}
