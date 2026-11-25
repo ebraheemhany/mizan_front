@@ -27,10 +27,15 @@ export default function SidebarNav({
   const isActive = (href: string) =>
     pathname === href || pathname.startsWith(`${href}/`);
 
-  // Only the pages this role can open (a sales user has no expenses, reports or books).
-  const { role } = useSession();
+  // Only the pages this role can open (a sales user has no expenses, reports or books),
+  // and the platform admin only for Mizan's own staff.
+  const { role, isPlatformAdmin } = useSession();
   const groups = NAV_GROUPS.map((group) =>
-    group.filter((item) => !item.permission || can(role, item.permission)),
+    group.filter(
+      (item) =>
+        (!item.permission || can(role, item.permission)) &&
+        (!item.platformAdmin || isPlatformAdmin),
+    ),
   ).filter((group) => group.length > 0);
 
   // Open tasks of the company (every role may read them).

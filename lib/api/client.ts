@@ -20,6 +20,8 @@ export type SessionUser = {
   company: { id: string; name: string; currency?: string };
   /** false: made with Google and never set a password (nothing to confirm when setting one). */
   hasPassword?: boolean;
+  /** One of Mizan's own staff: also sees the platform admin pages (/admin). */
+  isPlatformAdmin?: boolean;
 };
 
 export class ApiError extends Error {

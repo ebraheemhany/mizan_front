@@ -904,6 +904,7 @@
   "accounts": "الحسابات والقيود",
   "auditLog": "سجل العمليات",
   "desktopApp": "برنامج الكمبيوتر",
+  "admin": "إدارة المنصة",
   "sectionComingSoon": "هذا القسم قيد التجهيز وسيكون متاحًا قريبًا."
 },
 "Customers": {
@@ -3724,6 +3725,139 @@
         "macos1": "افتح ملف <x>Mizan-macOS.dmg</x>، واسحب ميزان إلى مجلد <x>Applications</x> لتثبيته.",
         "macos2": "افتح ميزان. إذا قال الماك إنه لا يستطيع التحقق من المطوّر، افتح <x>System Settings → Privacy & Security</x> واضغط <x>Open Anyway</x> بجوار ميزان.",
         "macos3": "بعد ذلك يفتح ميزان عادي مثل أي برنامج."
+      }
+    }
+  },
+  "Admin": {
+    "title": "إدارة المنصة",
+    "description": "كل الشركات اللي بتستخدم ميزان: باقتها، فريقها، وبتستخدم السيستم قد إيه.",
+    "notFound": "الصفحة دي مش موجودة.",
+    "never": "مش من قريب",
+    "plans": {
+      "free": "مجانية",
+      "pro": "احترافي",
+      "business": "أعمال"
+    },
+    "roles": {
+      "owner": "مالك الشركة",
+      "accountant": "محاسب",
+      "sales": "مبيعات",
+      "viewer": "مشاهد"
+    },
+    "subscription": {
+      "pastDue": "التجديد ما اتدفعش",
+      "endsOn": "تنتهي {date}",
+      "renewsOn": "تتجدد {date}"
+    },
+    "overview": {
+      "companies": "الشركات",
+      "companiesHint": "+{month} الشهر ده · +{week} آخر 7 أيام",
+      "active": "نشطة الأسبوع ده",
+      "activeHint": "{month} نشطة خلال آخر 30 يوم",
+      "paying": "شركات مشتركة",
+      "payingHint": "احترافي {pro} · أعمال {business} · مجانية {free}",
+      "pastDueHint": "{count, plural, one {تجديد واحد ما اتدفعش} two {تجديدين ما اتدفعوش} other {# تجديدات ما اتدفعتش}}",
+      "mrr": "الإيراد الشهري المتكرر",
+      "mrrHint": "اتحصّل الشهر ده {month} · الإجمالي {total}",
+      "users": "المستخدمين",
+      "usersHint": "في كل الشركات",
+      "desktop": "على برنامج الكمبيوتر",
+      "desktopHint": "شركات دخلت منه خلال آخر 30 يوم"
+    },
+    "companies": {
+      "title": "الشركات",
+      "search": "الشركة أو المالك أو الإيميل",
+      "all": "الكل",
+      "sortLabel": "الترتيب",
+      "sort": {
+        "newest": "الأحدث",
+        "active": "آخر نشاط",
+        "usage": "الأكتر فواتير الشهر ده",
+        "oldest": "الأقدم",
+        "name": "الاسم"
+      },
+      "empty": "مفيش شركات مطابقة.",
+      "invoicesOf": "من {total}",
+      "columns": {
+        "company": "الشركة",
+        "plan": "الباقة",
+        "users": "المستخدمين",
+        "customers": "العملاء",
+        "invoices": "فواتير الشهر ده",
+        "lastActive": "آخر نشاط",
+        "joined": "انضمت"
+      }
+    },
+    "company": {
+      "back": "كل الشركات",
+      "missing": "الشركة دي مش موجودة (ممكن تكون اتمسحت).",
+      "joined": "انضمت {date}",
+      "usageTitle": "الاستخدام",
+      "activity": "نشطة {days} يوم من آخر 30 يوم · {actions} عملية",
+      "thisMonth": "({count} الشهر ده)",
+      "usage": {
+        "customers": "العملاء",
+        "invoices": "الفواتير",
+        "quotes": "عروض الأسعار",
+        "payments": "الدفعات",
+        "expenses": "المصروفات",
+        "products": "المنتجات",
+        "recurring": "الفواتير المتكررة",
+        "deals": "الصفقات",
+        "tasks": "المهام",
+        "employees": "الموظفين"
+      },
+      "membersTitle": "{count, plural, one {الفريق (عضو واحد)} two {الفريق (عضوين)} other {الفريق (# أعضاء)}}",
+      "member": "العضو",
+      "role": "الدور",
+      "signIn": "بيدخل بـ",
+      "lastActive": "آخر نشاط",
+      "unverified": "الإيميل مش متأكد",
+      "methods": {
+        "password": "كلمة السر",
+        "desktop": "برنامج الكمبيوتر"
+      },
+      "billingTitle": "مدفوعات الاشتراك",
+      "noBilling": "مفيش مدفوعات لميزان لحد دلوقتي.",
+      "billing": {
+        "number": "الرقم",
+        "what": "عن",
+        "amount": "المبلغ",
+        "status": "الحالة",
+        "date": "التاريخ",
+        "automatic": "اتخصم من الكارت المحفوظ",
+        "kinds": {
+          "subscribe": "اشتراك في {plan}",
+          "upgrade": "ترقية لـ{plan}",
+          "renewal": "تجديد {plan}"
+        },
+        "statuses": {
+          "paid": "مدفوعة",
+          "failed": "فشلت",
+          "pending": "مستنية"
+        }
+      },
+      "planTitle": "الباقة",
+      "perMonth": "{price} في الشهر",
+      "free": "مجانية",
+      "limits": {
+        "users": "أعضاء الفريق",
+        "invoices": "فواتير الشهر ده",
+        "of": "{used} من {limit}",
+        "unlimited": "{used} (من غير حد)"
+      },
+      "period": "الفترة المدفوعة",
+      "nextPlan": "هتتحول لـ",
+      "card": "الكارت",
+      "noCard": "مفيش كارت محفوظ",
+      "renewalAttempts": "محاولات تجديد فشلت",
+      "detailsTitle": "بيانات الشركة",
+      "details": {
+        "phone": "التليفون",
+        "address": "العنوان",
+        "taxNumber": "الرقم الضريبي",
+        "commercialRegister": "السجل التجاري",
+        "currency": "العملة"
       }
     }
   },

@@ -904,6 +904,7 @@
   "accounts": "Accounts & entries",
   "auditLog": "Audit log",
   "desktopApp": "Desktop app",
+  "admin": "Platform admin",
   "sectionComingSoon": "This section is being prepared and will be available soon."
 },
 "Customers": {
@@ -3721,6 +3722,139 @@
         "macos1": "Open <x>Mizan-macOS.dmg</x> and drag Mizan into the <x>Applications</x> folder.",
         "macos2": "Open Mizan. If macOS says it can't verify the developer, open <x>System Settings → Privacy & Security</x> and click <x>Open Anyway</x> next to Mizan.",
         "macos3": "From then on Mizan opens normally, like any other app."
+      }
+    }
+  },
+  "Admin": {
+    "title": "Platform admin",
+    "description": "Every company using Mizan: its plan, its team and how much it uses Mizan.",
+    "notFound": "This page doesn't exist.",
+    "never": "Not recently",
+    "plans": {
+      "free": "Free",
+      "pro": "Pro",
+      "business": "Business"
+    },
+    "roles": {
+      "owner": "Owner",
+      "accountant": "Accountant",
+      "sales": "Sales",
+      "viewer": "Viewer"
+    },
+    "subscription": {
+      "pastDue": "Renewal not paid",
+      "endsOn": "Ends {date}",
+      "renewsOn": "Renews {date}"
+    },
+    "overview": {
+      "companies": "Companies",
+      "companiesHint": "+{month} this month · +{week} in the last 7 days",
+      "active": "Active this week",
+      "activeHint": "{month} active in the last 30 days",
+      "paying": "Paying companies",
+      "payingHint": "Pro {pro} · Business {business} · Free {free}",
+      "pastDueHint": "{count, plural, one {# renewal not paid} other {# renewals not paid}}",
+      "mrr": "Monthly recurring revenue",
+      "mrrHint": "Collected this month {month} · in total {total}",
+      "users": "Users",
+      "usersHint": "Across all companies",
+      "desktop": "On the desktop app",
+      "desktopHint": "Companies that signed in to it in the last 30 days"
+    },
+    "companies": {
+      "title": "Companies",
+      "search": "Company, owner or email",
+      "all": "All",
+      "sortLabel": "Sort",
+      "sort": {
+        "newest": "Newest",
+        "active": "Recently active",
+        "usage": "Most invoices this month",
+        "oldest": "Oldest",
+        "name": "Name"
+      },
+      "empty": "No companies match.",
+      "invoicesOf": "of {total}",
+      "columns": {
+        "company": "Company",
+        "plan": "Plan",
+        "users": "Users",
+        "customers": "Customers",
+        "invoices": "Invoices this month",
+        "lastActive": "Last active",
+        "joined": "Joined"
+      }
+    },
+    "company": {
+      "back": "All companies",
+      "missing": "This company doesn't exist (it may have been deleted).",
+      "joined": "Joined {date}",
+      "usageTitle": "Usage",
+      "activity": "Active on {days} of the last 30 days · {actions} actions",
+      "thisMonth": "({count} this month)",
+      "usage": {
+        "customers": "Customers",
+        "invoices": "Invoices",
+        "quotes": "Quotes",
+        "payments": "Payments",
+        "expenses": "Expenses",
+        "products": "Products",
+        "recurring": "Recurring invoices",
+        "deals": "Deals",
+        "tasks": "Tasks",
+        "employees": "Employees"
+      },
+      "membersTitle": "{count, plural, one {Team (# member)} other {Team (# members)}}",
+      "member": "Member",
+      "role": "Role",
+      "signIn": "Signs in with",
+      "lastActive": "Last active",
+      "unverified": "Email not confirmed",
+      "methods": {
+        "password": "Password",
+        "desktop": "Desktop app"
+      },
+      "billingTitle": "Subscription payments",
+      "noBilling": "No payments to Mizan yet.",
+      "billing": {
+        "number": "Number",
+        "what": "For",
+        "amount": "Amount",
+        "status": "Status",
+        "date": "Date",
+        "automatic": "Charged to the saved card",
+        "kinds": {
+          "subscribe": "Subscribed to {plan}",
+          "upgrade": "Upgraded to {plan}",
+          "renewal": "Renewed {plan}"
+        },
+        "statuses": {
+          "paid": "Paid",
+          "failed": "Failed",
+          "pending": "Pending"
+        }
+      },
+      "planTitle": "Plan",
+      "perMonth": "{price} a month",
+      "free": "Free",
+      "limits": {
+        "users": "Team members",
+        "invoices": "Invoices this month",
+        "of": "{used} of {limit}",
+        "unlimited": "{used} (no limit)"
+      },
+      "period": "Paid period",
+      "nextPlan": "Switches to",
+      "card": "Card",
+      "noCard": "None saved",
+      "renewalAttempts": "Failed renewal attempts",
+      "detailsTitle": "Company details",
+      "details": {
+        "phone": "Phone",
+        "address": "Address",
+        "taxNumber": "Tax number",
+        "commercialRegister": "Commercial register",
+        "currency": "Currency"
       }
     }
   },

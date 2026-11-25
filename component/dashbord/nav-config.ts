@@ -13,6 +13,7 @@ import {
   Package,
   Receipt,
   Settings,
+  ShieldCheck,
   Users,
   Wallet,
   type LucideIcon,
@@ -23,7 +24,7 @@ import type { Permission } from '@/lib/auth/permissions';
 export type NavKey =
   | 'dashboard' | 'customers' | 'deals' | 'quotes' | 'invoices' | 'expenses'
   | 'reports' | 'products' | 'payments' | 'tasks' | 'employees' | 'settings' | 'accounts' | 'auditLog'
-  | 'desktopApp';
+  | 'desktopApp' | 'admin';
 
 export type NavItem = {
   key: NavKey;
@@ -33,6 +34,8 @@ export type NavItem = {
   badge?: { count: number; tone: 'brand' | 'danger' };
   /** Pages closed to roles without this permission are left out of the menu. */
   permission?: Permission;
+  /** Only for Mizan's own staff (the session's isPlatformAdmin). */
+  platformAdmin?: true;
 };
 
 export const NAV_GROUPS: NavItem[][] = [
@@ -55,4 +58,5 @@ export const NAV_GROUPS: NavItem[][] = [
     { key: 'auditLog', href: '/audit-log', icon: History, permission: 'auditLog' },
     { key: 'desktopApp', href: '/desktop-app', icon: MonitorDown },
   ],
+  [{ key: 'admin', href: '/admin', icon: ShieldCheck, platformAdmin: true }],
 ];
