@@ -37,11 +37,14 @@ with "Desktop development with C++".
 cd desktop
 npm install
 # The app on the local site (run the site on :3000 and the API on :4000 first):
-MIZAN_APP_URL=http://localhost:3000 npx tauri build --debug --no-bundle
+MIZAN_APP_URL=http://localhost:3000 npx tauri build --debug --no-bundle \
+  --config '{"identifier":"com.mizan.desktop.dev"}'
 ./src-tauri/target/debug/Mizan.exe
 ```
 
-`MIZAN_APP_URL` is read when building; without it the app shows the production site. To
+`MIZAN_APP_URL` is read when building; without it the app shows the production site. The
+separate identifier gives the development build its own data (sign-in, window size), so
+it doesn't touch an installed Mizan on the same computer. To
 inspect the window from Chrome, start the app with
 `WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS=--remote-debugging-port=9333` and open
 `chrome://inspect`.

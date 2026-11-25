@@ -72,9 +72,9 @@ fn main() {
                     open_site_path(&handle, &path);
                 }
             });
-            // Installed apps get mizan:// from the installer; a development run registers it here.
-            #[cfg(all(debug_assertions, any(windows, target_os = "linux")))]
-            app.deep_link().register_all()?;
+            // mizan:// is registered by the installer, never by a development run: that would
+            // point an installed app's links at the development build. (Links passed on the
+            // command line still reach a development run.)
 
             updates::check_in_background(app.handle().clone());
             Ok(())
