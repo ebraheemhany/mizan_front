@@ -45,6 +45,19 @@ jobs:
           fi
           echo "tag=$tag" >> "$GITHUB_OUTPUT"
 
+      # A minute here instead of a failed build at the very end.
+      - name: Check the updater key can sign
+        env:
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
+        run: |
+          echo check > key-check.txt
+          if ! out=$(npx --yes @tauri-apps/cli@2 signer sign key-check.txt 2>&1); then
+            reason=$(echo "$out" | tail -n 3 | tr '\n' ' ')
+            echo "::error::TAURI_SIGNING_PRIVATE_KEY can't sign ($reason). It must hold the whole contents of the private .key file, not the .pub one (desktop/README.md)"
+            exit 1
+          fi
+
       - name: Draft it
         id: draft
         env:
