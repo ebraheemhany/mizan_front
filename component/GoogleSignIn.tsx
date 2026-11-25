@@ -17,16 +17,21 @@ import { Link } from '@/i18n/navigation';
 import { ApiError, type GoogleSignIn as GoogleSignInValues } from '@/lib/api/client';
 import { useApiErrorMessage } from '@/lib/api/use-api-error';
 import { useGoAfterSignIn, useGoogleSignInMutation } from '@/lib/auth/session';
+import { useIsDesktop } from '@/lib/desktop';
+import DesktopGoogleButton from './desktop/DesktopGoogleButton';
 import GoogleButton, { GOOGLE_CLIENT_ID } from './GoogleButton';
 
 type Props = {
-  children: ReactNode;
+  /** The email form under "or" (none: Google only). */
+  children?: ReactNode;
   /** The login form's "remember me". */
   remember?: boolean;
   /** On the invitation page: join this invitation instead. */
   invitationToken?: string;
   /** The invitation stopped working (used, revoked or expired). */
   onInvitationDead?: () => void;
+  /** Instead of going to the app once signed in (the desktop app's browser page). */
+  onSignedIn?: () => void;
 };
 
 export default function GoogleSignIn(props: Props) {
@@ -37,9 +42,11 @@ export default function GoogleSignIn(props: Props) {
 
 type NewAccount = { credential: string; email: string; fullName: string };
 
-function WithGoogle({ children, remember = false, invitationToken, onInvitationDead }: Props) {
+function WithGoogle({ children, remember = false, invitationToken, onInvitationDead, onSignedIn }: Props) {
   const t = useTranslations('Auth.google');
   const goAfterSignIn = useGoAfterSignIn();
+  // The desktop app signs in with Google through the computer's browser instead.
+  const isDesktop = useIsDesktop();
   const errorMessage = useApiErrorMessage();
   const signIn = useGoogleSignInMutation();
   const [error, setError] = useState<string | null>(null);
@@ -50,7 +57,7 @@ function WithGoogle({ children, remember = false, invitationToken, onInvitationD
     setError(null);
     try {
       await signIn.mutateAsync(values);
-      goAfterSignIn();
+      (onSignedIn ?? goAfterSignIn)();
     } catch (err) {
       if (!(err instanceof ApiError)) {
         setError(errorMessage(err));
@@ -90,10 +97,14 @@ function WithGoogle({ children, remember = false, invitationToken, onInvitationD
   return (
     <div className="mt-8">
       <div className="relative">
-        <GoogleButton
-          context={invitationToken ? 'use' : 'signin'}
-          onCredential={(credential) => submit({ credential, remember, ...(invitationToken ? { invitationToken } : {}) })}
-        />
+        {isDesktop ? (
+          <DesktopGoogleButton invitationToken={invitationToken} />
+        ) : (
+          <GoogleButton
+            context={invitationToken ? 'use' : 'signin'}
+            onCredential={(credential) => submit({ credential, remember, ...(invitationToken ? { invitationToken } : {}) })}
+          />
+        )}
         {signIn.isPending && (
           <div role="status" className="bg-surface/80 absolute inset-0 flex items-center justify-center gap-2 text-sm font-semibold">
             <Loader2 className="size-4 animate-spin" />
@@ -106,13 +117,17 @@ function WithGoogle({ children, remember = false, invitationToken, onInvitationD
           {error}
         </p>
       )}
-      <div className="text-muted my-6 flex items-center gap-3 text-xs font-semibold">
-        <span className="bg-line h-px flex-1" />
-        {t('or')}
-        <span className="bg-line h-px flex-1" />
-      </div>
-      {/* The forms carry their own top margin for when they stand alone. */}
-      <div className="[&>form]:mt-0">{children}</div>
+      {children && (
+        <>
+          <div className="text-muted my-6 flex items-center gap-3 text-xs font-semibold">
+            <span className="bg-line h-px flex-1" />
+            {t('or')}
+            <span className="bg-line h-px flex-1" />
+          </div>
+          {/* The forms carry their own top margin for when they stand alone. */}
+          <div className="[&>form]:mt-0">{children}</div>
+        </>
+      )}
     </div>
   );
 }

@@ -1,5 +1,6 @@
 // lib/whatsapp.ts
 // Opening a WhatsApp chat with a message ready to send (wa.me links).
+import { openExternal } from '@/lib/desktop';
 
 /**
  * WhatsApp needs the number in international form without "+":
@@ -13,7 +14,10 @@ export function toWhatsAppNumber(phone: string | null | undefined) {
   return digits || null;
 }
 
-/** Opens the chat in a new tab. Call it straight from the click, or popup blockers stop it. */
+/**
+ * Opens the chat in a new tab (the computer's browser or WhatsApp app, in the desktop
+ * app). Call it straight from the click, or popup blockers stop it.
+ */
 export function openWhatsApp(number: string, text: string) {
-  window.open(`https://wa.me/${number}?text=${encodeURIComponent(text)}`, '_blank', 'noopener,noreferrer');
+  openExternal(`https://wa.me/${number}?text=${encodeURIComponent(text)}`);
 }

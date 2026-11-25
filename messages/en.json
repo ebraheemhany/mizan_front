@@ -152,6 +152,7 @@
     "features": "Features",
     "pricing": "Pricing",
     "freeTrial": "Free Trial",
+    "desktopApp": "Desktop app",
     "companyTitle": "Company",
     "faq": "FAQ",
     "contactUs": "Contact Us",
@@ -2666,6 +2667,7 @@
     "paymentClaimRejected": "Rejected the customer's receipt of {amount}",
     "paymentProofAttached": "Attached proof to payment {payment}",
     "signedInWithGoogle": "Signed in with Google",
+    "signedInDesktop": "Signed in to the desktop app",
     "googleLinked": "Linked the account to Google",
     "subscriptionStarted": "Subscribed to {plan} for {amount} until {through}",
     "planUpgraded": "Upgraded to {plan} (paid the difference, {amount})",
@@ -3060,6 +3062,7 @@
     "GOOGLE_LINKED_ELSEWHERE": "This account is linked to a different Google account. Use that one, or your email and password",
     "GOOGLE_EMAIL_MISMATCH": "This invitation is for a different email. Sign in with the Google account that matches it",
     "GOOGLE_NO_ACCOUNT": "There's no account with this email",
+    "INVALID_DESKTOP_CODE": "This sign-in link has expired or was already used. Try again from the app",
     "PLAN_LIMIT_INVOICES": "Your plan's invoices for this month are used up. Upgrade in settings to make more",
     "PLAN_LIMIT_USERS": "Your team has reached the plan's limit. Upgrade in settings to add members",
     "PLAN_FEATURE": "This feature is in the paid plans. Upgrade in settings",
@@ -3147,6 +3150,58 @@
     "ACCOUNT_CODE_USED": "Another account already has this code.",
     "SYSTEM_ACCOUNT": "Built-in accounts can't be changed or deleted.",
     "ACCOUNT_IN_USE": "This account is used in entries, so it can't be deleted."
+  },
+  "Desktop": {
+    "google": {
+      "continue": "Continue with Google",
+      "waiting": "Finish signing in in your browser. Mizan will come back here by itself when you're done.",
+      "openAgain": "Open the browser again"
+    },
+    "signIn": {
+      "title": "Sign in to the Mizan desktop app",
+      "loading": "Checking…",
+      "subtitle": "Continue with Google here, then we'll take you back to the app.",
+      "invitationSubtitle": "Accept the invitation with your Google account, then we'll take you back to the app.",
+      "invalid": "Open this page from the Mizan desktop app: press \"Continue with Google\" there.",
+      "invitationDead": "This invitation no longer works. Ask the account owner for a new one.",
+      "passwordHint": "Use an email and password? Sign in straight from the app, no browser needed.",
+      "signedInAs": "You're signed in to this browser as <b>{name}</b> <e>({email})</e>.",
+      "continue": "Continue to the app",
+      "otherAccount": "Use another account",
+      "opening": "Opening Mizan…",
+      "doneTitle": "Back to the Mizan app",
+      "doneText": "If your browser asks, allow it to open Mizan. You can close this tab afterwards.",
+      "openApp": "Open Mizan",
+      "retry": "Try again"
+    },
+    "callback": {
+      "signingIn": "Signing you in…",
+      "invalid": "This sign-in didn't start from this app, or it took too long. Try again.",
+      "backToLogin": "Back to sign in"
+    },
+    "download": {
+      "metaTitle": "Download Mizan for desktop",
+      "title": "Mizan on your desktop",
+      "subtitle": "The same Mizan, in a window of its own with an icon on your desktop. Sign in once and stay signed in; everything stays in sync with the web.",
+      "firstTime": "The first time you install it",
+      "updates": "The app updates itself: new features reach it as soon as they're on the web.",
+      "windows": {
+        "name": "Windows",
+        "requirements": "Windows 10 or 11",
+        "button": "Download for Windows",
+        "windows1": "Open the downloaded file, <x>Mizan-Windows-Setup.exe</x>.",
+        "windows2": "If Windows shows <x>Windows protected your PC</x>, click <x>More info</x> and then <x>Run anyway</x>. This message appears because the app isn't signed with a paid certificate yet.",
+        "windows3": "Mizan installs in seconds and opens. It also adds an icon to the desktop and the Start menu."
+      },
+      "macos": {
+        "name": "macOS",
+        "requirements": "macOS 10.15 or later (Apple silicon and Intel)",
+        "button": "Download for Mac",
+        "macos1": "Open <x>Mizan-macOS.dmg</x> and drag Mizan into the <x>Applications</x> folder.",
+        "macos2": "Open Mizan. If macOS says it can't verify the developer, open <x>System Settings → Privacy & Security</x> and click <x>Open Anyway</x> next to Mizan.",
+        "macos3": "From then on Mizan opens normally, like any other app."
+      }
+    }
   },
   "Session": {
     "registered": "Account created. Log in; we've also emailed you a link to confirm your address.",

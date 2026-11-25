@@ -1,4 +1,5 @@
 // lib/print.ts
+import { printPage } from '@/lib/desktop';
 
 // Chrome وFirefox بيستخدموا عنوان الصفحة كاسم افتراضي للملف في "حفظ كـ PDF"
 export function printWithTitle(title: string) {
@@ -11,5 +12,5 @@ export function printWithTitle(title: string) {
 
   window.addEventListener('afterprint', restore);
   document.title = title;
-  window.print();
+  printPage();
 }

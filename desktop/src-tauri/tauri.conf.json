@@ -1,0 +1,62 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "Mizan",
+  "mainBinaryName": "Mizan",
+  "version": "0.1.0",
+  "identifier": "com.mizan.desktop",
+  "build": {
+    "frontendDist": "../splash"
+  },
+  "app": {
+    "withGlobalTauri": true,
+    "windows": [],
+    "security": {
+      "csp": null
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": "all",
+    "publisher": "Mizan",
+    "copyright": "© 2026 Mizan",
+    "category": "Business",
+    "shortDescription": "Mizan: invoices, customers and accounts",
+    "longDescription": "Mizan's desktop app: the Mizan platform for customers, invoices and accounting in a window of its own.",
+    "createUpdaterArtifacts": true,
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.icns",
+      "icons/icon.ico"
+    ],
+    "windows": {
+      "webviewInstallMode": {
+        "type": "downloadBootstrapper"
+      },
+      "nsis": {
+        "installMode": "currentUser",
+        "languages": ["English", "Arabic"],
+        "displayLanguageSelector": false
+      }
+    },
+    "macOS": {
+      "signingIdentity": "-",
+      "minimumSystemVersion": "10.15"
+    }
+  },
+  "plugins": {
+    "deep-link": {
+      "desktop": {
+        "schemes": ["mizan"]
+      }
+    },
+    "updater": {
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IEY5RkRFNzgwNDRCN0Q4QjEKUldTeDJMZEVnT2Y5K1U0SVc5SVZIdGw3NlhWTngvb1B3T0lwamdiNlZBNit4dDZwUzZYZzhjRGoK",
+      "endpoints": ["https://github.com/ebraheemhany/mizan_front/releases/latest/download/latest.json"],
+      "windows": {
+        "installMode": "passive"
+      }
+    }
+  }
+}

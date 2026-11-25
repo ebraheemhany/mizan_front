@@ -1,0 +1,145 @@
+# Builds the desktop app (desktop/) for Windows and macOS and publishes it as a GitHub
+# release, with latest.json for the app's own updater and fixed-name copies for the
+# site's /download page. See desktop/README.md.
+#
+# Runs when a tag like desktop-v0.2.0 is pushed. The tag must match "version" in
+# desktop/src-tauri/tauri.conf.json.
+name: Desktop app
+
+on:
+  push:
+    tags: ['desktop-v*']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: desktop-release
+  cancel-in-progress: false
+
+jobs:
+  release:
+    name: Draft the release
+    runs-on: ubuntu-latest
+    outputs:
+      id: ${{ steps.draft.outputs.id }}
+      tag: ${{ steps.version.outputs.tag }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check the version and the updater key
+        id: version
+        env:
+          HAS_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY != '' }}
+        run: |
+          version=$(node -p "require('./desktop/src-tauri/tauri.conf.json').version")
+          tag="desktop-v$version"
+          if [ "$GITHUB_REF_TYPE" = "tag" ] && [ "$GITHUB_REF_NAME" != "$tag" ]; then
+            echo "::error::The tag $GITHUB_REF_NAME doesn't match the app's version $version (desktop/src-tauri/tauri.conf.json)"
+            exit 1
+          fi
+          if [ "$HAS_KEY" != "true" ]; then
+            echo "::error::The repository secret TAURI_SIGNING_PRIVATE_KEY is missing: updates must be signed (desktop/README.md)"
+            exit 1
+          fi
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+
+      - name: Draft it
+        id: draft
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ steps.version.outputs.tag }}
+        run: |
+          id=$(gh api "repos/$GITHUB_REPOSITORY/releases" --jq ".[] | select(.tag_name == \"$TAG\") | .id" | head -n 1)
+          if [ -z "$id" ]; then
+            id=$(gh api "repos/$GITHUB_REPOSITORY/releases" -X POST \
+              -f tag_name="$TAG" -f target_commitish="$GITHUB_SHA" -F draft=true \
+              -f name="Mizan desktop ${TAG#desktop-v}" \
+              -f body="Mizan for Windows and macOS. Download it from the site's /download page; installed apps update themselves." \
+              --jq .id)
+          fi
+          echo "id=$id" >> "$GITHUB_OUTPUT"
+
+  build:
+    name: Build (${{ matrix.name }})
+    needs: release
+    strategy:
+      fail-fast: false
+      # One at a time: each build adds its platform to latest.json, and two at once
+      # could overwrite each other's entry.
+      max-parallel: 1
+      matrix:
+        include:
+          - name: Windows
+            os: windows-latest
+            args: --bundles nsis
+            rust-targets: ''
+          - name: macOS
+            os: macos-latest
+            args: --target universal-apple-darwin --bundles app,dmg
+            rust-targets: aarch64-apple-darwin,x86_64-apple-darwin
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: desktop/package-lock.json
+
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.rust-targets }}
+
+      - uses: swatinem/rust-cache@v2
+        with:
+          workspaces: desktop/src-tauri -> target
+
+      - run: npm ci
+        working-directory: desktop
+
+      - uses: tauri-apps/tauri-action@v0
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
+        with:
+          projectPath: desktop
+          releaseId: ${{ needs.release.outputs.id }}
+          args: ${{ matrix.args }}
+          includeUpdaterJson: true
+          updaterJsonPreferNsis: true
+
+      # The site links to these names, so its buttons always get the newest version.
+      - name: Upload with fixed names
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_ID: ${{ needs.release.outputs.id }}
+        run: |
+          if [ "$RUNNER_OS" = "Windows" ]; then
+            file=Mizan-Windows-Setup.exe
+            cp desktop/src-tauri/target/release/bundle/nsis/*-setup.exe "$file"
+          else
+            file=Mizan-macOS.dmg
+            cp desktop/src-tauri/target/universal-apple-darwin/release/bundle/dmg/*.dmg "$file"
+          fi
+          # Replace the copy an earlier run of this release left.
+          old=$(gh api "repos/$GITHUB_REPOSITORY/releases/$RELEASE_ID/assets" --jq ".[] | select(.name == \"$file\") | .id")
+          if [ -n "$old" ]; then gh api -X DELETE "repos/$GITHUB_REPOSITORY/releases/assets/$old"; fi
+          upload=$(gh api "repos/$GITHUB_REPOSITORY/releases/$RELEASE_ID" --jq .upload_url | sed 's/{.*}//')
+          curl --fail --silent --show-error -X POST \
+            -H "Authorization: Bearer $GH_TOKEN" -H "Content-Type: application/octet-stream" \
+            --data-binary "@$file" "$upload?name=$file" > /dev/null
+
+  publish:
+    name: Publish the release
+    needs: [release, build]
+    runs-on: ubuntu-latest
+    steps:
+      - env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_ID: ${{ needs.release.outputs.id }}
+        run: gh api -X PATCH "repos/$GITHUB_REPOSITORY/releases/$RELEASE_ID" -F draft=false -f make_latest=true > /dev/null

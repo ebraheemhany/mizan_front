@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Mizan</title>
+    <!--
+      The first thing the app shows (bundled with it, so it opens without internet).
+      It checks the site can be reached, then loads it in this window; without a
+      connection it says so and tries again when the connection comes back.
+      window.__MIZAN_DESKTOP__ comes from main.rs: the site's address and the first page.
+    -->
+    <style>
+      :root {
+        --brand: #047857;
+        --ink: #0f2a20;
+        --muted: #5b6b64;
+        --canvas: #f4f8f6;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --ink: #e8f2ed;
+          --muted: #9db3a9;
+          --canvas: #0d1a15;
+        }
+      }
+      * {
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        height: 100%;
+        margin: 0;
+      }
+      body {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--canvas);
+        color: var(--ink);
+        font-family: 'Segoe UI', Tahoma, system-ui, -apple-system, sans-serif;
+        text-align: center;
+        user-select: none;
+      }
+      .logo {
+        width: 84px;
+        height: 84px;
+      }
+      h1 {
+        margin: 18px 0 6px;
+        font-size: 26px;
+        font-weight: 800;
+      }
+      p {
+        margin: 0 auto;
+        max-width: 340px;
+        color: var(--muted);
+        font-size: 14px;
+        line-height: 1.8;
+      }
+      .spinner {
+        width: 22px;
+        height: 22px;
+        margin: 22px auto 0;
+        border: 3px solid color-mix(in srgb, var(--brand) 25%, transparent);
+        border-top-color: var(--brand);
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+      }
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+      button {
+        margin-top: 20px;
+        padding: 10px 26px;
+        border: 0;
+        border-radius: 10px;
+        background: var(--brand);
+        color: #fff;
+        font: inherit;
+        font-size: 14px;
+        font-weight: 700;
+        cursor: pointer;
+      }
+      button:disabled {
+        opacity: 0.6;
+        cursor: default;
+      }
+      [hidden] {
+        display: none !important;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <svg class="logo" viewBox="0 0 64 64" aria-hidden="true">
+        <rect width="64" height="64" rx="16" fill="#047857" />
+        <g transform="translate(14 14) scale(1.5)" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 3v18" />
+          <path d="m19 8 3 8a5 5 0 0 1-6 0zV7" />
+          <path d="M3 7h1a17 17 0 0 0 8-2 17 17 0 0 0 8 2h1" />
+          <path d="m5 8 3 8a5 5 0 0 1-6 0zV7" />
+          <path d="M7 21h10" />
+        </g>
+      </svg>
+      <h1 id="name">ميزان</h1>
+
+      <div id="loading">
+        <p id="loading-text">جاري الفتح…</p>
+        <div class="spinner" role="status"></div>
+      </div>
+
+      <div id="offline" hidden>
+        <p id="offline-text">مفيش اتصال بالإنترنت. ميزان محتاج إنترنت علشان يشتغل، هنحاول تاني أول ما الاتصال يرجع.</p>
+        <button id="retry" type="button">حاول تاني</button>
+      </div>
+    </main>
+
+    <script>
+      (function () {
+        var info = window.__MIZAN_DESKTOP__ || {};
+        var appUrl = String(info.appUrl || 'https://mizanfront-production.up.railway.app').replace(/\/+$/, '');
+        var start = typeof info.start === 'string' && /^\/(?!\/)/.test(info.start) ? info.start : '/dashboard';
+
+        // The site picks its own language; this page follows the computer's.
+        if (!/^ar\b/i.test(navigator.language || '')) {
+          document.documentElement.lang = 'en';
+          document.documentElement.dir = 'ltr';
+          document.getElementById('name').textContent = 'Mizan';
+          document.getElementById('loading-text').textContent = 'Opening…';
+          document.getElementById('offline-text').textContent =
+            "You're offline. Mizan needs the internet to work; we'll try again as soon as the connection is back.";
+          document.getElementById('retry').textContent = 'Try again';
+        }
+
+        var loading = document.getElementById('loading');
+        var offline = document.getElementById('offline');
+        var retry = document.getElementById('retry');
+        var trying = false;
+
+        function show(isOffline) {
+          loading.hidden = isOffline;
+          offline.hidden = !isOffline;
+          retry.disabled = false;
+        }
+
+        function open() {
+          if (trying) return;
+          trying = true;
+          show(false);
+          var timeout = new Promise(function (_, reject) {
+            setTimeout(function () {
+              reject(new Error('timeout'));
+            }, 15000);
+          });
+          // Any answer at all (even an opaque one) means the site can be reached.
+          Promise.race([fetch(appUrl + '/icon.svg', { mode: 'no-cors', cache: 'no-store' }), timeout])
+            .then(function () {
+              window.location.replace(appUrl + start);
+            })
+            .catch(function () {
+              trying = false;
+              show(true);
+            });
+        }
+
+        retry.addEventListener('click', function () {
+          retry.disabled = true;
+          open();
+        });
+        window.addEventListener('online', open);
+        open();
+      })();
+    </script>
+  </body>
+</html>

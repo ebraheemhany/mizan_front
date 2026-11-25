@@ -6,6 +6,7 @@
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { api, apiBlob, apiPublicUpload, apiUpload } from '@/lib/api/client';
+import { showFile } from '@/lib/files';
 import { useRecordInvoicePayment, useRefreshInvoice, type ApiClaim, type PublicPayOptions } from '@/lib/invoices/hooks';
 import { queryKeys } from '@/lib/query/keys';
 
@@ -109,25 +110,9 @@ export function useRejectClaim() {
   });
 }
 
-/**
- * Opens a protected file in a new tab: the tab opens inside the click (so popup
- * blockers allow it) and is shown the file once it arrives.
- */
-async function openProtected(path: string) {
-  const tab = window.open('', '_blank');
-  try {
-    const url = URL.createObjectURL(await apiBlob(path));
-    if (tab) tab.location.href = url;
-    else window.location.href = url;
-    setTimeout(() => URL.revokeObjectURL(url), 60_000);
-  } catch (error) {
-    tab?.close();
-    throw error;
-  }
-}
-
-export const openClaimReceipt = (id: string) => openProtected(`/api/payment-claims/${id}/receipt`);
-export const openPaymentProof = (paymentId: string) => openProtected(`/api/payments/${paymentId}/proof`);
+/** Shows a protected file once it arrives (a new tab, or the computer's viewer in the desktop app). */
+export const openClaimReceipt = (id: string) => showFile(() => apiBlob(`/api/payment-claims/${id}/receipt`), 'receipt');
+export const openPaymentProof = (paymentId: string) => showFile(() => apiBlob(`/api/payments/${paymentId}/proof`), 'payment-proof');
 
 /** Attaches the proof of a payment staff recorded (a receipt or transfer screenshot). */
 export const uploadPaymentProof = (paymentId: string, file: File) =>

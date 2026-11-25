@@ -1,3 +1,5 @@
+import { saveFile } from '@/lib/files';
+
 type CsvValue = string | number | null | undefined;
 
 export function downloadCsv(fileName: string, rows: CsvValue[][]) {
@@ -20,13 +22,5 @@ export function downloadCsv(fileName: string, rows: CsvValue[][]) {
   const blob = new Blob(['\uFEFF', csv], {
     type: 'text/csv;charset=utf-8',
   });
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement('a');
-
-  link.href = url;
-  link.download = fileName;
-  document.body.appendChild(link);
-  link.click();
-  link.remove();
-  window.setTimeout(() => URL.revokeObjectURL(url), 0);
+  void saveFile(blob, fileName);
 }

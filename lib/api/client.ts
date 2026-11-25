@@ -132,6 +132,22 @@ export async function continueWithGoogle(values: GoogleSignIn) {
   return data.user;
 }
 
+/**
+ * Desktop app: trades the one-time code the browser handed over (mizan://auth?code=...)
+ * for a session, through the Next.js route so the refresh token lands in the cookie.
+ */
+export async function redeemDesktopCode(code: string) {
+  const res = await send('/api/auth/desktop', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ code }),
+  });
+  if (!res.ok) throw await toApiError(res);
+  const data = (await res.json()) as { accessToken: string; user: SessionUser };
+  accessToken = data.accessToken;
+  return data.user;
+}
+
 export async function logout() {
   accessToken = null;
   await send('/api/auth/logout', { method: 'POST' }).catch(() => undefined);

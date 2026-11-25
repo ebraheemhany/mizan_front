@@ -7,6 +7,7 @@ import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tansta
 import { api, apiBlob, apiUpload } from '@/lib/api/client';
 import { can } from '@/lib/auth/permissions';
 import { useSession } from '@/lib/auth/session';
+import { showFile } from '@/lib/files';
 import type { Expense, ExpenseCategory, ExpenseSource } from '@/lib/mock/expenses';
 import { queryKeys } from '@/lib/query/keys';
 
@@ -100,23 +101,9 @@ export function useRemoveReceipt() {
   });
 }
 
-/**
- * Opens an expense's receipt in a new tab. The tab is opened right away (inside
- * the click, so popup blockers allow it) and shown the file once it arrives.
- */
-export async function openReceipt(id: string) {
-  const tab = window.open('', '_blank');
-  try {
-    const blob = await apiBlob(`/api/expenses/${id}/receipt`);
-    const url = URL.createObjectURL(blob);
-    if (tab) tab.location.href = url;
-    else window.location.href = url;
-    // Long enough for the tab to load it.
-    setTimeout(() => URL.revokeObjectURL(url), 60_000);
-  } catch (error) {
-    tab?.close();
-    throw error;
-  }
+/** Shows an expense's receipt once it arrives (a new tab, or the computer's viewer in the desktop app). */
+export function openReceipt(id: string) {
+  return showFile(() => apiBlob(`/api/expenses/${id}/receipt`), 'receipt');
 }
 
 function toQueryString(params: Partial<ExpenseListParams>) {

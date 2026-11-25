@@ -6,6 +6,7 @@ type FooterLink = {
     | 'features'
     | 'pricing'
     | 'freeTrial'
+    | 'desktopApp'
     | 'faq'
     | 'contactUs'
     | 'privacyPolicy'
@@ -23,6 +24,7 @@ const columns: {
       { label: 'features', href: '/#features' },
       { label: 'pricing', href: '/#pricing' },
       { label: 'freeTrial', href: '/register' },
+      { label: 'desktopApp', href: '/download' },
     ],
   },
   {

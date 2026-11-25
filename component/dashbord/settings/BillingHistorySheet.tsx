@@ -16,6 +16,7 @@ import {
   sheetPopup,
 } from '@/component/dialog-chrome';
 import { cn } from '@/lib/utils';
+import { saveFile } from '@/lib/files';
 import { useMoney } from '@/lib/money';
 import { useBillingPayments, type BillingPayment } from '@/lib/billing/hooks';
 import {
@@ -55,7 +56,7 @@ export function BillingHistorySheet({ open, onClose }: Props) {
       timeZone: 'UTC',
     });
 
-  function downloadInvoice(invoice: BillingPayment) {
+  async function downloadInvoice(invoice: BillingPayment) {
     const escapeHtml = (value: string) =>
       value.replace(/[&<>"']/g, (character) => {
         const entities: Record<string, string> = {
@@ -117,22 +118,13 @@ export function BillingHistorySheet({ open, onClose }: Props) {
   </body>
 </html>`;
 
-    let url: string | undefined;
     try {
-      const downloadUrl = URL.createObjectURL(
+      const saved = await saveFile(
         new Blob([html], { type: 'text/html;charset=utf-8' }),
+        `${invoice.number.replace(/[^a-zA-Z0-9._-]/g, '_')}.html`,
       );
-      url = downloadUrl;
-      const link = document.createElement('a');
-      link.href = downloadUrl;
-      link.download = `${invoice.number.replace(/[^a-zA-Z0-9._-]/g, '_')}.html`;
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
-      window.setTimeout(() => URL.revokeObjectURL(downloadUrl), 1000);
-      toast.success(t('history.downloadStarted'));
+      if (saved) toast.success(t('history.downloadStarted'));
     } catch {
-      if (url) URL.revokeObjectURL(url);
       toast.error(t('history.downloadFailed'));
     }
   }

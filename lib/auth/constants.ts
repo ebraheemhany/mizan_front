@@ -20,6 +20,8 @@ export const PUBLIC_SECTIONS = new Set([
   'invite', // accept an invitation
   'i', // public invoice link
   'share', // public quote link
+  'desktop', // desktop app sign-in: the browser page, and the app's return from it
+  'download', // the desktop app's download page
 ]);
 
 /** Pages that make no sense when already logged in. */
