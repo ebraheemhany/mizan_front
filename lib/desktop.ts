@@ -41,6 +41,11 @@ export function useIsDesktop() {
   return useSyncExternalStore(subscribe, () => desktopApp() !== null, () => false);
 }
 
+/** Like useIsDesktop, with the app's details (its version, its system) instead of true. */
+export function useDesktopApp() {
+  return useSyncExternalStore(subscribe, desktopApp, () => null);
+}
+
 /** Calls one of the desktop app's commands (desktop/src-tauri/src/commands.rs). */
 export function invokeDesktop<T>(
   command: string,

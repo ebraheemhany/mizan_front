@@ -903,6 +903,7 @@
   "settings": "Settings",
   "accounts": "Accounts & entries",
   "auditLog": "Audit log",
+  "desktopApp": "Desktop app",
   "sectionComingSoon": "This section is being prepared and will be available soon."
 },
 "Customers": {
@@ -3687,6 +3688,8 @@
       "title": "Mizan on your desktop",
       "subtitle": "The same Mizan, in a window of its own with an icon on your desktop. Sign in once and stay signed in; everything stays in sync with the web.",
       "firstTime": "The first time you install it",
+      "yourDevice": "Your computer",
+      "inApp": "You're using the Mizan desktop app right now (version {version}). It updates itself; from here you can also get it for another computer.",
       "updates": "The app updates itself: new features reach it as soon as they're on the web.",
       "windows": {
         "name": "Windows",

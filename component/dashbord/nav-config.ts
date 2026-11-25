@@ -9,6 +9,7 @@ import {
   Home,
   IdCard,
   Kanban,
+  MonitorDown,
   Package,
   Receipt,
   Settings,
@@ -21,7 +22,8 @@ import type { Permission } from '@/lib/auth/permissions';
 
 export type NavKey =
   | 'dashboard' | 'customers' | 'deals' | 'quotes' | 'invoices' | 'expenses'
-  | 'reports' | 'products' | 'payments' | 'tasks' | 'employees' | 'settings' | 'accounts' | 'auditLog';
+  | 'reports' | 'products' | 'payments' | 'tasks' | 'employees' | 'settings' | 'accounts' | 'auditLog'
+  | 'desktopApp';
 
 export type NavItem = {
   key: NavKey;
@@ -51,5 +53,6 @@ export const NAV_GROUPS: NavItem[][] = [
     { key: 'settings', href: '/settings', icon: Settings },
     { key: 'accounts', href: '/accounts', icon: BookOpen, permission: 'ledger' },
     { key: 'auditLog', href: '/audit-log', icon: History, permission: 'auditLog' },
+    { key: 'desktopApp', href: '/desktop-app', icon: MonitorDown },
   ],
 ];
