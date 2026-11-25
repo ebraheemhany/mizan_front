@@ -37,6 +37,8 @@ function sourceHref(e: JournalEntry) {
     return `/invoices/${e.invoice.number}`;
   }
   if (e.source === 'expense' || e.source === 'expensePayment') return '/expenses';
+  if ((e.source === 'payroll' || e.source === 'payrollPayment') && e.month) return `/payroll/${e.month}`;
+  if (e.source === 'advance' && e.employee) return `/employees/${e.employee.id}`;
   return null;
 }
 

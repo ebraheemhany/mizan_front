@@ -22,17 +22,25 @@ export function useAccountName() {
 
 /** The filter group an entry belongs to (cheques clearing are payments; paying a due expense is an expense). */
 export const sourceGroup = (s: EntrySource): Exclude<SourceFilter, 'all'> =>
-  s === 'chequeCleared' || s === 'chequeBounced' ? 'payment' : s === 'expensePayment' ? 'expense' : s;
+  s === 'chequeCleared' || s === 'chequeBounced'
+    ? 'payment'
+    : s === 'expensePayment'
+      ? 'expense'
+      : s === 'payrollPayment' || s === 'advance'
+        ? 'payroll'
+        : s;
 
 /** The line the journal shows for an entry, from what it came from. */
 export function useEntryText() {
   const t = useTranslations('Accounts.entries');
-  return (e: Pick<JournalEntry, 'source' | 'ref' | 'memo' | 'party' | 'invoice'>) => {
+  const monthLabel = useMonthLabel();
+  return (e: Pick<JournalEntry, 'source' | 'ref' | 'memo' | 'party' | 'invoice' | 'month'>) => {
     const values = {
       ref: e.ref ?? '',
       memo: e.memo ?? '',
       party: e.party ?? '',
       invoice: e.invoice?.displayNumber ?? '',
+      month: e.month ? monthLabel(e.month) : '',
     };
     if (e.source === 'expense' && e.party) return t('expenseVendor', values);
     return t(e.source, values);

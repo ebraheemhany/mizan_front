@@ -119,6 +119,19 @@ export const queryKeys = {
     list: (params: object) => ['products', 'list', params] as const,
     nextCode: (type: string) => ['products', 'next-code', type] as const,
   },
+  /** Employees (paid plans): the list, the cards, one employee (with a year's attendance). */
+  employees: {
+    all: ['employees'] as const,
+    list: (params: object) => ['employees', 'list', params] as const,
+    stats: ['employees', 'stats'] as const,
+    detail: (id: string, year: number | null) => ['employees', 'detail', id, year] as const,
+  },
+  /** Payroll months. */
+  payroll: {
+    all: ['payroll'] as const,
+    list: ['payroll', 'list'] as const,
+    detail: (month: string) => ['payroll', 'detail', month] as const,
+  },
   /** Public: what an invite link points to (no login). */
   invitationPreview: (token: string) => ['invitation-preview', token] as const,
 };

@@ -27,11 +27,14 @@ export type EntrySource =
   | 'chequeBounced'
   | 'expense'
   | 'expensePayment'
+  | 'payroll'
+  | 'payrollPayment'
+  | 'advance'
   | 'manual';
 export type EntryStatus = 'posted' | 'draft';
 /** The journal's source filter: payments include cheques clearing; expenses include paying a due one. */
-export type SourceFilter = 'all' | 'invoice' | 'payment' | 'expense' | 'manual';
-export const SOURCE_FILTERS: Exclude<SourceFilter, 'all'>[] = ['invoice', 'payment', 'expense', 'manual'];
+export type SourceFilter = 'all' | 'invoice' | 'payment' | 'expense' | 'payroll' | 'manual';
+export const SOURCE_FILTERS: Exclude<SourceFilter, 'all'>[] = ['invoice', 'payment', 'expense', 'payroll', 'manual'];
 
 export type JournalLine = AccountRef & { debit: number; credit: number };
 export type JournalEntry = {
@@ -49,6 +52,10 @@ export type JournalEntry = {
   invoice: { number: number; displayNumber: string } | null;
   method: string | null;
   category: string | null;
+  /** Payroll entries: the month paid (YYYY-MM). */
+  month?: string | null;
+  /** An advance: who it was paid to. */
+  employee?: { id: string; name: string } | null;
   lines: JournalLine[];
 };
 

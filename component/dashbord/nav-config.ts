@@ -7,6 +7,7 @@ import {
   FileSignature,
   History,
   Home,
+  IdCard,
   Kanban,
   Package,
   Receipt,
@@ -20,7 +21,7 @@ import type { Permission } from '@/lib/auth/permissions';
 
 export type NavKey =
   | 'dashboard' | 'customers' | 'deals' | 'quotes' | 'invoices' | 'expenses'
-  | 'reports' | 'products' | 'payments' | 'tasks' | 'settings' | 'accounts' | 'auditLog';
+  | 'reports' | 'products' | 'payments' | 'tasks' | 'employees' | 'settings' | 'accounts' | 'auditLog';
 
 export type NavItem = {
   key: NavKey;
@@ -44,6 +45,7 @@ export const NAV_GROUPS: NavItem[][] = [
     { key: 'products', href: '/products', icon: Package },
     { key: 'payments', href: '/payments', icon: CreditCard },
     { key: 'tasks', href: '/tasks', icon: CalendarCheck },
+    { key: 'employees', href: '/employees', icon: IdCard, permission: 'payroll' },
   ],
   [
     { key: 'settings', href: '/settings', icon: Settings },

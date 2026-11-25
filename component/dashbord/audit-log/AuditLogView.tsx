@@ -52,6 +52,8 @@ function itemHref(line: AuditLine) {
   if (type === 'entry' || type === 'ledgerAccount' || type === 'period') return '/accounts';
   if (type === 'user') return '/settings';
   if (type === 'deal') return '/deals';
+  if (type === 'employee') return id ? `/employees/${id}` : null;
+  if (type === 'payroll') return line.item.ref ? `/payroll/${line.item.ref}` : '/payroll';
   return null;
 }
 
@@ -73,6 +75,7 @@ function useAuditText() {
   const tStages = useTranslations('Deals.stages');
   const tReasons = useTranslations('Deals.lost.reasons');
   const tPlans = useTranslations('Settings.subscription.plans');
+  const tAttendance = useTranslations('Employees.attendance.kinds');
 
   // A value from the log, through the app's words for it when there are some.
   type Words = { has: (key: string) => boolean; (key: string): string };
@@ -124,6 +127,11 @@ function useAuditText() {
       plan: word(tPlans, v['plan']),
       // Why a subscription ended (unpaid / canceled).
       why: String(v['why'] ?? ''),
+      // Employees and payroll.
+      kind: word(tAttendance, v['kind']),
+      days: String(v['days'] ?? ''),
+      title: String(v['title'] ?? ''),
+      net: v['net'] != null ? money(Number(v['net'])) : '',
     };
     return t.has(`events.${line.event}`) ? t(`events.${line.event}`, values) : line.event;
   };
@@ -131,7 +139,7 @@ function useAuditText() {
   const item = (line: AuditLine) => {
     const { type, ref } = line.item;
     if (!ref) return t.has(`itemTypes.${type}`) ? t(`itemTypes.${type}`) : type;
-    const shown = type === 'period' ? monthLabel(ref) : ref;
+    const shown = type === 'period' || type === 'payroll' ? monthLabel(ref) : ref;
     return t.has(`items.${type}`) ? t(`items.${type}`, { ref: shown }) : shown;
   };
 

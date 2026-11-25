@@ -1,4 +1,449 @@
 {
+    "Employees": {
+      "title": "Employees",
+      "description": "Your team's details, pay, advances and attendance in one place.",
+      "payroll": "Payroll",
+      "add": "New employee",
+      "addFirst": "Add your first employee",
+      "search": "Search by name, job or number",
+      "department": "Department",
+      "allDepartments": "All departments",
+      "noMatch": "No employees match this search",
+      "empty": {
+        "active": "No employees yet",
+        "ended": "No one has left",
+        "all": "No employees yet"
+      },
+      "tabs": {
+        "active": "Active",
+        "ended": "Left",
+        "all": "All"
+      },
+      "stats": {
+        "active": "Current employees",
+        "activeHint": "{leave} on leave and {absent} absent today",
+        "monthlyNet": "Monthly net pay",
+        "monthlyNetHint": "What they take home in a normal month",
+        "monthlyCost": "Monthly cost to the company",
+        "monthlyCostHint": "With the company's insurance share",
+        "advances": "Advances still owed",
+        "advancesHint": "Taken off the coming months’ pay"
+      },
+      "columns": {
+        "employee": "Employee",
+        "department": "Department",
+        "hireDate": "Hired",
+        "net": "Net pay",
+        "advances": "Advances owed",
+        "status": "Status"
+      },
+      "status": {
+        "active": "Active",
+        "ended": "Left"
+      },
+      "accounts": {
+        "bank": "Bank",
+        "cashbox": "Cash box",
+        "wallet": "Wallet"
+      },
+      "planLocked": {
+        "title": "Employees and payroll come with the paid plans",
+        "body": "Keep your employees on file, prepare each month’s pay, approve and pay it, and let the books post themselves.",
+        "features": {
+          "employees": "A file for every employee",
+          "payroll": "Monthly payroll",
+          "advances": "Advances paid back in installments",
+          "attendance": "Absence, leave and balances",
+          "payslips": "Payslips to print or send",
+          "books": "Payroll entries in the books"
+        },
+        "upgrade": "Upgrade",
+        "askOwner": "Ask the company owner to upgrade."
+      },
+      "notFound": "This employee was not found",
+      "loadError": "We couldn't load this employee",
+      "backToList": "Back to employees",
+      "back": "Back",
+      "edit": "Edit",
+      "reactivate": "Bring back",
+      "reactivated": "{name} is back",
+      "delete": "Delete",
+      "deleteTitle": "Delete {name}?",
+      "deleteDescription": "This employee has no pay or advances, so they go along with their documents and attendance.",
+      "deleteConfirm": "Delete employee",
+      "deleted": "{name} deleted",
+      "keep": "Keep",
+      "endedNotice": "Left on {date} ({reason}). Not in the payroll of later months.",
+      "end": {
+        "action": "End of service",
+        "title": "End {name}’s service",
+        "description": "Their file and past pay stay; they are left out of the months after the end date.",
+        "date": "Last working day",
+        "reason": "Reason (optional)",
+        "reasonPlaceholder": "e.g. resigned",
+        "cancel": "Cancel",
+        "confirm": "End service",
+        "close": "Close",
+        "done": "{name}’s end of service recorded"
+      },
+      "pay": {
+        "title": "Monthly pay",
+        "baseSalary": "Base salary",
+        "allowances": "Allowances",
+        "insurance": "Insurance (employee share)",
+        "incomeTax": "Income tax",
+        "net": "Net",
+        "costNote": "Costs the company {cost} a month, of which {employer} is the company’s insurance share."
+      },
+      "payslips": {
+        "title": "Payslips",
+        "empty": "No approved pay yet."
+      },
+      "info": {
+        "title": "Details",
+        "hireDate": "Hired",
+        "phone": "Mobile",
+        "email": "Email",
+        "nationalId": "National ID",
+        "address": "Address",
+        "payAccount": "Paid from",
+        "bank": "Bank account",
+        "wallet": "Wallet number",
+        "leaveDays": "Yearly leave",
+        "leaveDaysValue": "{days} days"
+      },
+      "sheet": {
+        "title": "New employee",
+        "editTitle": "Edit employee",
+        "description": "Their details, monthly pay and how they are paid.",
+        "close": "Close",
+        "sections": {
+          "person": "Details",
+          "pay": "Monthly pay",
+          "account": "How they are paid",
+          "other": "Leave and notes"
+        },
+        "fields": {
+          "name": "Name",
+          "jobTitle": "Job title",
+          "department": "Department",
+          "phone": "Mobile",
+          "email": "Email",
+          "nationalId": "National ID",
+          "hireDate": "Hire date",
+          "address": "Address",
+          "baseSalary": "Base salary",
+          "allowances": "Fixed allowances",
+          "insurance": "Insurance (employee share)",
+          "incomeTax": "Income tax",
+          "employerInsurance": "Insurance (company share)",
+          "bankName": "Bank",
+          "bankAccount": "Account number or IBAN",
+          "walletNumber": "Wallet number",
+          "leaveDays": "Leave days a year",
+          "notes": "Notes"
+        },
+        "placeholders": {
+          "name": "e.g. Ahmed Samir",
+          "jobTitle": "e.g. Accountant",
+          "department": "e.g. Sales",
+          "nationalId": "Optional",
+          "date": "Pick a date",
+          "address": "Optional",
+          "bankName": "e.g. National Bank of Egypt"
+        },
+        "payHint": "Insurance and tax are fixed monthly amounts, as your accountant works them out, taken off the pay every month. The company’s insurance share is a cost to the company, not taken from the employee.",
+        "preview": {
+          "gross": "Gross",
+          "net": "Net",
+          "cost": "Cost to company"
+        },
+        "errors": {
+          "name": "Enter the employee’s name",
+          "hireDate": "Pick the hire date",
+          "salary": "Enter the base salary",
+          "amount": "A number with up to 2 decimals",
+          "deductions": "Insurance and tax are more than the pay",
+          "email": "This email doesn’t look right"
+        },
+        "cancel": "Cancel",
+        "save": "Save",
+        "submit": "Add employee",
+        "added": "{name} added",
+        "updated": "{name} saved"
+      },
+      "advances": {
+        "title": "Advances",
+        "outstanding": "{amount} still owed",
+        "add": "Advance",
+        "empty": "No advances.",
+        "installment": "{amount} a month",
+        "repaid": "Paid back",
+        "left": "{amount} left",
+        "remove": "Delete advance",
+        "removeTitle": "Delete this advance?",
+        "removeDescription": "The {amount} advance and its entry in the books go.",
+        "keep": "Keep",
+        "removeConfirm": "Delete advance",
+        "removed": "Advance deleted",
+        "dialogTitle": "Pay an advance",
+        "dialogDescription": "To {name}; the installment comes off their pay each month until it’s paid back.",
+        "close": "Close",
+        "amount": "Amount",
+        "installmentLabel": "Monthly installment",
+        "months": "{count, plural, one {Paid back in a month} other {Paid back in # months}}",
+        "date": "Paid on",
+        "paidFrom": "Paid from",
+        "note": "Note (optional)",
+        "notePlaceholder": "e.g. family matter",
+        "cancel": "Cancel",
+        "submit": "Pay advance",
+        "added": "{amount} advance paid to {name}",
+        "errors": {
+          "amount": "Enter a valid amount",
+          "installment": "The installment is more than the advance"
+        }
+      },
+      "attendance": {
+        "title": "Attendance and leave",
+        "previousYear": "Previous year",
+        "nextYear": "Next year",
+        "add": "Record",
+        "summary": {
+          "remaining": "Leave left",
+          "sick": "Sick leave",
+          "unpaid": "Unpaid",
+          "absence": "Absent"
+        },
+        "empty": "No absence or leave this year.",
+        "days": "{count, plural, one {# day} other {# days}}",
+        "remove": "Delete",
+        "removed": "Deleted",
+        "dialogTitle": "Record absence or leave",
+        "dialogDescription": "For {name}. One record stays within one month.",
+        "close": "Close",
+        "kind": "Kind",
+        "kinds": {
+          "absence": "Absence",
+          "annualLeave": "Annual leave",
+          "casualLeave": "Casual leave",
+          "sickLeave": "Sick leave",
+          "unpaidLeave": "Unpaid leave"
+        },
+        "hints": {
+          "absence": "Taken off the month’s pay: the base salary / 30 for each day.",
+          "annualLeave": "Out of the yearly leave balance, with full pay.",
+          "casualLeave": "Out of the yearly leave balance, with full pay.",
+          "sickLeave": "Paid, and not out of the balance.",
+          "unpaidLeave": "Taken off the month’s pay, like absence."
+        },
+        "from": "From",
+        "to": "To",
+        "daysLabel": "Days",
+        "daysHint": "Leave empty for the days between the dates, or enter a half day (0.5).",
+        "note": "Note",
+        "cancel": "Cancel",
+        "submit": "Record",
+        "added": "Recorded",
+        "errors": {
+          "dates": "The end is before the start",
+          "month": "One record stays within a month: split it at the month’s end",
+          "days": "The number of days isn’t right"
+        }
+      },
+      "documents": {
+        "title": "Documents",
+        "hint": "The contract, ID copy and other papers (an image or PDF up to 5 MB).",
+        "titlePlaceholder": "Document name (optional)",
+        "titleLabel": "Document name",
+        "upload": "Upload",
+        "empty": "No documents.",
+        "wrongType": "Upload an image or a PDF",
+        "tooBig": "The file is over 5 MB",
+        "added": "Document uploaded",
+        "remove": "Delete document",
+        "removeTitle": "Delete this document?",
+        "removeDescription": "“{title}” will be deleted.",
+        "keep": "Keep",
+        "removeConfirm": "Delete",
+        "removed": "Document deleted"
+      }
+    },
+    "Payroll": {
+      "title": "Payroll",
+      "description": "Prepare each month’s pay, approve it and pay it. The entries post themselves.",
+      "employees": "Employees",
+      "prepare": "Prepare a month",
+      "empty": "No payroll prepared yet",
+      "emptyHint": "Mizan prepares the month from your employees, their absence and advances; then you add bonuses and deductions and approve it.",
+      "prepareFirst": "Prepare {month}",
+      "paidOn": "Paid on {date}",
+      "columns": {
+        "month": "Month",
+        "employees": "Employees",
+        "net": "Net",
+        "cost": "Cost",
+        "status": "Status",
+        "employee": "Employee",
+        "pay": "Base and allowances",
+        "extra": "Bonus and overtime",
+        "absence": "Absence",
+        "deductions": "Deductions, insurance, advances",
+        "actions": "Actions"
+      },
+      "status": {
+        "draft": "Draft",
+        "approved": "Approved",
+        "paid": "Paid"
+      },
+      "stage": {
+        "draft": "Draft: not in the books yet, and can be changed",
+        "approved": "Approved: recorded as an expense owed to the employees",
+        "paid": "Paid"
+      },
+      "prepareDialog": {
+        "title": "Prepare a month",
+        "description": "Every employee on the books during the month gets a line.",
+        "close": "Close",
+        "month": "Month",
+        "hint": "Absence, unpaid leave and advance installments are worked out for you, and anyone who joined or left during the month is paid for the days worked.",
+        "alreadyPrepared": "This month is already prepared; it will open.",
+        "cancel": "Cancel",
+        "open": "Open the month",
+        "submit": "Prepare",
+        "done": "{month} prepared"
+      },
+      "notFound": "This month isn’t prepared yet",
+      "loadError": "We couldn't load the payroll",
+      "backToList": "Back to payroll",
+      "back": "Back",
+      "runTitle": "Payroll, {month}",
+      "delete": "Delete",
+      "refresh": "Update from employees",
+      "approve": "Approve",
+      "printAll": "Print payslips",
+      "reopen": "Back to draft",
+      "pay": "Pay",
+      "unpay": "Cancel payment",
+      "missing": "{count, plural, one {One employee isn’t in this month} other {# employees aren’t in this month}}: {names}",
+      "totals": {
+        "gross": "Gross",
+        "employees": "{count, plural, one {# employee} other {# employees}}",
+        "deductions": "Deductions",
+        "deductionsHint": "Insurance {insurance} and tax {tax} included",
+        "net": "Net to pay",
+        "netHint": "Bank {bank} · Cash {cash} · Wallet {wallet}",
+        "cost": "Cost to the company",
+        "costHint": "In the books on {date}"
+      },
+      "absenceDays": "{count, plural, one {# day} other {# days}}",
+      "rowActions": {
+        "edit": "Edit",
+        "remove": "Leave out this month",
+        "print": "Print payslip",
+        "email": "Email payslip",
+        "whatsapp": "Send on WhatsApp"
+      },
+      "noItems": "No employees in this month.",
+      "toasts": {
+        "noPhone": "{name} has no mobile number",
+        "noEmail": "{name} has no email",
+        "emailed": "Payslip sent to {to}",
+        "approved": "{month} approved",
+        "reopened": "Back to draft",
+        "unpaid": "Payment cancelled",
+        "deleted": "{month} payroll deleted",
+        "refreshed": "Updated from the employees",
+        "removed": "{name} left out of this month"
+      },
+      "whatsapp": {
+        "greeting": "Hello {name},",
+        "intro": "Your {month} pay from {company}:"
+      },
+      "confirm": {
+        "approveTitle": "Approve {month}?",
+        "approveDescription": "Net {net}, costing the company {cost}. It goes into the books and the payslips become ready.",
+        "reopenTitle": "Back to draft?",
+        "reopenDescription": "It comes out of the books until you approve it again.",
+        "unpayTitle": "Cancel the payment?",
+        "unpayDescription": "For a payment recorded by mistake: the month goes back to approved, not paid.",
+        "deleteTitle": "Delete the {month} payroll?",
+        "deleteDescription": "The draft goes; you can prepare the month again.",
+        "cancel": "Keep"
+      },
+      "item": {
+        "description": "This month’s bonus, deductions and advance installment.",
+        "close": "Close",
+        "fixed": {
+          "base": "Base and allowances",
+          "absence": "Absence ({days} days)",
+          "insurance": "Insurance",
+          "tax": "Tax"
+        },
+        "fields": {
+          "bonus": "Bonuses",
+          "overtime": "Overtime",
+          "otherDeductions": "Other deductions",
+          "deductionNote": "Deduction reason",
+          "advanceDeduction": "Advance installment",
+          "payAccount": "Paid from",
+          "note": "Note"
+        },
+        "placeholders": {
+          "deductionNote": "e.g. lateness"
+        },
+        "net": "Net",
+        "cancel": "Cancel",
+        "save": "Save",
+        "saved": "{name}’s pay saved",
+        "errors": {
+          "amount": "A number with up to 2 decimals",
+          "negative": "The deductions are more than the pay"
+        }
+      },
+      "payDialog": {
+        "title": "Pay {month}",
+        "description": "Each employee is paid from the account they’re paid from.",
+        "close": "Close",
+        "from": "From {account}",
+        "total": "Total",
+        "date": "Paid on",
+        "dateHint": "Paid before the month ends? The salaries cost is recorded on the payment day.",
+        "cancel": "Cancel",
+        "submit": "Record payment",
+        "done": "{month} payment recorded"
+      },
+      "payslip": {
+        "title": "Payslip, {month}",
+        "employee": "Employee",
+        "number": "Number",
+        "jobTitle": "Job title",
+        "department": "Department",
+        "paidBy": "Paid by",
+        "paidOn": "Paid on",
+        "notPaid": "Not paid yet",
+        "earnings": "Earnings",
+        "deductions": "Deductions",
+        "amount": "Amount",
+        "gross": "Total earnings",
+        "totalDeductions": "Total deductions",
+        "noDeductions": "None",
+        "net": "Net pay",
+        "signEmployee": "Employee’s signature",
+        "signCompany": "Company’s signature",
+        "lines": {
+          "base": "Base salary",
+          "allowances": "Allowances",
+          "bonus": "Bonuses",
+          "overtime": "Overtime",
+          "absence": "Absence and unpaid leave ({days} days)",
+          "other": "Other deductions",
+          "insurance": "Social insurance",
+          "tax": "Income tax",
+          "advance": "Advance installment"
+        }
+      }
+    },
     "Claims": {
       "close": "Close",
       "title": "Receipts from the customer",
@@ -444,6 +889,7 @@
   }
 },
 "Nav": {
+  "employees": "Employees & payroll",
   "openMenu": "Open menu",
   "menuTitle": "Navigation menu",
   "dashboard": "Home",
@@ -2391,6 +2837,7 @@
     "allowed": "Allowed",
     "denied": "Not allowed",
     "perms": {
+      "payroll": "Employees and payroll",
       "viewCustomers": "View customers and deals",
       "editCustomers": "Create and edit customers",
       "editProducts": "Add and edit products and prices",
@@ -2546,6 +2993,7 @@
   "perMonth": "/ month",
   "success": "Upgrade to the {plan} plan requested",
   "features": {
+    "payroll": "Employees and payroll",
     "users": "{count, plural, one {Up to {n} user} other {Up to {n} users}}",
     "invoices10": "10 invoices per month",
     "invoices20": "20 invoices per month",
@@ -2634,6 +3082,8 @@
     "books": "Books"
   },
   "items": {
+    "employee": "Employee: {ref}",
+    "payroll": "Payroll {ref}",
     "subscription": "Subscription {ref}",
     "invoice": "Invoice {ref}",
     "quote": "Quote {ref}",
@@ -2650,6 +3100,8 @@
     "deal": "Deal: {ref}"
   },
   "itemTypes": {
+    "employee": "Employees",
+    "payroll": "Payroll",
     "subscription": "Subscription",
     "company": "Company",
     "customer": "Customers",
@@ -2659,6 +3111,25 @@
     "expense": "Expense"
   },
   "events": {
+    "employeeAdded": "Employee added",
+    "employeeUpdated": "Employee updated: {fields}",
+    "employeeEnded": "End of service",
+    "employeeReactivated": "Employee brought back",
+    "employeeDeleted": "Employee deleted",
+    "advancePaid": "Advance of {amount} paid",
+    "advanceDeleted": "Advance of {amount} deleted",
+    "attendanceAdded": "{kind} recorded ({days} days)",
+    "attendanceDeleted": "{kind} record deleted",
+    "employeeDocumentAdded": "Document uploaded: {title}",
+    "employeeDocumentRemoved": "Document deleted: {title}",
+    "payrollPrepared": "{month} payroll prepared",
+    "payrollRefreshed": "{month} payroll updated from the employees",
+    "payrollDeleted": "{month} payroll deleted",
+    "payrollApproved": "{month} payroll approved, net {net}",
+    "payrollReopened": "{month} payroll back to draft",
+    "payrollPaid": "{month} payroll paid, net {net}",
+    "payrollPaymentCancelled": "{month} payroll payment cancelled",
+    "payslipEmailed": "{month} payslip emailed to {to}",
     "paymentDetailsUpdated": "Updated the transfer details shown to customers",
     "paymobConnected": "Connected the Paymob account for card payments on invoices",
     "paymobDisconnected": "Disconnected the Paymob account",
@@ -2771,6 +3242,21 @@
     "whatsapp": "WhatsApp"
   },
   "fields": {
+    "jobTitle": "job title",
+    "department": "department",
+    "nationalId": "national ID",
+    "address": "address",
+    "hireDate": "hire date",
+    "baseSalary": "base salary",
+    "allowances": "allowances",
+    "insurance": "insurance",
+    "employerInsurance": "company insurance",
+    "incomeTax": "income tax",
+    "payAccount": "how paid",
+    "bankName": "bank",
+    "bankAccount": "bank account",
+    "walletNumber": "wallet",
+    "leaveDays": "leave days",
     "name": "name",
     "contactName": "contact",
     "phone": "phone",
@@ -2835,6 +3321,10 @@
     "expense": "Expenses"
   },
   "names": {
+    "employeeAdvances": "Employee advances",
+    "salariesPayable": "Salaries payable",
+    "socialInsurance": "Social insurance payable",
+    "payrollTax": "Payroll tax payable",
     "cashbox": "Cash box",
     "bank": "Bank",
     "wallet": "E-wallets",
@@ -2858,6 +3348,9 @@
     "otherExpenses": "Other expenses"
   },
   "entries": {
+    "payroll": "Payroll, {month}",
+    "payrollPayment": "Payroll paid, {month}",
+    "advance": "Advance to {party}",
     "title": "Latest entries",
     "number": "Entry",
     "date": "Date",
@@ -2921,6 +3414,7 @@
     "toggleLines": "Show entry lines",
     "empty": "No matching entries",
     "sources": {
+      "payroll": "Payroll",
       "invoice": "Invoice",
       "payment": "Payment",
       "expense": "Expense",
@@ -3048,6 +3542,17 @@
   }
 },
   "ApiErrors": {
+    "EMPLOYEE_HAS_HISTORY": "This employee has pay or advances, so they can’t be deleted. End their service instead.",
+    "EMPLOYEE_ENDED": "This employee’s service has ended.",
+    "ADVANCE_REPAID": "Part of this advance has been paid back, so it can’t be deleted.",
+    "LEAVE_BALANCE": "Not enough paid leave left this year.",
+    "PAYROLL_MONTH_FINAL": "This month’s payroll is approved. Return it to draft first.",
+    "PAYROLL_EXISTS": "This month’s payroll is already prepared.",
+    "NO_EMPLOYEES": "There are no employees for this month.",
+    "PAYROLL_STATUS": "That step isn’t available at this payroll’s stage.",
+    "ADVANCE_DEDUCTION_TOO_HIGH": "The installment is more than this employee still owes.",
+    "NET_NEGATIVE": "The deductions are more than the pay.",
+    "NO_EMAIL": "There is no email address.",
     "PAYMOB_SECRET_INVALID": "Paymob didn't accept the Secret key. Make sure you copied all of it",
     "PAYMOB_INTEGRATION_INVALID": "This integration ID doesn't exist in this Paymob account. Use the card one (Online Card)",
     "PAYMOB_REFUSED": "Paymob refused the request. Check the keys and try again",
@@ -3403,6 +3908,7 @@
       "accountsTitle": "Cash balances",
       "account": "Account",
       "lines": {
+        "employeeAdvances": "Employee advances",
         "customers": "Received from customers",
         "purchases": "Purchases",
         "salaries": "Salaries and wages",

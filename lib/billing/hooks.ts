@@ -59,7 +59,7 @@ export type BillingPayment = {
 /** What each plan's card lists (Settings.subscription.upgradeDialog.features.*). */
 export const PLAN_FEATURES: Record<PlanId, string[]> = {
   free: ['users', 'invoices10', 'basicReports'],
-  pro: ['users', 'invoicesUnlimited', 'fullReports', 'recurring'],
+  pro: ['users', 'invoicesUnlimited', 'fullReports', 'recurring', 'payroll'],
   business: ['users', 'allPro', 'advancedPermissions', 'prioritySupport'],
 };
 

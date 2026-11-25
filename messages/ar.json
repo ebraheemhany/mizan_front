@@ -1,4 +1,449 @@
 {
+   "Employees": {
+     "title": "الموظفين",
+     "description": "بيانات فريقك ومرتباتهم وسلفهم وحضورهم في مكان واحد.",
+     "payroll": "مسير المرتبات",
+     "add": "موظف جديد",
+     "addFirst": "ضيف أول موظف",
+     "search": "دوّر بالاسم أو الوظيفة أو الرقم",
+     "department": "القسم",
+     "allDepartments": "كل الأقسام",
+     "noMatch": "مفيش موظفين بالبحث ده",
+     "empty": {
+       "active": "لسه مفيش موظفين",
+       "ended": "مفيش حد خلصت خدمته",
+       "all": "لسه مفيش موظفين"
+     },
+     "tabs": {
+       "active": "على رأس العمل",
+       "ended": "خلصت خدمتهم",
+       "all": "الكل"
+     },
+     "stats": {
+       "active": "الموظفين الحاليين",
+       "activeHint": "{leave} في إجازة و{absent} غياب النهارده",
+       "monthlyNet": "صافي المرتبات الشهري",
+       "monthlyNetHint": "اللي بيقبضوه في شهر عادي",
+       "monthlyCost": "تكلفة المرتبات على الشركة",
+       "monthlyCostHint": "بحصة الشركة في التأمينات",
+       "advances": "سلف لسه مستحقة",
+       "advancesHint": "بتتخصم من المرتبات الجاية"
+     },
+     "columns": {
+       "employee": "الموظف",
+       "department": "القسم",
+       "hireDate": "تاريخ التعيين",
+       "net": "صافي المرتب",
+       "advances": "سلف مستحقة",
+       "status": "الحالة"
+     },
+     "status": {
+       "active": "على رأس العمل",
+       "ended": "خلصت خدمته"
+     },
+     "accounts": {
+       "bank": "البنك",
+       "cashbox": "الخزنة",
+       "wallet": "المحفظة"
+     },
+     "planLocked": {
+       "title": "الموظفين والمرتبات في الباقات المدفوعة",
+       "body": "سجّل موظفينك، وجهّز مرتبات كل شهر واعتمدها واصرفها، وسيب الحسابات والقيود تتعمل لوحدها.",
+       "features": {
+         "employees": "ملف لكل موظف بمستنداته",
+         "payroll": "مسير مرتبات شهري",
+         "advances": "سلف بتتخصم على أقساط",
+         "attendance": "الغياب والإجازات ورصيدها",
+         "payslips": "قسائم مرتب تتطبع أو تتبعت",
+         "books": "قيود المرتبات في الدفاتر لوحدها"
+       },
+       "upgrade": "رقّي الباقة",
+       "askOwner": "اطلب من مالك الشركة يرقّي الباقة."
+     },
+     "notFound": "الموظف ده مش موجود",
+     "loadError": "مقدرناش نجيب بيانات الموظف",
+     "backToList": "رجوع للموظفين",
+     "back": "رجوع",
+     "edit": "تعديل",
+     "reactivate": "رجّعه للعمل",
+     "reactivated": "{name} رجع للعمل",
+     "delete": "حذف",
+     "deleteTitle": "حذف {name}؟",
+     "deleteDescription": "الموظف ده ملوش مرتبات ولا سلف، فهيتمسح هو ومستنداته وحضوره.",
+     "deleteConfirm": "حذف الموظف",
+     "deleted": "اتمسح {name}",
+     "keep": "تراجع",
+     "endedNotice": "خلصت خدمته يوم {date} ({reason}). مش هيدخل في مرتبات الشهور اللي بعد كده.",
+     "end": {
+       "action": "إنهاء الخدمة",
+       "title": "إنهاء خدمة {name}",
+       "description": "هيفضل ملفه ومرتباته القديمة، ومش هيدخل مرتبات الشهور اللي بعد تاريخ النهاية.",
+       "date": "آخر يوم عمل",
+       "reason": "السبب (اختياري)",
+       "reasonPlaceholder": "مثال: استقالة",
+       "cancel": "إلغاء",
+       "confirm": "إنهاء الخدمة",
+       "close": "إغلاق",
+       "done": "اتسجل إنهاء خدمة {name}"
+     },
+     "pay": {
+       "title": "المرتب الشهري",
+       "baseSalary": "الراتب الأساسي",
+       "allowances": "البدلات",
+       "insurance": "التأمينات (حصة الموظف)",
+       "incomeTax": "ضريبة كسب العمل",
+       "net": "الصافي",
+       "costNote": "تكلفته على الشركة {cost} في الشهر، منها {employer} حصة الشركة في التأمينات."
+     },
+     "payslips": {
+       "title": "قسائم المرتب",
+       "empty": "لسه مفيش مرتبات معتمدة ليه."
+     },
+     "info": {
+       "title": "البيانات",
+       "hireDate": "تاريخ التعيين",
+       "phone": "الموبايل",
+       "email": "الإيميل",
+       "nationalId": "الرقم القومي",
+       "address": "العنوان",
+       "payAccount": "بيقبض من",
+       "bank": "الحساب البنكي",
+       "wallet": "رقم المحفظة",
+       "leaveDays": "رصيد الإجازات السنوي",
+       "leaveDaysValue": "{days} يوم"
+     },
+     "sheet": {
+       "title": "موظف جديد",
+       "editTitle": "تعديل بيانات الموظف",
+       "description": "بياناته ومرتبه الشهري وإزاي بيقبض.",
+       "close": "إغلاق",
+       "sections": {
+         "person": "البيانات",
+         "pay": "المرتب الشهري",
+         "account": "بيقبض إزاي",
+         "other": "الإجازات والملاحظات"
+       },
+       "fields": {
+         "name": "الاسم",
+         "jobTitle": "الوظيفة",
+         "department": "القسم",
+         "phone": "الموبايل",
+         "email": "الإيميل",
+         "nationalId": "الرقم القومي",
+         "hireDate": "تاريخ التعيين",
+         "address": "العنوان",
+         "baseSalary": "الراتب الأساسي",
+         "allowances": "بدلات ثابتة",
+         "insurance": "التأمينات (حصة الموظف)",
+         "incomeTax": "ضريبة كسب العمل",
+         "employerInsurance": "التأمينات (حصة الشركة)",
+         "bankName": "البنك",
+         "bankAccount": "رقم الحساب أو IBAN",
+         "walletNumber": "رقم المحفظة",
+         "leaveDays": "أيام الإجازة في السنة",
+         "notes": "ملاحظات"
+       },
+       "placeholders": {
+         "name": "مثال: أحمد سمير",
+         "jobTitle": "مثال: محاسب",
+         "department": "مثال: المبيعات",
+         "nationalId": "اختياري",
+         "date": "اختار التاريخ",
+         "address": "اختياري",
+         "bankName": "مثال: البنك الأهلي"
+       },
+       "payHint": "التأمينات والضريبة بتتكتب كمبالغ شهرية ثابتة زي ما المحاسب بيحسبها، وبتتخصم من المرتب كل شهر. حصة الشركة في التأمينات تكلفة على الشركة ومش بتتخصم من الموظف.",
+       "preview": {
+         "gross": "الإجمالي",
+         "net": "الصافي",
+         "cost": "التكلفة على الشركة"
+       },
+       "errors": {
+         "name": "اكتب اسم الموظف",
+         "hireDate": "اختار تاريخ التعيين",
+         "salary": "اكتب الراتب الأساسي",
+         "amount": "رقم بحد أقصى خانتين عشريتين",
+         "deductions": "التأمينات والضريبة أكتر من المرتب",
+         "email": "الإيميل مش مظبوط"
+       },
+       "cancel": "إلغاء",
+       "save": "حفظ",
+       "submit": "إضافة الموظف",
+       "added": "اتضاف {name}",
+       "updated": "اتحفظت بيانات {name}"
+     },
+     "advances": {
+       "title": "السلف",
+       "outstanding": "لسه عليه {amount}",
+       "add": "سلفة",
+       "empty": "مفيش سلف.",
+       "installment": "قسط {amount}",
+       "repaid": "اتسددت",
+       "left": "باقي {amount}",
+       "remove": "حذف السلفة",
+       "removeTitle": "حذف السلفة؟",
+       "removeDescription": "هتتمسح السلفة بقيمة {amount} وقيدها من الدفاتر.",
+       "keep": "تراجع",
+       "removeConfirm": "حذف السلفة",
+       "removed": "اتمسحت السلفة",
+       "dialogTitle": "صرف سلفة",
+       "dialogDescription": "لـ {name}، والقسط بيتخصم من مرتبه كل شهر لحد ما تخلص.",
+       "close": "إغلاق",
+       "amount": "المبلغ",
+       "installmentLabel": "القسط الشهري",
+       "months": "{count, plural, one {هتخلص في شهر} two {هتخلص في شهرين} few {هتخلص في # شهور} many {هتخلص في # شهر} other {هتخلص في # شهر}}",
+       "date": "تاريخ الصرف",
+       "paidFrom": "اتصرفت من",
+       "note": "ملاحظة (اختياري)",
+       "notePlaceholder": "مثال: ظرف عائلي",
+       "cancel": "إلغاء",
+       "submit": "صرف السلفة",
+       "added": "اتصرفت سلفة {amount} لـ {name}",
+       "errors": {
+         "amount": "اكتب مبلغ صحيح",
+         "installment": "القسط أكبر من السلفة"
+       }
+     },
+     "attendance": {
+       "title": "الحضور والإجازات",
+       "previousYear": "السنة اللي فاتت",
+       "nextYear": "السنة اللي جاية",
+       "add": "تسجيل",
+       "summary": {
+         "remaining": "باقي من الإجازات",
+         "sick": "إجازات مرضية",
+         "unpaid": "بدون مرتب",
+         "absence": "غياب"
+       },
+       "empty": "مفيش غياب ولا إجازات السنة دي.",
+       "days": "{count, plural, one {يوم واحد} two {يومين} few {# أيام} many {# يوم} other {# يوم}}",
+       "remove": "حذف",
+       "removed": "اتمسح التسجيل",
+       "dialogTitle": "تسجيل غياب أو إجازة",
+       "dialogDescription": "لـ {name}. كل تسجيل جوه شهر واحد.",
+       "close": "إغلاق",
+       "kind": "النوع",
+       "kinds": {
+         "absence": "غياب",
+         "annualLeave": "إجازة سنوية",
+         "casualLeave": "إجازة عارضة",
+         "sickLeave": "إجازة مرضية",
+         "unpaidLeave": "بدون مرتب"
+       },
+       "hints": {
+         "absence": "بيتخصم من مرتب الشهر: الأساسي على 30 لكل يوم.",
+         "annualLeave": "من رصيد الإجازات السنوي، ومن غير خصم.",
+         "casualLeave": "من رصيد الإجازات السنوي، ومن غير خصم.",
+         "sickLeave": "مدفوعة، ومش من الرصيد.",
+         "unpaidLeave": "بتتخصم من مرتب الشهر زي الغياب."
+       },
+       "from": "من",
+       "to": "إلى",
+       "daysLabel": "عدد الأيام",
+       "daysHint": "سيبه فاضي للأيام بين التاريخين، أو اكتب نص يوم (0.5).",
+       "note": "ملاحظة",
+       "cancel": "إلغاء",
+       "submit": "تسجيل",
+       "added": "اتسجل",
+       "errors": {
+         "dates": "تاريخ النهاية قبل البداية",
+         "month": "التسجيل الواحد جوه شهر واحد: قسّمه عند آخر الشهر",
+         "days": "عدد الأيام مش مظبوط"
+       }
+     },
+     "documents": {
+       "title": "المستندات",
+       "hint": "العقد وصورة البطاقة وأي ورق تاني (صورة أو PDF لحد 5 ميجا).",
+       "titlePlaceholder": "اسم المستند (اختياري)",
+       "titleLabel": "اسم المستند",
+       "upload": "رفع",
+       "empty": "مفيش مستندات.",
+       "wrongType": "ارفع صورة أو ملف PDF",
+       "tooBig": "الملف أكبر من 5 ميجا",
+       "added": "اترفع المستند",
+       "remove": "حذف المستند",
+       "removeTitle": "حذف المستند؟",
+       "removeDescription": "هيتمسح «{title}».",
+       "keep": "تراجع",
+       "removeConfirm": "حذف",
+       "removed": "اتمسح المستند"
+     }
+   },
+   "Payroll": {
+     "title": "مسير المرتبات",
+     "description": "جهّز مرتبات كل شهر، اعتمدها، واصرفها. القيود بتتعمل لوحدها.",
+     "employees": "الموظفين",
+     "prepare": "تجهيز شهر",
+     "empty": "لسه مفيش مرتبات متجهزة",
+     "emptyHint": "ميزان بيجهّز الشهر من بيانات الموظفين وغيابهم وسلفهم، وبعدين تعدّل الحوافز والخصومات وتعتمده.",
+     "prepareFirst": "جهّز مرتبات {month}",
+     "paidOn": "اتصرفت يوم {date}",
+     "columns": {
+       "month": "الشهر",
+       "employees": "الموظفين",
+       "net": "الصافي",
+       "cost": "التكلفة",
+       "status": "الحالة",
+       "employee": "الموظف",
+       "pay": "الأساسي والبدلات",
+       "extra": "حوافز وإضافي",
+       "absence": "الغياب",
+       "deductions": "خصومات وتأمينات وسلف",
+       "actions": "إجراءات"
+     },
+     "status": {
+       "draft": "مسودة",
+       "approved": "معتمد",
+       "paid": "اتصرف"
+     },
+     "stage": {
+       "draft": "مسودة: لسه مش في الدفاتر، وتقدر تعدّل فيها",
+       "approved": "معتمد: اتسجل كمصروف ومستحق للموظفين",
+       "paid": "اتصرف"
+     },
+     "prepareDialog": {
+       "title": "تجهيز مرتبات شهر",
+       "description": "هيتعمل مسير بكل الموظفين اللي كانوا على رأس العمل في الشهر.",
+       "close": "إغلاق",
+       "month": "الشهر",
+       "hint": "هيتحسب الغياب والإجازات بدون مرتب وقسط السلف لوحدهم، ومن اتعيّن أو ساب في نص الشهر بياخد عن الأيام اللي اشتغلها.",
+       "alreadyPrepared": "الشهر ده متجهز قبل كده، وهيفتحلك.",
+       "cancel": "إلغاء",
+       "open": "فتح الشهر",
+       "submit": "تجهيز",
+       "done": "اتجهزت مرتبات {month}"
+     },
+     "notFound": "الشهر ده لسه متجهزش",
+     "loadError": "مقدرناش نجيب المرتبات",
+     "backToList": "رجوع للمرتبات",
+     "back": "رجوع",
+     "runTitle": "مرتبات {month}",
+     "delete": "حذف",
+     "refresh": "تحديث من بيانات الموظفين",
+     "approve": "اعتماد",
+     "printAll": "طباعة القسائم",
+     "reopen": "رجوع لمسودة",
+     "pay": "صرف",
+     "unpay": "إلغاء الصرف",
+     "missing": "{count, plural, one {فيه موظف مش في المسير} two {فيه موظفين مش في المسير} few {فيه # موظفين مش في المسير} many {فيه # موظف مش في المسير} other {فيه # موظف مش في المسير}}: {names}",
+     "totals": {
+       "gross": "الإجمالي",
+       "employees": "{count, plural, one {موظف واحد} two {موظفين} few {# موظفين} many {# موظف} other {# موظف}}",
+       "deductions": "الخصومات",
+       "deductionsHint": "منها تأمينات {insurance} وضريبة {tax}",
+       "net": "الصافي المطلوب صرفه",
+       "netHint": "بنك {bank} · خزنة {cash} · محفظة {wallet}",
+       "cost": "التكلفة على الشركة",
+       "costHint": "في الدفاتر يوم {date}"
+     },
+     "absenceDays": "{count, plural, one {يوم واحد} two {يومين} few {# أيام} many {# يوم} other {# يوم}}",
+     "rowActions": {
+       "edit": "تعديل",
+       "remove": "إخراج من الشهر",
+       "print": "طباعة القسيمة",
+       "email": "إرسال بالإيميل",
+       "whatsapp": "إرسال على واتساب"
+     },
+     "noItems": "مفيش موظفين في الشهر ده.",
+     "toasts": {
+       "noPhone": "{name} ملوش رقم موبايل",
+       "noEmail": "{name} ملوش إيميل",
+       "emailed": "اتبعتت القسيمة لـ {to}",
+       "approved": "اتعتمدت مرتبات {month}",
+       "reopened": "رجع الشهر مسودة",
+       "unpaid": "اتلغى الصرف",
+       "deleted": "اتمسح مسير {month}",
+       "refreshed": "اتحدث من بيانات الموظفين",
+       "removed": "{name} خرج من الشهر"
+     },
+     "whatsapp": {
+       "greeting": "أهلاً {name}،",
+       "intro": "دي تفاصيل مرتب {month} من {company}:"
+     },
+     "confirm": {
+       "approveTitle": "اعتماد مرتبات {month}؟",
+       "approveDescription": "الصافي {net} والتكلفة على الشركة {cost}. هتتسجل في الدفاتر، والقسائم هتبقى جاهزة.",
+       "reopenTitle": "ترجع الشهر مسودة؟",
+       "reopenDescription": "هيطلع من الدفاتر لحد ما تعتمده تاني.",
+       "unpayTitle": "تلغي الصرف؟",
+       "unpayDescription": "لو الصرف اتسجل بالغلط: هيرجع الشهر معتمد ومش مصروف.",
+       "deleteTitle": "حذف مسير {month}؟",
+       "deleteDescription": "المسودة هتتمسح، وتقدر تجهّز الشهر تاني.",
+       "cancel": "تراجع"
+     },
+     "item": {
+       "description": "الحوافز والخصومات وقسط السلفة للشهر ده.",
+       "close": "إغلاق",
+       "fixed": {
+         "base": "الأساسي والبدلات",
+         "absence": "الغياب ({days} يوم)",
+         "insurance": "التأمينات",
+         "tax": "الضريبة"
+       },
+       "fields": {
+         "bonus": "حوافز ومكافآت",
+         "overtime": "إضافي",
+         "otherDeductions": "خصومات أخرى",
+         "deductionNote": "سبب الخصم",
+         "advanceDeduction": "قسط السلفة",
+         "payAccount": "يقبض من",
+         "note": "ملاحظة"
+       },
+       "placeholders": {
+         "deductionNote": "مثال: جزاء تأخير"
+       },
+       "net": "الصافي",
+       "cancel": "إلغاء",
+       "save": "حفظ",
+       "saved": "اتحفظ مرتب {name}",
+       "errors": {
+         "amount": "رقم بحد أقصى خانتين عشريتين",
+         "negative": "الخصومات أكتر من المرتب"
+       }
+     },
+     "payDialog": {
+       "title": "صرف مرتبات {month}",
+       "description": "كل موظف بيتصرفله من الحساب اللي بيقبض منه.",
+       "close": "إغلاق",
+       "from": "من {account}",
+       "total": "الإجمالي",
+       "date": "تاريخ الصرف",
+       "dateHint": "لو صرفت قبل آخر الشهر، تكلفة المرتبات بتتسجل يوم الصرف.",
+       "cancel": "إلغاء",
+       "submit": "تسجيل الصرف",
+       "done": "اتسجل صرف مرتبات {month}"
+     },
+     "payslip": {
+       "title": "قسيمة مرتب {month}",
+       "employee": "الموظف",
+       "number": "الرقم",
+       "jobTitle": "الوظيفة",
+       "department": "القسم",
+       "paidBy": "طريقة الصرف",
+       "paidOn": "تاريخ الصرف",
+       "notPaid": "لسه متصرفش",
+       "earnings": "المستحقات",
+       "deductions": "الاستقطاعات",
+       "amount": "المبلغ",
+       "gross": "إجمالي المستحقات",
+       "totalDeductions": "إجمالي الاستقطاعات",
+       "noDeductions": "مفيش",
+       "net": "صافي المرتب",
+       "signEmployee": "توقيع الموظف",
+       "signCompany": "توقيع الشركة",
+       "lines": {
+         "base": "الراتب الأساسي",
+         "allowances": "البدلات",
+         "bonus": "حوافز ومكافآت",
+         "overtime": "إضافي",
+         "absence": "غياب وإجازة بدون مرتب ({days} يوم)",
+         "other": "خصومات أخرى",
+         "insurance": "التأمينات الاجتماعية",
+         "tax": "ضريبة كسب العمل",
+         "advance": "قسط السلفة"
+       }
+     }
+   },
    "Claims": {
      "close": "إغلاق",
      "title": "إيصالات من العميل",
@@ -444,6 +889,7 @@
   }
 },
 "Nav": {
+  "employees": "الموظفين والمرتبات",
   "openMenu": "فتح القائمة",
   "menuTitle": "قائمة التنقل",
   "dashboard": "الرئيسية",
@@ -2394,6 +2840,7 @@
     "allowed": "مسموح",
     "denied": "غير مسموح",
     "perms": {
+      "payroll": "الموظفين والمرتبات",
       "viewCustomers": "عرض العملاء والصفقات",
       "editCustomers": "إنشاء وتعديل العملاء",
       "editProducts": "إضافة وتعديل المنتجات والأسعار",
@@ -2549,6 +2996,7 @@
   "perMonth": "/ شهرياً",
   "success": "تم طلب الترقية إلى باقة {plan}",
   "features": {
+    "payroll": "الموظفين والمرتبات",
     "users": "{count, plural, one {مستخدم واحد} two {حتى مستخدمين اتنين} few {حتى {n} مستخدمين} many {حتى {n} مستخدم} other {حتى {n} مستخدم}}",
     "invoices10": "10 فواتير شهرياً",
     "invoices20": "20 فاتورة شهرياً",
@@ -2637,6 +3085,8 @@
     "books": "الدفاتر"
   },
   "items": {
+    "employee": "موظف: {ref}",
+    "payroll": "مرتبات {ref}",
     "subscription": "اشتراك {ref}",
     "invoice": "فاتورة {ref}",
     "quote": "عرض {ref}",
@@ -2653,6 +3103,8 @@
     "deal": "صفقة: {ref}"
   },
   "itemTypes": {
+    "employee": "الموظفين",
+    "payroll": "المرتبات",
     "subscription": "الاشتراك",
     "company": "الشركة",
     "customer": "العملاء",
@@ -2662,6 +3114,25 @@
     "expense": "مصروف"
   },
   "events": {
+    "employeeAdded": "إضافة موظف",
+    "employeeUpdated": "تعديل بيانات الموظف: {fields}",
+    "employeeEnded": "إنهاء خدمة الموظف",
+    "employeeReactivated": "رجوع الموظف للعمل",
+    "employeeDeleted": "حذف الموظف",
+    "advancePaid": "صرف سلفة بقيمة {amount}",
+    "advanceDeleted": "حذف سلفة بقيمة {amount}",
+    "attendanceAdded": "تسجيل {kind} ({days} يوم)",
+    "attendanceDeleted": "حذف تسجيل {kind}",
+    "employeeDocumentAdded": "رفع مستند: {title}",
+    "employeeDocumentRemoved": "حذف مستند: {title}",
+    "payrollPrepared": "تجهيز مرتبات {month}",
+    "payrollRefreshed": "تحديث مرتبات {month} من بيانات الموظفين",
+    "payrollDeleted": "حذف مسير {month}",
+    "payrollApproved": "اعتماد مرتبات {month} بصافي {net}",
+    "payrollReopened": "رجوع مرتبات {month} لمسودة",
+    "payrollPaid": "صرف مرتبات {month} بصافي {net}",
+    "payrollPaymentCancelled": "إلغاء صرف مرتبات {month}",
+    "payslipEmailed": "إرسال قسيمة مرتب {month} إلى {to}",
     "paymentDetailsUpdated": "تعديل بيانات التحويل اللي بتظهر للعملاء",
     "paymobConnected": "ربط حساب Paymob لدفع الفواتير بالكارت",
     "paymobDisconnected": "فصل حساب Paymob",
@@ -2774,6 +3245,21 @@
     "whatsapp": "واتساب"
   },
   "fields": {
+    "jobTitle": "الوظيفة",
+    "department": "القسم",
+    "nationalId": "الرقم القومي",
+    "address": "العنوان",
+    "hireDate": "تاريخ التعيين",
+    "baseSalary": "الراتب الأساسي",
+    "allowances": "البدلات",
+    "insurance": "التأمينات",
+    "employerInsurance": "تأمينات الشركة",
+    "incomeTax": "الضريبة",
+    "payAccount": "طريقة القبض",
+    "bankName": "البنك",
+    "bankAccount": "الحساب البنكي",
+    "walletNumber": "المحفظة",
+    "leaveDays": "رصيد الإجازات",
     "name": "الاسم",
     "contactName": "جهة الاتصال",
     "phone": "الهاتف",
@@ -2838,6 +3324,10 @@
     "expense": "مصروفات"
   },
   "names": {
+    "employeeAdvances": "سلف الموظفين",
+    "salariesPayable": "مرتبات مستحقة",
+    "socialInsurance": "تأمينات اجتماعية مستحقة",
+    "payrollTax": "ضريبة كسب عمل مستحقة",
     "cashbox": "الخزينة",
     "bank": "البنك",
     "wallet": "المحافظ الإلكترونية",
@@ -2861,6 +3351,9 @@
     "otherExpenses": "مصروفات أخرى"
   },
   "entries": {
+    "payroll": "مرتبات {month}",
+    "payrollPayment": "صرف مرتبات {month}",
+    "advance": "سلفة لـ {party}",
     "title": "آخر القيود",
     "number": "القيد",
     "date": "التاريخ",
@@ -2924,6 +3417,7 @@
     "toggleLines": "عرض أسطر القيد",
     "empty": "لا توجد قيود مطابقة",
     "sources": {
+      "payroll": "مرتبات",
       "invoice": "فاتورة",
       "payment": "دفعة",
       "expense": "مصروف",
@@ -3051,6 +3545,17 @@
   }
 },
   "ApiErrors": {
+    "EMPLOYEE_HAS_HISTORY": "الموظف ده ليه مرتبات أو سلف، فمينفعش يتمسح. أنهي خدمته بدل كده.",
+    "EMPLOYEE_ENDED": "خدمة الموظف ده خلصت.",
+    "ADVANCE_REPAID": "جزء من السلفة دي اتسدد، فمينفعش تتمسح.",
+    "LEAVE_BALANCE": "رصيد الإجازات السنوي مش كفاية.",
+    "PAYROLL_MONTH_FINAL": "مرتبات الشهر ده معتمدة. رجّعها مسودة الأول.",
+    "PAYROLL_EXISTS": "مرتبات الشهر ده متجهزة قبل كده.",
+    "NO_EMPLOYEES": "مفيش موظفين للشهر ده.",
+    "PAYROLL_STATUS": "الخطوة دي مش متاحة في حالة المسير الحالية.",
+    "ADVANCE_DEDUCTION_TOO_HIGH": "قسط السلفة أكبر من اللي باقي على الموظف.",
+    "NET_NEGATIVE": "الخصومات أكتر من المرتب.",
+    "NO_EMAIL": "مفيش إيميل.",
     "PAYMOB_SECRET_INVALID": "Paymob رفض الـ Secret key. اتأكد إنك نسخته كامل",
     "PAYMOB_INTEGRATION_INVALID": "رقم الـ Integration ده مش موجود في حساب Paymob ده. استخدم بتاع الكروت (Online Card)",
     "PAYMOB_REFUSED": "Paymob رفض الطلب. راجع المفاتيح وجرّب تاني",
@@ -3406,6 +3911,7 @@
       "accountsTitle": "الأرصدة النقدية",
       "account": "الحساب",
       "lines": {
+        "employeeAdvances": "سلف الموظفين",
         "customers": "تحصيلات من العملاء",
         "purchases": "المشتريات",
         "salaries": "الرواتب والأجور",

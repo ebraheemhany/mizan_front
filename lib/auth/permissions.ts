@@ -35,6 +35,8 @@ export const PERMISSIONS = [
   { key: 'quotes', roles: ['owner', 'accountant', 'sales'] },
   /** Work on the sales pipeline (everyone can see it); deleting a won deal needs deleteData. */
   { key: 'deals', roles: ['owner', 'accountant', 'sales'] },
+  /** Employees, their pay, advances, attendance and files, and the monthly payroll. */
+  { key: 'payroll', roles: ['owner', 'accountant'] },
   { key: 'settings', roles: ['owner'] },
   { key: 'deleteData', roles: ['owner'] },
 ] as const satisfies readonly { key: string; roles: readonly Role[] }[];
