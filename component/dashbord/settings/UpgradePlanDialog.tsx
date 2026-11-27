@@ -190,7 +190,11 @@ export function UpgradePlanDialog({ open, onClose }: Props) {
                         >
                           <Check className="size-3.5" aria-hidden="true" />
                         </span>
-                        <span>{t(`upgradeDialog.features.${key}`, { count: plan.users, n: num(plan.users) })}</span>
+                        <span>{t(`upgradeDialog.features.${key}`, {
+                            count: plan.users,
+                            n: num(plan.users),
+                            invoices: num(plan.invoicesPerMonth ?? 0),
+                          })}</span>
                       </li>
                     ))}
                   </ul>

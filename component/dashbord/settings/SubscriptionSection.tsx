@@ -75,6 +75,8 @@ function SubscriptionDetails({ billing, isOwner }: { billing: Billing; isOwner: 
   const sub = billing.subscription;
   const planName = (id: string) => t(`plans.${id}`);
   const { usage } = billing;
+  // What the free plan allows, for "back to free" when cancelling.
+  const free = billing.plans.find((p) => p.id === 'free');
   const row = 'flex items-center justify-between gap-4 py-3.5';
 
   function payNow() {
@@ -231,7 +233,15 @@ function SubscriptionDetails({ billing, isOwner }: { billing: Billing; isOwner: 
       <ConfirmDialog
         open={cancelOpen}
         title={t('cancelDialog.title')}
-        description={sub ? t('cancelDialog.description', { date: day(sub.periodEnd) }) : ''}
+        description={
+          sub
+            ? t('cancelDialog.description', {
+                date: day(sub.periodEnd),
+                invoices: num(free?.invoicesPerMonth ?? 0),
+                users: free?.users ?? 1,
+              })
+            : ''
+        }
         cancelLabel={t('cancelDialog.keep')}
         confirmLabel={t('cancelDialog.confirm')}
         onConfirm={cancel}
