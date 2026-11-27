@@ -6,7 +6,7 @@
 
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { ArrowLeft, BadgeCheck, Loader2, Monitor } from 'lucide-react';
+import { ArrowLeft, BadgeCheck, CircleOff, Loader2, Monitor } from 'lucide-react';
 
 import PageHeader from '@/component/PageHeader';
 import { thClass } from '@/component/table-styles';
@@ -20,6 +20,7 @@ import { PLAN_CURRENCY } from '@/lib/billing/hooks';
 import { useMoney } from '@/lib/money';
 import { cn } from '@/lib/utils';
 import ActivateSubscriptionDialog from './ActivateSubscriptionDialog';
+import EndSubscriptionDialog from './EndSubscriptionDialog';
 import { PlanBadge, useCount, useLastActive, useShortDate, useSubscriptionNote } from './admin-ui';
 
 const USAGE_KEYS = ['customers', 'invoices', 'quotes', 'payments', 'expenses', 'products', 'recurring', 'deals', 'tasks', 'employees'] as const;
@@ -271,6 +272,7 @@ function Plan({ data }: { data: AdminCompanyDetail }) {
   const note = subscriptionNote(s);
   const meter = (used: number, limit: number | null) => (limit === null ? null : Math.min(100, Math.round((used / limit) * 100)));
   const [activateOpen, setActivateOpen] = useState(false);
+  const [endOpen, setEndOpen] = useState(false);
   const running = s !== null && s.status !== 'ended';
 
   return (
@@ -331,6 +333,20 @@ function Plan({ data }: { data: AdminCompanyDetail }) {
         {running ? t('extend') : t('activate')}
       </Button>
       <ActivateSubscriptionDialog company={data} open={activateOpen} onOpenChange={setActivateOpen} />
+      {running && (
+        <>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => setEndOpen(true)}
+            className="rounded-btn border-line-strong bg-surface text-danger hover:bg-danger-soft hover:text-danger mt-2 h-10 w-full gap-2 text-sm font-bold"
+          >
+            <CircleOff className="size-4" />
+            {t('end')}
+          </Button>
+          <EndSubscriptionDialog company={data} open={endOpen} onOpenChange={setEndOpen} />
+        </>
+      )}
     </section>
   );
 }

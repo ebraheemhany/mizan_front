@@ -144,6 +144,22 @@ export type ActivateSubscriptionInput = {
 };
 
 /**
+ * Ends a company's plan: "now" (back to free at once) or "periodEnd" (runs to the end of
+ * what is paid, then doesn't renew). A renewal that wasn't paid ends at once either way.
+ */
+export function useEndSubscription(companyId: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (when: 'now' | 'periodEnd') =>
+      api<AdminCompanyDetail>(`/api/admin/companies/${companyId}/subscription/end`, { method: 'POST', body: { when } }),
+    onSuccess: (company) => {
+      queryClient.setQueryData(adminKeys.company(companyId), company);
+      void queryClient.invalidateQueries({ queryKey: adminKeys.all });
+    },
+  });
+}
+
+/**
  * A plan the company paid for outside Paymob (cash, a transfer): the same plan is
  * extended from the end of its paid period, another one starts today.
  */
