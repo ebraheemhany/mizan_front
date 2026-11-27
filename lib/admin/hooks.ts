@@ -3,7 +3,7 @@
 // its plan and how much it uses Mizan. Counts and dates only, nothing from inside a company.
 'use client';
 
-import { keepPreviousData, useQuery } from '@tanstack/react-query';
+import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { api } from '@/lib/api/client';
 
 export type PlanId = 'free' | 'pro' | 'business';
@@ -97,6 +97,9 @@ export type AdminCompanyDetail = {
     currency: string;
     status: 'pending' | 'paid' | 'failed';
     automatic: boolean;
+    /** Recorded by Mizan's staff for a payment outside Paymob, with their note. */
+    manual: boolean;
+    note: string | null;
     createdAt: string;
     paidAt: string | null;
     periodStart: string | null;
@@ -130,4 +133,29 @@ export function useAdminCompanies(params: AdminCompaniesParams) {
 
 export function useAdminCompany(id: string) {
   return useQuery({ queryKey: adminKeys.company(id), queryFn: () => api<AdminCompanyDetail>(`/api/admin/companies/${id}`) });
+}
+
+export type ActivateSubscriptionInput = {
+  plan: Exclude<PlanId, 'free'>;
+  months: number;
+  /** What the company paid, in EGP. */
+  amount: string;
+  note?: string;
+};
+
+/**
+ * A plan the company paid for outside Paymob (cash, a transfer): the same plan is
+ * extended from the end of its paid period, another one starts today.
+ */
+export function useActivateSubscription(companyId: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (input: ActivateSubscriptionInput) =>
+      api<AdminCompanyDetail>(`/api/admin/companies/${companyId}/subscription`, { method: 'POST', body: input }),
+    onSuccess: (company) => {
+      queryClient.setQueryData(adminKeys.company(companyId), company);
+      // The overview and the companies table count plans and revenue too.
+      void queryClient.invalidateQueries({ queryKey: adminKeys.all });
+    },
+  });
 }

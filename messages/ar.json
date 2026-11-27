@@ -3165,6 +3165,7 @@
     "signedInDesktop": "تسجيل دخول من برنامج الكمبيوتر",
     "googleLinked": "ربط الحساب بجوجل",
     "subscriptionStarted": "اشتراك في باقة {plan} بقيمة {amount} لحد {through}",
+    "subscriptionActivatedByMizan": "ميزان فعّل باقة {plan} بقيمة {amount} لحد {through}",
     "planUpgraded": "ترقية لباقة {plan} (دفع الفرق {amount})",
     "subscriptionRenewed": "تجديد باقة {plan} بقيمة {amount} لحد {through}",
     "renewalFailed": "محاولة تجديد باقة {plan} فشلت (المحاولة {count})",
@@ -3755,6 +3756,27 @@
       "endsOn": "تنتهي {date}",
       "renewsOn": "تتجدد {date}"
     },
+    "activate": {
+      "title": "تفعيل باقة مدفوعة",
+      "close": "إغلاق",
+      "plan": "الباقة",
+      "perMonth": "{price} في الشهر",
+      "months": "المدة",
+      "monthCount": "{count, plural, one {شهر} two {شهرين} few {# شهور} other {# شهر}}",
+      "amount": "المبلغ المدفوع",
+      "amountInvalid": "اكتب المبلغ اللي اتدفع (0 لو مجاناً).",
+      "note": "اتدفع إزاي",
+      "optional": "اختياري",
+      "notePlaceholder": "مثلاً: تحويل بنكي، كاش",
+      "summaryExtend": "باقة {plan} هتتمد لحد {date}.",
+      "summaryStart": "باقة {plan} هتبدأ {start} ولحد {date}.",
+      "replaces": "هتحل محل باقة {plan} الحالية من النهارده.",
+      "cardStays": "الكارت المحفوظ هيفضل، والتجديد بعد كده هيتخصم منه عادي.",
+      "recorded": "هتتسجل في مدفوعات الشركة لميزان وفي سجل العمليات بتاعها.",
+      "cancel": "إلغاء",
+      "submit": "تفعيل",
+      "done": "اتفعّلت باقة {plan} لحد {date}"
+    },
     "overview": {
       "companies": "الشركات",
       "companiesHint": "+{month} الشهر ده · +{week} آخر 7 أيام",
@@ -3796,6 +3818,8 @@
     },
     "company": {
       "back": "كل الشركات",
+      "activate": "تفعيل باقة مدفوعة",
+      "extend": "تمديد أو تغيير الباقة",
       "missing": "الشركة دي مش موجودة (ممكن تكون اتمسحت).",
       "joined": "انضمت {date}",
       "usageTitle": "الاستخدام",
@@ -3832,6 +3856,8 @@
         "status": "الحالة",
         "date": "التاريخ",
         "automatic": "اتخصم من الكارت المحفوظ",
+        "manual": "اتسجلت يدوي",
+        "manualNote": "اتسجلت يدوي: {note}",
         "kinds": {
           "subscribe": "اشتراك في {plan}",
           "upgrade": "ترقية لـ{plan}",

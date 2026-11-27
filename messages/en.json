@@ -3162,6 +3162,7 @@
     "signedInDesktop": "Signed in to the desktop app",
     "googleLinked": "Linked the account to Google",
     "subscriptionStarted": "Subscribed to {plan} for {amount} until {through}",
+    "subscriptionActivatedByMizan": "Mizan activated {plan} for {amount} until {through}",
     "planUpgraded": "Upgraded to {plan} (paid the difference, {amount})",
     "subscriptionRenewed": "Renewed {plan} for {amount} until {through}",
     "renewalFailed": "Renewing {plan} failed (attempt {count})",
@@ -3752,6 +3753,27 @@
       "endsOn": "Ends {date}",
       "renewsOn": "Renews {date}"
     },
+    "activate": {
+      "title": "Activate a paid plan",
+      "close": "Close",
+      "plan": "Plan",
+      "perMonth": "{price} a month",
+      "months": "For",
+      "monthCount": "{count, plural, one {# month} other {# months}}",
+      "amount": "Amount paid",
+      "amountInvalid": "Enter the amount paid (0 if it was free).",
+      "note": "How it was paid",
+      "optional": "optional",
+      "notePlaceholder": "e.g. bank transfer, cash",
+      "summaryExtend": "{plan} is extended until {date}.",
+      "summaryStart": "{plan} starts {start} and runs until {date}.",
+      "replaces": "It replaces the current {plan} plan from today.",
+      "cardStays": "The saved card stays: afterwards the plan renews on it as usual.",
+      "recorded": "It's added to the company's payments to Mizan and its activity log.",
+      "cancel": "Cancel",
+      "submit": "Activate",
+      "done": "{plan} activated until {date}"
+    },
     "overview": {
       "companies": "Companies",
       "companiesHint": "+{month} this month · +{week} in the last 7 days",
@@ -3793,6 +3815,8 @@
     },
     "company": {
       "back": "All companies",
+      "activate": "Activate a paid plan",
+      "extend": "Extend or change the plan",
       "missing": "This company doesn't exist (it may have been deleted).",
       "joined": "Joined {date}",
       "usageTitle": "Usage",
@@ -3829,6 +3853,8 @@
         "status": "Status",
         "date": "Date",
         "automatic": "Charged to the saved card",
+        "manual": "Recorded by hand",
+        "manualNote": "Recorded by hand: {note}",
         "kinds": {
           "subscribe": "Subscribed to {plan}",
           "upgrade": "Upgraded to {plan}",

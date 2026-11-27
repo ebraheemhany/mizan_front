@@ -4,12 +4,13 @@
 // has been, and what it paid Mizan. Counts only: nothing from inside the company.
 'use client';
 
+import { useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { ArrowLeft, Loader2, Monitor } from 'lucide-react';
+import { ArrowLeft, BadgeCheck, Loader2, Monitor } from 'lucide-react';
 
 import PageHeader from '@/component/PageHeader';
 import { thClass } from '@/component/table-styles';
-import { buttonVariants } from '@/components/ui/button';
+import { Button, buttonVariants } from '@/components/ui/button';
 import { Link } from '@/i18n/navigation';
 import { useAdminCompany, type AdminCompanyDetail } from '@/lib/admin/hooks';
 import { ApiError } from '@/lib/api/client';
@@ -18,6 +19,7 @@ import { useSession } from '@/lib/auth/session';
 import { PLAN_CURRENCY } from '@/lib/billing/hooks';
 import { useMoney } from '@/lib/money';
 import { cn } from '@/lib/utils';
+import ActivateSubscriptionDialog from './ActivateSubscriptionDialog';
 import { PlanBadge, useCount, useLastActive, useShortDate, useSubscriptionNote } from './admin-ui';
 
 const USAGE_KEYS = ['customers', 'invoices', 'quotes', 'payments', 'expenses', 'products', 'recurring', 'deals', 'tasks', 'employees'] as const;
@@ -228,6 +230,11 @@ function Billing({ data }: { data: AdminCompanyDetail }) {
                   <td className="text-body px-4 py-3">
                     {t(`billing.kinds.${b.kind}`, { plan: tPlans(b.plan) })}
                     {b.automatic && <span className="text-muted block text-xs">{t('billing.automatic')}</span>}
+                    {b.manual && (
+                      <span className="text-muted block text-xs">
+                        {b.note ? t('billing.manualNote', { note: b.note }) : t('billing.manual')}
+                      </span>
+                    )}
                   </td>
                   <td className="text-ink px-4 py-3 font-bold whitespace-nowrap tabular-nums">
                     {money(Number(b.amount), b.currency || PLAN_CURRENCY)}
@@ -263,6 +270,8 @@ function Plan({ data }: { data: AdminCompanyDetail }) {
   const s = data.subscription;
   const note = subscriptionNote(s);
   const meter = (used: number, limit: number | null) => (limit === null ? null : Math.min(100, Math.round((used / limit) * 100)));
+  const [activateOpen, setActivateOpen] = useState(false);
+  const running = s !== null && s.status !== 'ended';
 
   return (
     <section className={card}>
@@ -311,6 +320,17 @@ function Plan({ data }: { data: AdminCompanyDetail }) {
           {s.renewalAttempts > 0 && <Row label={t('renewalAttempts')} value={n(s.renewalAttempts)} />}
         </dl>
       )}
+
+      {/* A plan paid outside Paymob (cash, a transfer). */}
+      <Button
+        type="button"
+        onClick={() => setActivateOpen(true)}
+        className="rounded-btn bg-brand hover:bg-brand/90 mt-4 h-11 w-full gap-2 text-sm font-bold text-white"
+      >
+        <BadgeCheck className="size-4" />
+        {running ? t('extend') : t('activate')}
+      </Button>
+      <ActivateSubscriptionDialog company={data} open={activateOpen} onOpenChange={setActivateOpen} />
     </section>
   );
 }
