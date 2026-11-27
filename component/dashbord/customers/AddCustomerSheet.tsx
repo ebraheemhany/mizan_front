@@ -32,7 +32,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { rtlLocales } from '@/i18n/routing';
 import type { Owner } from '@/lib/mock/customers';
 import { cn } from '@/lib/utils';
-import SettingsSelect from '@/component/dashbord/settings/SettingsSelect';
+import OwnerPicker, { useOwnerInvite } from '@/component/dashbord/team/OwnerPicker';
 import {
   createCustomerSchema,
   type CustomerFormValues,
@@ -93,177 +93,178 @@ function CustomerForm({
     resolver: zodResolver(schema),
     defaultValues: initial ?? emptyValues(defaultOwnerId),
   });
+  // Someone new can be invited onto the team from the owner picker.
+  const ownerInvite = useOwnerInvite();
 
   return (
-    <form
-      onSubmit={handleSubmit(onSubmit)}
-      noValidate
-      className="flex min-h-0 flex-1 flex-col"
-    >
-      <div className={cn(dialogScrollBody, 'space-y-5 p-6')}>
-        {/* الاسم */}
-        <div>
-          <Label htmlFor="c-name" className={labelClass}>
-            {t('name')}
-          </Label>
-          <Input
-            id="c-name"
-            autoFocus
-            autoComplete="off"
-            placeholder={t('namePlaceholder')}
-            aria-invalid={!!errors.name}
-            className={fieldClass}
-            {...register('name')}
-          />
-          <FieldError message={errors.name?.message} />
-        </div>
-
-        {/* مسؤول التواصل + الهاتف */}
-        <div className="grid gap-5 sm:grid-cols-2">
+    <>
+      <form
+        onSubmit={handleSubmit(onSubmit)}
+        noValidate
+        className="flex min-h-0 flex-1 flex-col"
+      >
+        <div className={cn(dialogScrollBody, 'space-y-5 p-6')}>
+          {/* الاسم */}
           <div>
-            <Label htmlFor="c-contact" className={labelClass}>
-              {t('contact')}
+            <Label htmlFor="c-name" className={labelClass}>
+              {t('name')}
             </Label>
             <Input
-              id="c-contact"
+              id="c-name"
+              autoFocus
               autoComplete="off"
-              placeholder={t('contactPlaceholder')}
-              aria-invalid={!!errors.contact}
+              placeholder={t('namePlaceholder')}
+              aria-invalid={!!errors.name}
               className={fieldClass}
-              {...register('contact')}
+              {...register('name')}
             />
-            <FieldError message={errors.contact?.message} />
+            <FieldError message={errors.name?.message} />
           </div>
 
+          {/* مسؤول التواصل + الهاتف */}
+          <div className="grid gap-5 sm:grid-cols-2">
+            <div>
+              <Label htmlFor="c-contact" className={labelClass}>
+                {t('contact')}
+              </Label>
+              <Input
+                id="c-contact"
+                autoComplete="off"
+                placeholder={t('contactPlaceholder')}
+                aria-invalid={!!errors.contact}
+                className={fieldClass}
+                {...register('contact')}
+              />
+              <FieldError message={errors.contact?.message} />
+            </div>
+
+            <div>
+              <Label htmlFor="c-phone" className={labelClass}>
+                {t('phone')}
+              </Label>
+              <Input
+                id="c-phone"
+                type="tel"
+                inputMode="tel"
+                dir="ltr"
+                autoComplete="off"
+                placeholder={t('phonePlaceholder')}
+                aria-invalid={!!errors.phone}
+                className={fieldClass}
+                {...register('phone')}
+              />
+              <FieldError message={errors.phone?.message} />
+            </div>
+          </div>
+
+          {/* البريد */}
           <div>
-            <Label htmlFor="c-phone" className={labelClass}>
-              {t('phone')}
+            <Label htmlFor="c-email" className={labelClass}>
+              {t('email')}
             </Label>
             <Input
-              id="c-phone"
-              type="tel"
-              inputMode="tel"
+              id="c-email"
+              type="email"
+              inputMode="email"
               dir="ltr"
               autoComplete="off"
-              placeholder={t('phonePlaceholder')}
-              aria-invalid={!!errors.phone}
+              placeholder={t('emailPlaceholder')}
+              aria-invalid={!!errors.email}
               className={fieldClass}
-              {...register('phone')}
+              {...register('email')}
             />
-            <FieldError message={errors.phone?.message} />
+            <FieldError message={errors.email?.message} />
           </div>
-        </div>
 
-        {/* البريد */}
-        <div>
-          <Label htmlFor="c-email" className={labelClass}>
-            {t('email')}
-          </Label>
-          <Input
-            id="c-email"
-            type="email"
-            inputMode="email"
-            dir="ltr"
-            autoComplete="off"
-            placeholder={t('emailPlaceholder')}
-            aria-invalid={!!errors.email}
-            className={fieldClass}
-            {...register('email')}
-          />
-          <FieldError message={errors.email?.message} />
-        </div>
+          {/* المدينة + المسؤول */}
+          <div className="grid gap-5 sm:grid-cols-2">
+            <div>
+              <Label htmlFor="c-city" className={labelClass}>
+                {t('city')}
+              </Label>
+              <Input
+                id="c-city"
+                autoComplete="off"
+                placeholder={t('cityPlaceholder')}
+                aria-invalid={!!errors.city}
+                className={fieldClass}
+                {...register('city')}
+              />
+              <FieldError message={errors.city?.message} />
+            </div>
 
-        {/* المدينة + المسؤول */}
-        <div className="grid gap-5 sm:grid-cols-2">
+            <div>
+              <Label htmlFor="c-owner" className={labelClass}>
+                {t('owner')}
+              </Label>
+              {/* اختيار من المسؤولين الموجودين بدل نص حر، علشان الفلتر والتصدير يلاقوا الاسم */}
+              <Controller
+                control={control}
+                name="ownerId"
+                render={({ field }) => (
+                  <OwnerPicker id="c-owner" value={field.value} owners={owners} invite={ownerInvite} onChange={field.onChange} />
+                )}
+              />
+              <FieldError message={errors.ownerId?.message} />
+            </div>
+          </div>
+
+          {/* الرقم الضريبي */}
           <div>
-            <Label htmlFor="c-city" className={labelClass}>
-              {t('city')}
+            <Label htmlFor="c-tax" className={labelClass}>
+              {t('taxNumber')}
             </Label>
             <Input
-              id="c-city"
+              id="c-tax"
+              inputMode="numeric"
               autoComplete="off"
-              placeholder={t('cityPlaceholder')}
-              aria-invalid={!!errors.city}
+              placeholder={t('taxNumberPlaceholder')}
+              aria-invalid={!!errors.taxNumber}
               className={fieldClass}
-              {...register('city')}
+              {...register('taxNumber')}
             />
-            <FieldError message={errors.city?.message} />
+            <FieldError message={errors.taxNumber?.message} />
           </div>
 
+          {/* ملاحظات */}
           <div>
-            <Label htmlFor="c-owner" className={labelClass}>
-              {t('owner')}
+            <Label htmlFor="c-notes" className={labelClass}>
+              {t('notes')}
             </Label>
-            {/* اختيار من المسؤولين الموجودين بدل نص حر، علشان الفلتر والتصدير يلاقوا الاسم */}
-            <Controller
-              control={control}
-              name="ownerId"
-              render={({ field }) => (
-                <SettingsSelect
-                  id="c-owner"
-                  value={field.value}
-                  onValueChange={field.onChange}
-                  options={owners.map((o) => ({ value: o.id, label: o.name }))}
-                />
-              )}
+            <Textarea
+              id="c-notes"
+              rows={3}
+              placeholder={t('notesPlaceholder')}
+              aria-invalid={!!errors.notes}
+              className="rounded-btn border-line-strong bg-surface hover:border-brand/50 focus-visible:border-brand focus-visible:ring-brand/15 resize-none focus-visible:ring-2"
+              {...register('notes')}
             />
-            <FieldError message={errors.ownerId?.message} />
+            <FieldError message={errors.notes?.message} />
           </div>
         </div>
 
-        {/* الرقم الضريبي */}
-        <div>
-          <Label htmlFor="c-tax" className={labelClass}>
-            {t('taxNumber')}
-          </Label>
-          <Input
-            id="c-tax"
-            inputMode="numeric"
-            autoComplete="off"
-            placeholder={t('taxNumberPlaceholder')}
-            aria-invalid={!!errors.taxNumber}
-            className={fieldClass}
-            {...register('taxNumber')}
-          />
-          <FieldError message={errors.taxNumber?.message} />
+        <div className={sheetFooterBar}>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={onCancel}
+            className="rounded-btn border-line-strong bg-surface h-11 px-6 font-bold"
+          >
+            {t('cancel')}
+          </Button>
+          <Button
+            type="submit"
+            disabled={isSubmitting}
+            className="rounded-btn bg-brand hover:bg-brand/90 h-11 gap-2 px-8 font-bold text-white"
+          >
+            {isSubmitting && <Loader2 className="size-4 animate-spin" />}
+            {t(mode === 'edit' ? 'saveChanges' : 'submit')}
+          </Button>
         </div>
-
-        {/* ملاحظات */}
-        <div>
-          <Label htmlFor="c-notes" className={labelClass}>
-            {t('notes')}
-          </Label>
-          <Textarea
-            id="c-notes"
-            rows={3}
-            placeholder={t('notesPlaceholder')}
-            aria-invalid={!!errors.notes}
-            className="rounded-btn border-line-strong bg-surface hover:border-brand/50 focus-visible:border-brand focus-visible:ring-brand/15 resize-none focus-visible:ring-2"
-            {...register('notes')}
-          />
-          <FieldError message={errors.notes?.message} />
-        </div>
-      </div>
-
-      <div className={sheetFooterBar}>
-        <Button
-          type="button"
-          variant="outline"
-          onClick={onCancel}
-          className="rounded-btn border-line-strong bg-surface h-11 px-6 font-bold"
-        >
-          {t('cancel')}
-        </Button>
-        <Button
-          type="submit"
-          disabled={isSubmitting}
-          className="rounded-btn bg-brand hover:bg-brand/90 h-11 gap-2 px-8 font-bold text-white"
-        >
-          {isSubmitting && <Loader2 className="size-4 animate-spin" />}
-          {t(mode === 'edit' ? 'saveChanges' : 'submit')}
-        </Button>
-      </div>
-    </form>
+      </form>
+      {/* Outside the form: a submit in the invitation must not submit the customer. */}
+      {ownerInvite.dialogs}
+    </>
   );
 }
 

@@ -5,7 +5,7 @@ import { useMemo, useState } from 'react';
 import { Controller, useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useFormatter, useLocale, useTranslations } from 'next-intl';
-import { Check, ChevronDown, Clock, Kanban, Loader2, UserPlus, X } from 'lucide-react';
+import { Kanban, Loader2, X } from 'lucide-react';
 import { toast } from 'sonner';
 import DateField from '@/component/DateField';
 import { ChipGroup, FieldError } from '@/component/form-parts';
@@ -23,17 +23,8 @@ import {
 } from '@/component/dialog-chrome';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-} from '@/components/ui/command';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { Textarea } from '@/components/ui/textarea';
 import { rtlLocales } from '@/i18n/routing';
@@ -41,120 +32,21 @@ import { ApiError } from '@/lib/api/client';
 import { useApiErrorMessage } from '@/lib/api/use-api-error';
 import { can } from '@/lib/auth/permissions';
 import { useSession } from '@/lib/auth/session';
-import { useBilling } from '@/lib/billing/hooks';
 import { useCreateCustomer, useCustomers, useTeamDirectory } from '@/lib/customers/hooks';
 import { probabilityOf, useDealsClock, type Deal, type Owner } from '@/lib/deals/model';
 import { addDaysIso } from '@/lib/iso-date';
 import { useMoney, useMoneyParts } from '@/lib/money';
 import { parseNumber } from '@/lib/validations/invoice';
 import { createDealSchema, dealToFormValues, OPEN_STAGES, type DealFormValues } from '@/lib/validations/deal';
-import { usePendingInvitations } from '@/lib/team/hooks';
 import { cn } from '@/lib/utils';
 import CustomerCombobox, { type CustomerOption } from '../invoices/CustomerCombobox';
-import InviteSheet from '../settings/InviteSheet';
-import { UpgradePlanDialog } from '../settings/UpgradePlanDialog';
+import OwnerPicker, { useOwnerInvite } from '../team/OwnerPicker';
 
 export type DealSubmit = DealFormValues;
 
 const fieldClass =
   'rounded-btn border-line-strong bg-surface text-ink placeholder:text-muted hover:border-brand/50 focus-visible:border-brand focus-visible:ring-2 focus-visible:ring-brand/15 h-11';
 const labelClass = 'text-ink mb-2 text-sm font-bold';
-
-/**
- * The responsible team member; "nobody yet" is a choice too. Invitations not accepted yet
- * show (dimmed) so it's clear they're coming; the owner can invite someone new from here.
- */
-function OwnerCombobox({
-  id,
-  value,
-  owners,
-  pending = [],
-  labels,
-  onChange,
-  onInvite,
-}: {
-  id: string;
-  value: string;
-  owners: Owner[];
-  pending?: Owner[];
-  labels: { search: string; empty: string; none: string; pending: string; invite: string; askOwner: string };
-  onChange: (id: string) => void;
-  /** The owner only: opens the invitation. Others see who to ask. */
-  onInvite?: () => void;
-}) {
-  const [open, setOpen] = useState(false);
-  const current = owners.find((owner) => owner.id === value);
-  const options = [{ id: '', name: labels.none }, ...owners];
-
-  return (
-    <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger
-        id={id}
-        className="rounded-btn bg-surface border-line-strong hover:border-brand/50 hover:bg-canvas focus-visible:border-brand focus-visible:ring-brand/15 flex h-11 w-full items-center gap-3 border px-3 text-start text-sm font-semibold transition-colors outline-none focus-visible:ring-2"
-      >
-        <span className={cn('min-w-0 flex-1 truncate', current ? 'text-ink' : 'text-muted')}>
-          {current ? current.name : labels.none}
-        </span>
-        <ChevronDown className="size-4 shrink-0 opacity-60" />
-      </PopoverTrigger>
-
-      <PopoverContent
-        align="start"
-        className="border-line bg-surface w-[min(24rem,calc(100vw-2rem))] gap-0 overflow-hidden rounded-xl border p-0 shadow-lg"
-      >
-        <Command className="bg-surface rounded-xl p-1.5">
-          <CommandInput placeholder={labels.search} className="text-ink placeholder:text-muted" />
-          <CommandList className="max-h-64 py-1">
-            <CommandEmpty className="text-muted py-5">{labels.empty}</CommandEmpty>
-            <CommandGroup>
-              {options.map((owner) => (
-                <CommandItem
-                  key={owner.id || 'none'}
-                  value={owner.name}
-                  onSelect={() => {
-                    onChange(owner.id);
-                    setOpen(false);
-                  }}
-                  className={cn('cursor-pointer', owner.id ? 'text-ink' : 'text-muted')}
-                >
-                  <span className="min-w-0 flex-1 truncate">{owner.name}</span>
-                  {owner.id === value && <Check className="text-brand size-4" />}
-                </CommandItem>
-              ))}
-              {pending.map((invitee) => (
-                <CommandItem key={invitee.id} value={invitee.name} disabled className="text-muted">
-                  <span className="min-w-0 flex-1 truncate">{invitee.name}</span>
-                  <span className="flex shrink-0 items-center gap-1 text-[11px] font-semibold">
-                    <Clock className="size-3.5" />
-                    {labels.pending}
-                  </span>
-                </CommandItem>
-              ))}
-            </CommandGroup>
-          </CommandList>
-          <div className="border-line border-t px-1 pt-1.5 pb-0.5">
-            {onInvite ? (
-              <Button
-                type="button"
-                variant="ghost"
-                onClick={() => {
-                  setOpen(false);
-                  onInvite();
-                }}
-                className="text-brand hover:bg-brand-soft hover:text-brand-deep h-auto w-full justify-start gap-2 rounded-lg px-2 py-2 text-sm font-bold"
-              >
-                <UserPlus className="size-4" />
-                {labels.invite}
-              </Button>
-            ) : (
-              <p className="text-muted px-2 py-1.5 text-xs leading-5">{labels.askOwner}</p>
-            )}
-          </div>
-        </Command>
-      </PopoverContent>
-    </Popover>
-  );
-}
 
 function DealForm({
   deal,
@@ -181,15 +73,8 @@ function DealForm({
   const errorMessage = useApiErrorMessage();
   const createCustomer = useCreateCustomer();
 
-  // A new responsible person joins the team by invitation (the owner's call); with the
-  // plan's seats taken, the upgrade comes first.
-  const isOwner = user.role === 'owner';
-  const invitations = usePendingInvitations(isOwner);
-  const billing = useBilling();
-  const [inviting, setInviting] = useState(false);
-  const [upgrading, setUpgrading] = useState(false);
-  const seatsFull = billing.data ? billing.data.usage.users >= billing.data.usage.usersLimit : false;
-  const pendingOwners = (invitations.data ?? []).map((i) => ({ id: i.id, name: i.name || i.email }));
+  // Someone new can be invited onto the team from the owner picker.
+  const ownerInvite = useOwnerInvite();
 
   // Customers added from this sheet join the list too.
   const [customerOptions, setCustomerOptions] = useState<CustomerOption[]>(() =>
@@ -388,21 +273,13 @@ function DealForm({
                 name="ownerId"
                 control={control}
                 render={({ field }) => (
-                  <OwnerCombobox
+                  <OwnerPicker
                     id="d-owner"
                     value={field.value}
                     owners={owners}
-                    pending={pendingOwners}
-                    labels={{
-                      search: t('ownerSearch'),
-                      empty: t('ownerEmpty'),
-                      none: t('noOwner'),
-                      pending: t('ownerPending'),
-                      invite: t('ownerInvite'),
-                      askOwner: t('ownerAskOwner'),
-                    }}
+                    allowNone
+                    invite={ownerInvite}
                     onChange={field.onChange}
-                    onInvite={isOwner ? () => (seatsFull ? setUpgrading(true) : setInviting(true)) : undefined}
                   />
                 )}
               />
@@ -513,9 +390,8 @@ function DealForm({
           </Button>
         </div>
       </form>
-      {/* Outside the form: a submit in the invitation must not submit the deal (React events cross portals). */}
-      {isOwner && <InviteSheet open={inviting} onOpenChange={setInviting} />}
-      {isOwner && <UpgradePlanDialog open={upgrading} onClose={() => setUpgrading(false)} />}
+      {/* Outside the form: a submit in the invitation must not submit the deal. */}
+      {ownerInvite.dialogs}
     </>
   );
 }
