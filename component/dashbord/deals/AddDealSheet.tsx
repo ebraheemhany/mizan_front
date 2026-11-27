@@ -5,7 +5,7 @@ import { useMemo, useState } from 'react';
 import { Controller, useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useFormatter, useLocale, useTranslations } from 'next-intl';
-import { Check, ChevronDown, Kanban, Loader2, X } from 'lucide-react';
+import { Check, ChevronDown, Clock, Kanban, Loader2, UserPlus, X } from 'lucide-react';
 import { toast } from 'sonner';
 import DateField from '@/component/DateField';
 import { ChipGroup, FieldError } from '@/component/form-parts';
@@ -41,14 +41,18 @@ import { ApiError } from '@/lib/api/client';
 import { useApiErrorMessage } from '@/lib/api/use-api-error';
 import { can } from '@/lib/auth/permissions';
 import { useSession } from '@/lib/auth/session';
+import { useBilling } from '@/lib/billing/hooks';
 import { useCreateCustomer, useCustomers, useTeamDirectory } from '@/lib/customers/hooks';
 import { probabilityOf, useDealsClock, type Deal, type Owner } from '@/lib/deals/model';
 import { addDaysIso } from '@/lib/iso-date';
 import { useMoney, useMoneyParts } from '@/lib/money';
 import { parseNumber } from '@/lib/validations/invoice';
 import { createDealSchema, dealToFormValues, OPEN_STAGES, type DealFormValues } from '@/lib/validations/deal';
+import { usePendingInvitations } from '@/lib/team/hooks';
 import { cn } from '@/lib/utils';
 import CustomerCombobox, { type CustomerOption } from '../invoices/CustomerCombobox';
+import InviteSheet from '../settings/InviteSheet';
+import { UpgradePlanDialog } from '../settings/UpgradePlanDialog';
 
 export type DealSubmit = DealFormValues;
 
@@ -56,19 +60,27 @@ const fieldClass =
   'rounded-btn border-line-strong bg-surface text-ink placeholder:text-muted hover:border-brand/50 focus-visible:border-brand focus-visible:ring-2 focus-visible:ring-brand/15 h-11';
 const labelClass = 'text-ink mb-2 text-sm font-bold';
 
-/** The responsible team member; "nobody yet" is a choice too. */
+/**
+ * The responsible team member; "nobody yet" is a choice too. Invitations not accepted yet
+ * show (dimmed) so it's clear they're coming; the owner can invite someone new from here.
+ */
 function OwnerCombobox({
   id,
   value,
   owners,
+  pending = [],
   labels,
   onChange,
+  onInvite,
 }: {
   id: string;
   value: string;
   owners: Owner[];
-  labels: { search: string; empty: string; none: string };
+  pending?: Owner[];
+  labels: { search: string; empty: string; none: string; pending: string; invite: string; askOwner: string };
   onChange: (id: string) => void;
+  /** The owner only: opens the invitation. Others see who to ask. */
+  onInvite?: () => void;
 }) {
   const [open, setOpen] = useState(false);
   const current = owners.find((owner) => owner.id === value);
@@ -109,8 +121,35 @@ function OwnerCombobox({
                   {owner.id === value && <Check className="text-brand size-4" />}
                 </CommandItem>
               ))}
+              {pending.map((invitee) => (
+                <CommandItem key={invitee.id} value={invitee.name} disabled className="text-muted">
+                  <span className="min-w-0 flex-1 truncate">{invitee.name}</span>
+                  <span className="flex shrink-0 items-center gap-1 text-[11px] font-semibold">
+                    <Clock className="size-3.5" />
+                    {labels.pending}
+                  </span>
+                </CommandItem>
+              ))}
             </CommandGroup>
           </CommandList>
+          <div className="border-line border-t px-1 pt-1.5 pb-0.5">
+            {onInvite ? (
+              <Button
+                type="button"
+                variant="ghost"
+                onClick={() => {
+                  setOpen(false);
+                  onInvite();
+                }}
+                className="text-brand hover:bg-brand-soft hover:text-brand-deep h-auto w-full justify-start gap-2 rounded-lg px-2 py-2 text-sm font-bold"
+              >
+                <UserPlus className="size-4" />
+                {labels.invite}
+              </Button>
+            ) : (
+              <p className="text-muted px-2 py-1.5 text-xs leading-5">{labels.askOwner}</p>
+            )}
+          </div>
         </Command>
       </PopoverContent>
     </Popover>
@@ -141,6 +180,16 @@ function DealForm({
   const user = useSession();
   const errorMessage = useApiErrorMessage();
   const createCustomer = useCreateCustomer();
+
+  // A new responsible person joins the team by invitation (the owner's call); with the
+  // plan's seats taken, the upgrade comes first.
+  const isOwner = user.role === 'owner';
+  const invitations = usePendingInvitations(isOwner);
+  const billing = useBilling();
+  const [inviting, setInviting] = useState(false);
+  const [upgrading, setUpgrading] = useState(false);
+  const seatsFull = billing.data ? billing.data.usage.users >= billing.data.usage.usersLimit : false;
+  const pendingOwners = (invitations.data ?? []).map((i) => ({ id: i.id, name: i.name || i.email }));
 
   // Customers added from this sheet join the list too.
   const [customerOptions, setCustomerOptions] = useState<CustomerOption[]>(() =>
@@ -222,238 +271,252 @@ function DealForm({
   });
 
   return (
-    <form onSubmit={submit} noValidate className="flex min-h-0 flex-1 flex-col">
-      <div className={cn(dialogScrollBody, 'space-y-5 p-6')}>
-        {/* العنوان */}
-        <div>
-          <Label htmlFor="d-title" className={labelClass}>
-            {t('dealTitle')}
-          </Label>
-          <Input
-            id="d-title"
-            autoFocus
-            autoComplete="off"
-            placeholder={t('dealTitlePlaceholder')}
-            aria-invalid={!!errors.title}
-            className={fieldClass}
-            {...register('title')}
-          />
-          <FieldError message={errors.title?.message} />
-        </div>
-
-        {/* العميل */}
-        <div>
-          <Label htmlFor="d-customer" className={labelClass}>
-            {ti('details.customer')}
-          </Label>
-          <Controller
-            name="customerId"
-            control={control}
-            render={({ field }) => (
-              <CustomerCombobox
-                id="d-customer"
-                value={field.value}
-                options={customerOptions}
-                placeholder={ti('details.customerPlaceholder')}
-                searchPlaceholder={ti('details.customerSearch')}
-                emptyText={ti('details.customerEmpty')}
-                addCustomerText={ti('details.addCustomer')}
-                addCustomerDescription={ti('details.addCustomerNote')}
-                customerNameLabel={ti('details.customerName')}
-                customerNamePlaceholder={ti('details.customerNamePlaceholder')}
-                customerCityLabel={ti('details.customerCity')}
-                customerCityPlaceholder={ti('details.customerCityPlaceholder')}
-                customerNameRequired={ti('errors.customerNameRequired')}
-                createCustomerText={ti('details.createCustomer')}
-                cancelText={ti('actions.cancel')}
-                invalid={!!errors.customerId}
-                onChange={field.onChange}
-                onAddCustomer={addCustomer}
-              />
-            )}
-          />
-          <FieldError message={errors.customerId?.message} />
-        </div>
-
-        {/* القيمة */}
-        <div>
-          <Label htmlFor="d-value" className={labelClass}>
-            {t('value')}
-          </Label>
-          <div className="relative">
+    <>
+      <form onSubmit={submit} noValidate className="flex min-h-0 flex-1 flex-col">
+        <div className={cn(dialogScrollBody, 'space-y-5 p-6')}>
+          {/* العنوان */}
+          <div>
+            <Label htmlFor="d-title" className={labelClass}>
+              {t('dealTitle')}
+            </Label>
             <Input
-              id="d-value"
-              inputMode="decimal"
+              id="d-title"
+              autoFocus
               autoComplete="off"
-              placeholder="0"
-              aria-invalid={!!errors.value}
-              className={cn(fieldClass, 'pe-14 tabular-nums')}
-              {...register('value')}
+              placeholder={t('dealTitlePlaceholder')}
+              aria-invalid={!!errors.title}
+              className={fieldClass}
+              {...register('title')}
             />
-            <span className="text-muted pointer-events-none absolute end-3 top-1/2 -translate-y-1/2 text-xs font-semibold">
-              {symbol}
-            </span>
+            <FieldError message={errors.title?.message} />
           </div>
-          <FieldError message={errors.value?.message} />
-        </div>
 
-        {/* المرحلة */}
-        {!won && (
+          {/* العميل */}
           <div>
-            <p id="d-stage-label" className={labelClass}>
-              {t('stage')}
-            </p>
-            <Controller
-              name="stage"
-              control={control}
-              render={({ field }) => (
-                <ChipGroup
-                  labelId="d-stage-label"
-                  value={field.value}
-                  onChange={field.onChange}
-                  className="sm:grid-cols-2"
-                  options={OPEN_STAGES.map((s) => ({ value: s, label: tStages(s) }))}
-                />
-              )}
-            />
-
-            {validAmount && (
-              <p className="bg-brand-soft text-brand-deep mt-3 rounded-lg px-3 py-2 text-xs font-bold tabular-nums">
-                {t('expectedHint', {
-                  percent: format.number(probability, { style: 'percent', numberingSystem: 'latn' }),
-                  amount: money(Math.round(amount * probability)),
-                })}
-              </p>
-            )}
-          </div>
-        )}
-
-        {/* المسؤول + الإغلاق: تحت بعض، الشيت ضيق على تاريخ كامل في نص عرضه */}
-        <div className="grid gap-5">
-          <div>
-            <Label htmlFor="d-owner" className={labelClass}>
-              {t('owner')}
+            <Label htmlFor="d-customer" className={labelClass}>
+              {ti('details.customer')}
             </Label>
             <Controller
-              name="ownerId"
+              name="customerId"
               control={control}
               render={({ field }) => (
-                <OwnerCombobox
-                  id="d-owner"
+                <CustomerCombobox
+                  id="d-customer"
                   value={field.value}
-                  owners={owners}
-                  labels={{ search: t('ownerSearch'), empty: t('ownerEmpty'), none: t('noOwner') }}
+                  options={customerOptions}
+                  placeholder={ti('details.customerPlaceholder')}
+                  searchPlaceholder={ti('details.customerSearch')}
+                  emptyText={ti('details.customerEmpty')}
+                  addCustomerText={ti('details.addCustomer')}
+                  addCustomerDescription={ti('details.addCustomerNote')}
+                  customerNameLabel={ti('details.customerName')}
+                  customerNamePlaceholder={ti('details.customerNamePlaceholder')}
+                  customerCityLabel={ti('details.customerCity')}
+                  customerCityPlaceholder={ti('details.customerCityPlaceholder')}
+                  customerNameRequired={ti('errors.customerNameRequired')}
+                  createCustomerText={ti('details.createCustomer')}
+                  cancelText={ti('actions.cancel')}
+                  invalid={!!errors.customerId}
                   onChange={field.onChange}
+                  onAddCustomer={addCustomer}
                 />
               )}
             />
+            <FieldError message={errors.customerId?.message} />
           </div>
 
+          {/* القيمة */}
           <div>
-            <Label htmlFor="d-close" className={labelClass}>
-              {won ? t('wonDate') : t('closeDate')}
+            <Label htmlFor="d-value" className={labelClass}>
+              {t('value')}
             </Label>
-            <Controller
-              name="closeDate"
-              control={control}
-              render={({ field }) => (
-                <DateField
-                  id="d-close"
-                  value={field.value}
-                  onChange={field.onChange}
-                  placeholder={t('pickDate')}
-                  invalid={!!errors.closeDate}
-                  minDate={won || deal ? undefined : today}
-                />
-              )}
-            />
-            <FieldError message={errors.closeDate?.message} />
+            <div className="relative">
+              <Input
+                id="d-value"
+                inputMode="decimal"
+                autoComplete="off"
+                placeholder="0"
+                aria-invalid={!!errors.value}
+                className={cn(fieldClass, 'pe-14 tabular-nums')}
+                {...register('value')}
+              />
+              <span className="text-muted pointer-events-none absolute end-3 top-1/2 -translate-y-1/2 text-xs font-semibold">
+                {symbol}
+              </span>
+            </div>
+            <FieldError message={errors.value?.message} />
           </div>
-        </div>
 
-        {/* المتابعة: التاريخ بعرض الشيت، و"في انتظار الرد" سطر تحته (الشيت أضيق من إنهم يبقوا جنب بعض) */}
-        {!won && (
-          <div className="space-y-3">
+          {/* المرحلة */}
+          {!won && (
             <div>
-              <Label htmlFor="d-follow" className={labelClass}>
-                {t('followUpDate')}
-              </Label>
+              <p id="d-stage-label" className={labelClass}>
+                {t('stage')}
+              </p>
               <Controller
-                name="followUpDate"
+                name="stage"
                 control={control}
                 render={({ field }) => (
-                  <div className="flex items-center gap-2">
-                    <div className="min-w-0 flex-1">
-                      <DateField
-                        id="d-follow"
-                        value={field.value}
-                        onChange={field.onChange}
-                        placeholder={t('noFollowUp')}
-                        minDate={today}
-                      />
-                    </div>
-                    {field.value && (
-                      <button
-                        type="button"
-                        onClick={() => field.onChange('')}
-                        aria-label={t('clearFollowUp')}
-                        className="text-muted hover:text-ink hover:bg-canvas rounded-md p-2"
-                      >
-                        <X className="size-4" />
-                      </button>
-                    )}
-                  </div>
+                  <ChipGroup
+                    labelId="d-stage-label"
+                    value={field.value}
+                    onChange={field.onChange}
+                    className="sm:grid-cols-2"
+                    options={OPEN_STAGES.map((s) => ({ value: s, label: tStages(s) }))}
+                  />
+                )}
+              />
+
+              {validAmount && (
+                <p className="bg-brand-soft text-brand-deep mt-3 rounded-lg px-3 py-2 text-xs font-bold tabular-nums">
+                  {t('expectedHint', {
+                    percent: format.number(probability, { style: 'percent', numberingSystem: 'latn' }),
+                    amount: money(Math.round(amount * probability)),
+                  })}
+                </p>
+              )}
+            </div>
+          )}
+
+          {/* المسؤول + الإغلاق: تحت بعض، الشيت ضيق على تاريخ كامل في نص عرضه */}
+          <div className="grid gap-5">
+            <div>
+              <Label htmlFor="d-owner" className={labelClass}>
+                {t('owner')}
+              </Label>
+              <Controller
+                name="ownerId"
+                control={control}
+                render={({ field }) => (
+                  <OwnerCombobox
+                    id="d-owner"
+                    value={field.value}
+                    owners={owners}
+                    pending={pendingOwners}
+                    labels={{
+                      search: t('ownerSearch'),
+                      empty: t('ownerEmpty'),
+                      none: t('noOwner'),
+                      pending: t('ownerPending'),
+                      invite: t('ownerInvite'),
+                      askOwner: t('ownerAskOwner'),
+                    }}
+                    onChange={field.onChange}
+                    onInvite={isOwner ? () => (seatsFull ? setUpgrading(true) : setInviting(true)) : undefined}
+                  />
                 )}
               />
             </div>
-            <Controller
-              name="awaitingReply"
-              control={control}
-              render={({ field }) => (
-                <label className="flex w-fit cursor-pointer items-center gap-2.5 text-sm font-semibold">
-                  <Checkbox checked={field.value} onCheckedChange={(checked) => field.onChange(checked === true)} />
-                  <span className="text-ink leading-5">{t('awaitingReply')}</span>
-                </label>
-              )}
-            />
+
+            <div>
+              <Label htmlFor="d-close" className={labelClass}>
+                {won ? t('wonDate') : t('closeDate')}
+              </Label>
+              <Controller
+                name="closeDate"
+                control={control}
+                render={({ field }) => (
+                  <DateField
+                    id="d-close"
+                    value={field.value}
+                    onChange={field.onChange}
+                    placeholder={t('pickDate')}
+                    invalid={!!errors.closeDate}
+                    minDate={won || deal ? undefined : today}
+                  />
+                )}
+              />
+              <FieldError message={errors.closeDate?.message} />
+            </div>
           </div>
-        )}
 
-        {/* ملاحظات */}
-        <div>
-          <Label htmlFor="d-notes" className={labelClass}>
-            {t('notes')}
-          </Label>
-          <Textarea
-            id="d-notes"
-            rows={3}
-            placeholder={t('notesPlaceholder')}
-            aria-invalid={!!errors.notes}
-            className="rounded-btn border-line-strong bg-surface hover:border-brand/50 focus-visible:border-brand focus-visible:ring-brand/15 resize-none focus-visible:ring-2"
-            {...register('notes')}
-          />
-          <FieldError message={errors.notes?.message} />
+          {/* المتابعة: التاريخ بعرض الشيت، و"في انتظار الرد" سطر تحته (الشيت أضيق من إنهم يبقوا جنب بعض) */}
+          {!won && (
+            <div className="space-y-3">
+              <div>
+                <Label htmlFor="d-follow" className={labelClass}>
+                  {t('followUpDate')}
+                </Label>
+                <Controller
+                  name="followUpDate"
+                  control={control}
+                  render={({ field }) => (
+                    <div className="flex items-center gap-2">
+                      <div className="min-w-0 flex-1">
+                        <DateField
+                          id="d-follow"
+                          value={field.value}
+                          onChange={field.onChange}
+                          placeholder={t('noFollowUp')}
+                          minDate={today}
+                        />
+                      </div>
+                      {field.value && (
+                        <button
+                          type="button"
+                          onClick={() => field.onChange('')}
+                          aria-label={t('clearFollowUp')}
+                          className="text-muted hover:text-ink hover:bg-canvas rounded-md p-2"
+                        >
+                          <X className="size-4" />
+                        </button>
+                      )}
+                    </div>
+                  )}
+                />
+              </div>
+              <Controller
+                name="awaitingReply"
+                control={control}
+                render={({ field }) => (
+                  <label className="flex w-fit cursor-pointer items-center gap-2.5 text-sm font-semibold">
+                    <Checkbox checked={field.value} onCheckedChange={(checked) => field.onChange(checked === true)} />
+                    <span className="text-ink leading-5">{t('awaitingReply')}</span>
+                  </label>
+                )}
+              />
+            </div>
+          )}
+
+          {/* ملاحظات */}
+          <div>
+            <Label htmlFor="d-notes" className={labelClass}>
+              {t('notes')}
+            </Label>
+            <Textarea
+              id="d-notes"
+              rows={3}
+              placeholder={t('notesPlaceholder')}
+              aria-invalid={!!errors.notes}
+              className="rounded-btn border-line-strong bg-surface hover:border-brand/50 focus-visible:border-brand focus-visible:ring-brand/15 resize-none focus-visible:ring-2"
+              {...register('notes')}
+            />
+            <FieldError message={errors.notes?.message} />
+          </div>
         </div>
-      </div>
 
-      <div className={sheetFooterBar}>
-        <Button
-          type="button"
-          variant="outline"
-          onClick={onCancel}
-          className="rounded-btn border-line-strong bg-surface h-11 px-6 font-bold"
-        >
-          {t('cancel')}
-        </Button>
-        <Button
-          type="submit"
-          disabled={isSubmitting}
-          className="rounded-btn bg-brand hover:bg-brand/90 h-11 px-8 font-bold text-white"
-        >
-          {deal ? t('saveChanges') : t('submit')}
-        </Button>
-      </div>
-    </form>
+        <div className={sheetFooterBar}>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={onCancel}
+            className="rounded-btn border-line-strong bg-surface h-11 px-6 font-bold"
+          >
+            {t('cancel')}
+          </Button>
+          <Button
+            type="submit"
+            disabled={isSubmitting}
+            className="rounded-btn bg-brand hover:bg-brand/90 h-11 px-8 font-bold text-white"
+          >
+            {deal ? t('saveChanges') : t('submit')}
+          </Button>
+        </div>
+      </form>
+      {/* Outside the form: a submit in the invitation must not submit the deal (React events cross portals). */}
+      {isOwner && <InviteSheet open={inviting} onOpenChange={setInviting} />}
+      {isOwner && <UpgradePlanDialog open={upgrading} onClose={() => setUpgrading(false)} />}
+    </>
   );
 }
 

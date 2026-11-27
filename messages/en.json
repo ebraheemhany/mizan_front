@@ -1704,6 +1704,9 @@
     "cancel": "Move cancelled."
   },
   "addSheet": {
+    "ownerInvite": "Invite a team member",
+    "ownerPending": "Invitation pending",
+    "ownerAskOwner": "To add someone new, the company owner invites them to the team from Settings.",
     "title": "New deal",
     "description": "Add a deal to the pipeline and it will appear in the stage you choose.",
     "close": "Close",

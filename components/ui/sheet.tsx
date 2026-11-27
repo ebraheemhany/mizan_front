@@ -58,6 +58,9 @@ function SheetContent({
           // w-*/sm:max-w-* replace them: a data-attribute class always beat them before, which
           // left every side sheet at 75% of a phone and 384px on wider screens.
           className,
+          // Another sheet or dialog opened over this one (an invitation from the deal sheet):
+          // dim this one, as the page behind it is, so only the top one reads as active.
+          'after:pointer-events-none after:absolute after:inset-0 after:z-10 after:bg-black/10 after:opacity-0 after:transition-opacity after:duration-200 data-nested-dialog-open:after:opacity-100 data-nested-dialog-open:supports-backdrop-filter:after:backdrop-blur-xs',
         )}
         {...props}
       >
