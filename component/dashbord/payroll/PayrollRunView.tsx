@@ -264,7 +264,11 @@ function RunContent({ run }: { run: PayrollRun }) {
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <StatCard label={t('totals.gross')} value={money(run.totals.gross)} hint={t('totals.employees', { count: run.items.length })} />
-        <StatCard label={t('totals.deductions')} value={money(run.totals.deductions)} hint={t('totals.deductionsHint', { insurance: money(run.totals.insurance), tax: money(run.totals.incomeTax) })} tone="danger" />
+        <StatCard label={t('totals.deductions')} value={money(run.totals.deductions)} hint={t('totals.deductionsHint', {
+            // The employees' share only: the company's share is a cost, not taken from their pay.
+            insurance: money(run.items.reduce((sum, item) => sum + num(item.insurance), 0)),
+            tax: money(run.totals.incomeTax),
+          })} tone="danger" />
         <StatCard label={t('totals.net')} value={money(run.totals.net)} hint={t('totals.netHint', { bank: money(run.byAccount.bank), cash: money(run.byAccount.cashbox), wallet: money(run.byAccount.wallet) })} tone="brand" />
         <StatCard label={t('totals.cost')} value={money(run.totals.cost)} hint={t('totals.costHint', { date: date(run.accrualDate) })} />
       </div>
@@ -300,6 +304,12 @@ function RunContent({ run }: { run: PayrollRun }) {
                         <span dir="ltr">{item.employee.ref}</span>
                         {item.jobTitle ? ` · ${item.jobTitle}` : ''}
                       </p>
+                      {/* Joined or left this month: why the pay is a share of the usual. */}
+                      {item.partMonth && (
+                        <p className="mt-1 text-xs font-semibold text-amber-700">
+                          {t('partMonth', { days: item.partMonth.days, of: item.partMonth.of })}
+                        </p>
+                      )}
                     </td>
                     <td className="text-ink-2 px-4 py-3 text-end tabular-nums whitespace-nowrap">{money(num(item.baseSalary) + num(item.allowances))}</td>
                     <td className="px-4 py-3 text-end tabular-nums whitespace-nowrap">{extra > 0 ? <span className="text-brand-deep font-semibold">+ {money(extra)}</span> : <span className="text-muted">—</span>}</td>

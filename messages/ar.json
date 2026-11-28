@@ -346,6 +346,7 @@
        "costHint": "في الدفاتر يوم {date}"
      },
      "absenceDays": "{count, plural, one {يوم واحد} two {يومين} few {# أيام} many {# يوم} other {# يوم}}",
+     "partMonth": "جزء من الشهر: {days} من {of} يوم (من تاريخ التعيين أو لحد نهاية الخدمة)",
      "rowActions": {
        "edit": "تعديل",
        "remove": "إخراج من الشهر",

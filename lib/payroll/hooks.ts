@@ -151,6 +151,8 @@ export type PayrollItem = PayFigures & {
   payAccount: PayAccount;
   note: string | null;
   deductions: string;
+  /** Joined or left during the month: paid for these days only (null for a whole month). */
+  partMonth?: { days: number; of: number } | null;
 };
 
 export type PayrollRun = {

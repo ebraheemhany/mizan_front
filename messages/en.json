@@ -346,6 +346,7 @@
         "costHint": "In the books on {date}"
       },
       "absenceDays": "{count, plural, one {# day} other {# days}}",
+      "partMonth": "Part of the month: {days} of {of} days (from the hire date or to the end of service)",
       "rowActions": {
         "edit": "Edit",
         "remove": "Leave out this month",
