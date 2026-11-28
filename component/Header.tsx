@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 import { Link, usePathname, useRouter } from '@/i18n/navigation';
 
-import { Scale, Languages, ChevronDown, Check, Menu, X } from 'lucide-react';
+import { Scale, Languages, ChevronDown, Check, LayoutDashboard, Menu, X } from 'lucide-react';
 
 import {
   Sheet,
@@ -102,7 +102,11 @@ function LanguageMenu({
   );
 }
 
-export default function Header() {
+/**
+ * signedIn: whether this visitor has a session (from the cookie, on the server). Signed
+ * in, the actions are just "Go to dashboard"; null while that isn't known yet.
+ */
+export default function Header({ signedIn = false }: { signedIn?: boolean | null }) {
   const locale = useLocale();
   const t = useTranslations('Header');
   const pathname = usePathname();
@@ -173,22 +177,38 @@ export default function Header() {
             onChange={changeLanguage}
           />
 
-          <Button
-            type="button"
-            variant="ghost"
-            onClick={() => router.push('/login')}
-            className="h-10 rounded-xl px-3.5 whitespace-nowrap text-[#263c34]"
-          >
-            {t('login')}
-          </Button>
+          {signedIn === null ? (
+            // Until the server says who this is: the buttons' space, so nothing jumps.
+            <span aria-hidden="true" className="h-10 w-52" />
+          ) : signedIn ? (
+            <Button
+              type="button"
+              onClick={() => router.push('/dashboard')}
+              className="h-10 gap-2 rounded-xl bg-[#008363] px-4 font-bold whitespace-nowrap text-white hover:bg-[#006e53]"
+            >
+              <LayoutDashboard className="size-4" aria-hidden="true" />
+              {t('dashboard')}
+            </Button>
+          ) : (
+            <>
+              <Button
+                type="button"
+                variant="ghost"
+                onClick={() => router.push('/login')}
+                className="h-10 rounded-xl px-3.5 whitespace-nowrap text-[#263c34]"
+              >
+                {t('login')}
+              </Button>
 
-          <Button
-            type="button"
-            onClick={() => router.push('/register')}
-            className="h-10 rounded-xl bg-[#008363] px-4 font-bold whitespace-nowrap text-white hover:bg-[#006e53]"
-          >
-            {t('getStarted')}
-          </Button>
+              <Button
+                type="button"
+                onClick={() => router.push('/register')}
+                className="h-10 rounded-xl bg-[#008363] px-4 font-bold whitespace-nowrap text-white hover:bg-[#006e53]"
+              >
+                {t('getStarted')}
+              </Button>
+            </>
+          )}
         </div>
 
         {/* Mobile & Tablet Menu */}
@@ -245,28 +265,44 @@ export default function Header() {
                   fullWidth
                 />
 
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => {
-                    closeMenu();
-                    router.push('/login');
-                  }}
-                  className="h-11 rounded-xl border-[#d5e1da] bg-white"
-                >
-                  {t('login')}
-                </Button>
+                {signedIn ? (
+                  <Button
+                    type="button"
+                    onClick={() => {
+                      closeMenu();
+                      router.push('/dashboard');
+                    }}
+                    className="h-11 gap-2 rounded-xl bg-[#008363] font-bold text-white hover:bg-[#006e53]"
+                  >
+                    <LayoutDashboard className="size-4" aria-hidden="true" />
+                    {t('dashboard')}
+                  </Button>
+                ) : signedIn === false ? (
+                  <>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => {
+                        closeMenu();
+                        router.push('/login');
+                      }}
+                      className="h-11 rounded-xl border-[#d5e1da] bg-white"
+                    >
+                      {t('login')}
+                    </Button>
 
-                <Button
-                  type="button"
-                  onClick={() => {
-                    closeMenu();
-                    router.push('/register');
-                  }}
-                  className="h-11 rounded-xl bg-[#008363] font-bold text-white hover:bg-[#006e53]"
-                >
-                  {t('getStarted')}
-                </Button>
+                    <Button
+                      type="button"
+                      onClick={() => {
+                        closeMenu();
+                        router.push('/register');
+                      }}
+                      className="h-11 rounded-xl bg-[#008363] font-bold text-white hover:bg-[#006e53]"
+                    >
+                      {t('getStarted')}
+                    </Button>
+                  </>
+                ) : null}
               </div>
             </SheetContent>
           </Sheet>
