@@ -52,6 +52,7 @@ const templateSchema = z.object({
 });
 
 const notificationsSchema = z.object({
+  customerReminders: z.boolean(),
   overdueInvoice: z.boolean(),
   newPayment: z.boolean(),
   taskReminder: z.boolean(),

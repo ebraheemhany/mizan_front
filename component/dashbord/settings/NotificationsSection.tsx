@@ -8,6 +8,7 @@ import SwitchField from './SwitchField';
 const card = 'rounded-card border-line bg-surface border p-5 shadow-sm sm:p-6';
 
 const NOTIFICATIONS = [
+  'customerReminders',
   'overdueInvoice',
   'newPayment',
   'taskReminder',
@@ -15,6 +16,7 @@ const NOTIFICATIONS = [
 ] as const;
 
 // The payment gateway has its own section now (CollectSection: Paymob + transfer details).
+// None of these is connected yet: shown as coming, not as switches that do nothing.
 const INTEGRATIONS = ['whatsapp', 'eta', 'calendar'] as const;
 
 export default function NotificationsSection() {
@@ -39,6 +41,7 @@ export default function NotificationsSection() {
             />
           ))}
         </div>
+        <p className="text-muted mt-5 text-[11px] leading-5">{t('notifications.note')}</p>
       </section>
 
       {/* id للتاب: التكاملات */}
@@ -53,18 +56,15 @@ export default function NotificationsSection() {
               name={`integrations.${key}`}
               label={t(`integrations.items.${key}.label`)}
               hint={t(`integrations.items.${key}.hint`)}
-              disabled={key === 'eta'}
+              disabled
               badge={
-                key === 'eta' ? (
-                  <span className="bg-neutral-soft text-ink-2 rounded-full px-2 py-0.5 text-[10px] font-bold">
-                    {t('integrations.soon')}
-                  </span>
-                ) : undefined
+                <span className="bg-neutral-soft text-ink-2 rounded-full px-2 py-0.5 text-[10px] font-bold">
+                  {t('integrations.soon')}
+                </span>
               }
             />
           ))}
         </div>
-        {/* TODO: التفعيل الفعلي للتكاملات لما نربط الـ API */}
       </section>
     </div>
   );

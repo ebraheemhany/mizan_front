@@ -1217,6 +1217,10 @@
   "history": {
     "title": "History",
     "events": {
+      "reminderSentAuto": {
+        "title": "Automatic payment reminder sent",
+        "detail": "Via {channel}{to, select, none {} other { to {to}}}"
+      },
       "paymentClaimed": {
         "title": "Customer sent a payment receipt",
         "detail": "of {amount}"
@@ -2897,12 +2901,17 @@
   }
 },
 "notifications": {
+  "note": "Team emails go to the owner and accountants with a confirmed email; task reminders to whoever made the task.",
   "title": "Notifications",
   "items": {
-    "overdueInvoice": { "label": "Overdue invoice", "hint": "Daily alert for overdue ones" },
-    "newPayment": { "label": "New payment", "hint": "When any payment is recorded" },
-    "taskReminder": { "label": "Task reminder", "hint": "One hour before the deadline" },
-    "weeklyDigest": { "label": "Weekly digest", "hint": "Sent every Saturday" }
+    "customerReminders": {
+      "label": "Remind customers automatically",
+      "hint": "An email to the customer 3 days before the due date, then once a week while overdue (3 at most). Sent in your company’s name; replies come to you."
+    },
+    "overdueInvoice": { "label": "Overdue invoice", "hint": "An email every morning with the invoices past their due date" },
+    "newPayment": { "label": "New payment", "hint": "An email when someone on the team records a payment or a customer pays online" },
+    "taskReminder": { "label": "Task reminder", "hint": "An email in the morning with the tasks due that day" },
+    "weeklyDigest": { "label": "Weekly digest", "hint": "An email every Saturday with the week's summary and where the money stands" }
   }
 },
 "integrations": {

@@ -32,7 +32,9 @@ export default function HistoryTimeline({
               : e.type === 'reminderSent'
                 ? { channel: tChannels(String(e.values?.channel ?? 'email')), to: String(e.values?.to ?? 'none') }
                 : e.values;
-          const hasDetail = t.has(`events.${e.type}.detail`);
+          // A reminder the system sent on its schedule reads as automatic.
+          const kind = e.type === 'reminderSent' && e.values?.auto ? 'reminderSentAuto' : e.type;
+          const hasDetail = t.has(`events.${kind}.detail`);
 
           return (
             <li key={e.id} className="relative ps-6 pb-5 last:pb-0">
@@ -49,12 +51,12 @@ export default function HistoryTimeline({
 
               <p className="text-ink text-sm leading-6">
                 <span className="font-bold">
-                  {t(`events.${e.type}.title`, values)}
+                  {t(`events.${kind}.title`, values)}
                 </span>
                 {hasDetail && (
                   <span className="text-body">
                     {' '}
-                    {t(`events.${e.type}.detail`, values)}
+                    {t(`events.${kind}.detail`, values)}
                   </span>
                 )}
               </p>
